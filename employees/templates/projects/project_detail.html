@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Project Details
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR -->
+  <div class="col-md-3">
+    <div>
+      <div class="card-body">
+      </div>
+    </div>
+  </div>
+  <!-- SIDEBAR END -->
+
+  <!-- MAIN CONTENT -->
+  <div class="col-md-9">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h3 class="card-title text-center mb-4"><strong>Project: {{ project.Name_Of_Project }}</strong></h3>
+
+        <!-- Project Details -->
+        <div class="text-center mb-4">
+          <h4><strong>Details</strong></h4>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Client Department:</label>
+                <p class="form-control-static"><strong>{{ project.get_Client_Department_display }}</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Division:</label>
+                <p class="form-control-static"><strong>{{ project.get_Division_display }}</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Sanctioned Amount:</label>
+                <p class="form-control-static"><strong>Rs. {{ project.Sanctioned_Amount }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Sanctioned Amount Date:</label>
+                <p class="form-control-static"><strong>{{ project.Sanctioned_Amount_Date }}</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Technical Sanctioned Amount:</label>
+                <p class="form-control-static"><strong>Rs. {{ project.Technical_Sanctioned_Amount }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Technical Sanctioned Amount Date:</label>
+                <p class="form-control-static"><strong>{{ project.Technical_Sanctioned_Amount_Date }}</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Work Order Amount:</label>
+                <p class="form-control-static"><strong>Rs. {{ project.Work_order_Amount }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Work Order Amount Date:</label>
+                <p class="form-control-static"><strong>{{ project.Work_order_Amount_Date }}</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Start Date:</label>
+                <p class="form-control-static"><strong>{{ project.Start_date }}</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Stipulated Date Of Completion:</label>
+                <p class="form-control-static"><strong>{{ project.Stipulated_Date_Of_Completion }}</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Total Amount Received:</label>
+                <p class="form-control-static"><strong>Rs. {{ total_amount_received|floatformat:2  }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Total Amount Released:</label>
+                <p class="form-control-static"><strong>Rs. {{ total_amount_released|floatformat:2  }} Lacs</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Total Expenditure:</label>
+                <p class="form-control-static"><strong>Rs. {{ total_expenditure_sum|floatformat:2  }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Total Amount Remaining:</label>
+                <p class="form-control-static"><strong>Rs. {{ remaining_amount|floatformat:2  }} Lacs</strong></p>
+              </div>
+              </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Agency Charge:</label>
+                    <p class="form-control-static"><strong>Rs. {{ agencycharge|floatformat:2  }} Lacs</strong></p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Agency Charge (In Percentage):</label>
+                    <p class="form-control-static"><strong> {{ percentage|floatformat:2  }} %</strong></p>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+<br>
+<br>
+
+<br>
+
+
+    <!-- Doughnut Charts -->
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <canvas id="chartAmountReceived" width="200" height="200"></canvas>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Amounts Received -->
+    <h4 class="text-center mb-4"><strong>Amounts Received</strong></h4>
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">Date</th>
+            <th class="text-center">Amount (Rs. Lacs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for amount in amounts_received %}
+          <tr>
+            <td>{{ amount.Amount_Received_Date }}</td>
+            <td>{{ amount.Amount_Received }} Lacs</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">No amounts received yet.</td>
+          </tr>
+          {% endfor %}
+          {% if amounts_received %}
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>{{ total_amount_received|floatformat:2  }} Lacs</strong></td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- Yearly Amounts Received Graph -->
+    <h4 class="text-center mb-4"><strong>Yearly Amounts Received</strong></h4>
+    <div class="text-center">
+      {% if graphic_year_received %}
+      <img src="data:image/png;base64,{{ graphic_year_received }}" alt="Yearly Amounts Received" class="img-fluid">
+      {% endif %}
+    </div>
+
+    <!-- Monthly Amounts Received Graph -->
+    <h4 class="text-center mb-4"><strong>Monthly Amounts Received</strong></h4>
+    <div class="text-center">
+      {% if graphic_month_received %}
+      <img src="data:image/png;base64,{{ graphic_month_received }}" alt="Monthly Amounts Received" class="img-fluid">
+      {% else %}
+      <p class="text-muted">No data available for the selected year.</p>
+      {% endif %}
+      <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-3 justify-content-center">
+        <label for="id_years" class="mr-2">Enter Year(s):</label>
+        <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </form>
+    </div>
+
+    <hr>
+
+    <!-- Amounts Released -->
+    <h4 class="text-center mb-4"><strong>Amounts Released</strong></h4>
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">Date</th>
+            <th class="text-center">Amount (Rs. Lacs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for amount in amounts_released %}
+          <tr>
+            <td>{{ amount.Amount_Released_Date }}</td>
+            <td>{{ amount.Amount_Released }} Lacs</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">No amounts released yet.</td>
+          </tr>
+          {% endfor %}
+          {% if amounts_released %}
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>{{ total_amount_released|floatformat:2  }} Lacs</strong></td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- Yearly Amounts Released Graph -->
+    <h4 class="text-center mb-4"><strong>Yearly Amounts Released</strong></h4>
+    <div class="text-center">
+      {% if graphic_year_released %}
+      <img src="data:image/png;base64,{{ graphic_year_released }}" alt="Yearly Amounts Released" class="img-fluid">
+      {% endif %}
+    </div>
+
+    <!-- Monthly Amounts Released Graph -->
+    <h4 class="text-center mb-4"><strong>Monthly Amounts Released</strong></h4>
+    <div class="text-center">
+      {% if graphic_month_released %}
+      <img src="data:image/png;base64,{{ graphic_month_released }}" alt="Monthly Amounts Released" class="img-fluid">
+      {% else %}
+      <p class="text-muted">No data available for the selected year.</p>
+      {% endif %}
+      <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-3 justify-content-center">
+        <label for="id_years_released" class="mr-2">Enter Year(s):</label>
+        <input id="id_years_released" name="years_released" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </form>
+    </div>
+
+    <hr>
+
+    <!-- Physical Progress -->
+<!-- Physical Progress -->
+<h4 class="text-center mb-4"><strong>Physical Progress</strong></h4>
+<div class="table-responsive">
+  <table class="table table-bordered text-center">
+    <thead class="thead-light">
+      <tr>
+        <th class="text-center">Date of Reporting</th>
+        <th class="text-center">Physical Progress (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for progress in physical_progress %}
+      <tr>
+        <td>{{ progress.Date_Of_Reporting }}</td>
+        <td>{{ progress.Physical_Progress_Percentage }}%</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">No physical progress reported yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- Total Expenditures -->
+<h4 class="text-center mb-4"><strong>Total Expenditures</strong></h4>
+<div class="table-responsive">
+  <table class="table table-bordered text-center">
+    <thead class="thead-light">
+      <tr>
+        <th class="text-center">Date</th>
+        <th class="text-center">Total Expenditure (Rs. Lacs)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expenditure in total_expenditures %}
+      <tr>
+        <td>{{ expenditure.Expenditure_date }}</td>
+        <td>{{ expenditure.Expenditure_Value }} Lacs</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2">No total expenditures recorded yet.</td>
+      </tr>
+      {% endfor %}
+      {% if total_expenditures %}
+      <tr>
+        <td><strong>Total</strong></td>
+        <td><strong>{{ total_expenditure_sum|floatformat:2  }} Lacs</strong></td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- Yearly Expenditure Graph -->
+<h4 class="text-center mb-4"><strong>Yearly Expenditure (In Rs. Lacs)</strong></h4>
+<div class="text-center">
+  {% if graphic_year_expenditure %}
+  <img src="data:image/png;base64,{{ graphic_year_expenditure }}" alt="Yearly Expenditure" class="img-fluid">
+  {% endif %}
+</div>
+<h4 class="text-center mb-4"><strong>Monthly Expenditure (In Rs. Lacs)</strong></h4>
+<div class="text-center">
+  {% if graphic_month_expenditure %}
+  <img src="data:image/png;base64,{{ graphic_month_expenditure }}" alt="Monthly Expenditure" class="img-fluid">
+  {% else %}
+  <p class="text-muted">No data available for the selected year.</p>
+  {% endif %}
+  <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-1 justify-content-center">
+    <label for="id_years" class="mr-2">Enter Year(s):</label>
+    <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4"
+      placeholder="Enter year (e.g., 2023)">
+    <button type="submit" class="btn btn-primary">Apply</button>
+  </form>
+  <div class = "row">
+    <div class="cols-md-24">
+      <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
+    </div>
+  </div>
+</div>
+<hr>
+
+
+</div>
+
+<hr>
+
+<!-- Back Button -->
+<div class="text-center mt-12">
+  <a href="{% url 'view_project' %}" class="btn btn-secondary">Back to Projects</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var ctxAmountReceived = document.getElementById('chartAmountReceived').getContext('2d');
+    new Chart(ctxAmountReceived, {
+      type: 'doughnut',
+      data: {
+        labels: ['Amount Received', 'Amount Released', 'Total Expenditure'],
+        datasets: [{
+          label: 'Amount',
+          data: ['{{ total_amount_received|floatformat:2  }}', '{{ total_amount_released|floatformat:2  }}', '{{ total_expenditure_sum|floatformat:2  }}'],
+          backgroundColor: [
+            '#36a2eb',
+            '#ff6384',
+            '#5F9EA0',
+          ],
+          hoverBackgroundColor: [
+            '#36a2eb',
+            '#ff6384',
+            '#5F9EA0',
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return tooltipItem.label + ': Rs. ' + tooltipItem.raw.toLocaleString() + ' Lacs';
+              }
+            }
+          },
+          legend: {
+            display: true,
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  });
+</script>
+
+
+{% endblock %}

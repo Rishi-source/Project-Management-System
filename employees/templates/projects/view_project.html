@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+  View Projects
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR -->
+  <div class="col-md-2 ">
+    <!-- Sidebar Content Here if Needed -->
+  </div>
+  <!-- SIDEBAR END -->
+  
+  <!-- MAIN CONTENT -->
+  <div class="col-md-10">
+    <div class="container-fluid">
+      <h3 class="mt-4 mb-4">View Projects</h3>
+
+      <!-- Card Header -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+          <h5 class="m-0 font-weight-bold text-primary">Projects List</h5>
+          <!-- Add button or other actions here if needed -->
+        </div>
+        
+        <!-- Card Body -->
+        <div class="card-body">
+          <style>
+            /* CSS for animating filter controls */
+            .filter-control {
+              opacity: 0;
+              transform: translateY(-20px);
+              transition: opacity 0.3s ease, transform 0.3s ease;
+            }
+          
+            .filter-control.show {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          </style>
+          
+          <div class="row mb-3 filter-control">
+            <div class="col-md-6">
+              <label for="divisionFilter" class="form-label">Filter by Division:</label>
+              <select id="divisionFilter" class="form-select">
+                <option value="">All</option>
+                <option value="Udaipur">Udaipur</option>
+                <option value="Jodhpur">Jodhpur</option>
+                <option value="Kota">Kota</option>
+                <option value="Bikaner">Bikaner</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Ajmer">Ajmer</option>
+                <option value="Bharatpur">Bharatpur</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="departmentFilter" class="form-label">Filter by Client Department:</label>
+              <select id="departmentFilter" class="form-select">
+                <option value="">All</option>
+                <option value="Sports Department">Sports Department</option>
+                <option value="Skill Department">Skill Department</option>
+                <option value="LSG Department">LSG Department</option>
+                <option value="Technical & Higher Education">Technical & Higher Education</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row mb-3 filter-control">
+            <div class="col-md-6">
+              <label for="statusFilter" class="form-label">Filter by Status:</label>
+              <select id="statusFilter" class="form-select">
+                <option value="">All</option>
+                <option value="completed">Completed</option>
+                <option value="handed-over">Handed Over</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="no-status">No Status</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label for="searchInput" class="form-label">Search by Project Name:</label>
+              <input type="text" id="searchInput" class="form-control" placeholder="Enter project name">
+            </div>
+          </div>
+                    
+          <!-- Totals Section -->
+          <div class="row mb-13 col-md-12 filter-control">
+            <div class="col-md-2.8 mb-2 total-item navbar-expand-lg  ">
+              <label>Total Number of Projects:</label>
+              <span id="totalProjects">0</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Sanctioned Amount:</label>
+              <span id="totalSanctionedAmount">Rs. 0.00 Lacs</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Technical Sanctioned Amount:</label>
+              <span id="TotalTechnicalSanctionedAmount">Rs. 0.00 Lacs</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Work Order Amount:</label>
+              <span id="totalWorkOrderAmount">Rs. 0.00 Lacs</span>
+            </div>
+          </div>
+          <div class="row mb-13 col-md-12 filter-control">
+            <div class="col-md-2.8 mb-2 total-item navbar-expand-lg  ">
+              <label>Total Recieved Amount:</label>
+              <span id="TotalRecievedAmount">0</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Released Amount:</label>
+              <span id="TotalReleasedAmount">Rs. 0.00 Lacs</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Expenditure Amount	:</label>
+              <span id="totalExpenditureAmount">Rs. 0.00 Lacs</span>
+            </div>
+            <div class="col-md-3 mb-2 total-item">
+              <label>Total Work Order Amount:</label>
+              <span id="totalRemainingAmount">Rs. 0.00 Lacs</span>
+            </div>
+          </div>
+
+          <br>
+          
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Start Date</th>
+                  <th>Division</th>
+                  <th>Client</th>
+                  <th>Total Sanctioned Amount</th>
+                  <th>Technical Sanctioned Amount</th>
+                  <th>Work Order Amount</th>
+                  <th>Recieved Amount</th>
+                  <th>Released Amount</th>
+                  <th>Expenditure Amount</th>
+                  <th>Unspent Amount</th>
+                  <th>Stipulated Date Of Completion</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for project in projects %}
+                  <tr data-division="{{ project.get_Division_display }}" data-department="{{ project.get_Client_Department_display }}" data-name="{{ project.Name_Of_Project }}">
+                    <td>{{ project.id }}</td>
+                    <td>{{ project.Name_Of_Project }}</td>
+                    <td>{{ project.Start_date }}</td>
+                    <td>{{ project.get_Client_Department_display }}</td>
+                    <td>{{ project.get_Division_display }}</td>
+                    <td>Rs. {{ project.Sanctioned_Amount|floatformat:2 }} Lacs</td>
+                    <td>Rs. {{ project.Technical_Sanctioned_Amount|floatformat:2 }} Lacs</td>
+                    <td>Rs. {{ project.Work_order_Amount|floatformat:2 }} Lacs</td>
+                    <td>Rs. {{ project.total_AmountReceived|floatformat:2 }} Lacs</td>
+                    <td>Rs. {{ project.total_AmountReleased|floatformat:2 }} Lacs</td>
+                    <td>Rs. {{ project.total_expenditure_sum|floatformat:2 }} Lacs</td>
+                    <td id="remainingAmount{{ project.id }}">
+                      <!-- JavaScript will update this -->
+                    </td>
+                    <td>
+                      {{ project.Stipulated_Date_Of_Completion }}
+                    </td>
+                    <td>
+                      {% if project.is_handed_over %}
+                        <span class="badge bg-primary">Handed Over</span>
+                      {% elif project.is_completed %}
+                        <span class="badge bg-success">Completed</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Ongoing</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <a href="{% url 'project_detail' project.id %}" class="btn btn-info btn-sm mr-1">View Details</a>
+                        {% if project.is_completed == False or project.is_handed_over == False %}
+                        <a href="{% url 'edit_date_of_completion' project.id %}" class="btn btn-danger btn-sm mr-1">Edit Completion Date</a>
+                        {% endif %}
+                        {% if project.is_completed == False %}
+                          <button type="button" class="btn btn-success btn-sm mr-1" onclick="confirmMarkCompleted('{{ project.id }}')">Mark Completed</button>
+                        {% elif project.is_handed_over == False %}
+                          <button type="button" class="btn btn-primary btn-sm mr-1" onclick="confirmMarkHandedOver('{{ project.id }}')">Mark Handover</button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MAIN CONTENT END -->
+</div>
+
+<!-- Confirmation Modals -->
+<div class="modal fade" id="confirmMarkCompletedModal" tabindex="-1" aria-labelledby="confirmMarkCompletedModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmMarkCompletedModalLabel">Confirm Project Completion</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to mark this project as completed?<br> <p style="color: red;">NOTE: This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a id="confirmMarkCompletedBtn" href="#" class="btn btn-success">Mark Completed</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmMarkHandedOverModal" tabindex="-1" aria-labelledby="confirmMarkHandedOverModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmMarkHandedOverModalLabel">Confirm  Project Handed Over</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to mark this project as handed over?<br><p style="color: red;">NOTE: This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a id="confirmMarkHandedOverBtn" href="#" class="btn btn-primary">Mark Handed Over</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Function to show confirmation modal for marking project as completed
+  function confirmMarkCompleted(projectId) {
+    $('#confirmMarkCompletedBtn').attr('href', '{% url "mark_project_completed" 0 %}'.replace('0', projectId));
+    $('#confirmMarkCompletedModal').modal('show');
+  }
+
+  // Function to show confirmation modal for marking project as handed over
+  function confirmMarkHandedOver(projectId) {
+    $('#confirmMarkHandedOverBtn').attr('href', '{% url "mark_project_handedover" 0 %}'.replace('0', projectId));
+    $('#confirmMarkHandedOverModal').modal('show');
+  }
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rows = document.querySelectorAll('#dataTable tbody tr');
+
+    function filterTable() {
+        const divisionFilterValue = document.getElementById('divisionFilter').value.toLowerCase();
+        const departmentFilterValue = document.getElementById('departmentFilter').value.toLowerCase();
+        const statusFilterValue = document.getElementById('statusFilter').value.toLowerCase();
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+
+        let totalProjects = 0;
+        let totalSanctionedAmount = 0;
+        let totalTechnicalSanctionedAmount = 0;
+        let totalWorkOrderAmount = 0;
+        let totalReceivedAmount = 0;
+        let totalReleasedAmount = 0;
+        let totalExpenditureAmount = 0;
+        let totalRemainingAmount = 0;
+
+        rows.forEach(row => {
+            const division = row.getAttribute('data-division').toLowerCase();
+            const department = row.getAttribute('data-department').toLowerCase();
+            const statusCell = row.querySelector('td:nth-child(14)');
+            const status = statusCell.innerText.toLowerCase();
+            const name = row.getAttribute('data-name').toLowerCase();
+
+            let showRow = true;
+
+            if (divisionFilterValue && division !== divisionFilterValue) {
+                showRow = false;
+            }
+
+            if (departmentFilterValue && department !== departmentFilterValue) {
+                showRow = false;
+            }
+
+            if (statusFilterValue) {
+                if (statusFilterValue === 'completed' && !status.includes('completed')) {
+                    showRow = false;
+                } else if (statusFilterValue === 'handed-over' && !status.includes('handed over')) {
+                    showRow = false;
+                } else if (statusFilterValue === 'ongoing' && !status.includes('ongoing')) {
+                    showRow = false;
+                } else if (statusFilterValue === 'no-status' && status !== '') {
+                    showRow = false;
+                }
+            }
+
+            if (searchValue && !name.includes(searchValue)) {
+                showRow = false;
+            }
+
+            if (showRow) {
+                row.style.display = '';
+                totalProjects++;
+                totalSanctionedAmount += parseFloat(row.cells[5].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                totalTechnicalSanctionedAmount += parseFloat(row.cells[6].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                totalWorkOrderAmount += parseFloat(row.cells[7].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                totalReceivedAmount += parseFloat(row.cells[8].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                totalReleasedAmount += parseFloat(row.cells[9].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                totalExpenditureAmount += parseFloat(row.cells[10].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+
+                // Calculate remaining amount
+                const sanctionedAmount = parseFloat(row.cells[5].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                const expenditureAmount = parseFloat(row.cells[10].innerText.replace('Rs. ', '').replace(' Lacs', ''));
+                const remainingAmount = sanctionedAmount - expenditureAmount;
+                totalRemainingAmount += remainingAmount;
+
+                // Update remaining amount cell
+                row.querySelector(`#remainingAmount${row.cells[0].innerText}`).innerText = `Rs. ${remainingAmount.toFixed(2)} Lacs`;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update totals
+        document.getElementById('totalProjects').innerText = totalProjects;
+        document.getElementById('totalSanctionedAmount').innerText = `Rs. ${totalSanctionedAmount.toFixed(2)} Lacs`;
+        document.getElementById('TotalTechnicalSanctionedAmount').innerText = `Rs. ${totalTechnicalSanctionedAmount.toFixed(2)} Lacs`;
+        document.getElementById('totalWorkOrderAmount').innerText = `Rs. ${totalWorkOrderAmount.toFixed(2)} Lacs`;
+        document.getElementById('TotalRecievedAmount').innerText = `Rs. ${totalReceivedAmount.toFixed(2)} Lacs`;
+        document.getElementById('TotalReleasedAmount').innerText = `Rs. ${totalReleasedAmount.toFixed(2)} Lacs`;
+        document.getElementById('totalExpenditureAmount').innerText = `Rs. ${totalExpenditureAmount.toFixed(2)} Lacs`;
+        document.getElementById('totalRemainingAmount').innerText = `Rs. ${totalRemainingAmount.toFixed(2)} Lacs`;
+    }
+
+    // Initial filter call
+    filterTable();
+
+    // Event listeners for filters
+    document.getElementById('divisionFilter').addEventListener('change', filterTable);
+    document.getElementById('departmentFilter').addEventListener('change', filterTable);
+    document.getElementById('statusFilter').addEventListener('change', filterTable);
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+});
+
+// JavaScript to add show class for animation
+document.addEventListener('DOMContentLoaded', function () {
+    const filterControls = document.querySelectorAll('.filter-control');
+    filterControls.forEach(control => {
+        control.classList.add('show');
+    });
+});
+</script>
+<style>
+body {
+      font-family: 'Lato', sans-serif;
+      padding-top: 56px; 
+    }
+    .content {
+      padding-top: 20px; 
+    }
+    .sidebar {
+      position: fixed;
+      top: 56px; 
+      bottom: 0;
+      left: 0;
+      width: 200px; 
+      z-index: 1000; 
+      background-color: #ffffff;
+      border-right: 1px solid #dee2e6; 
+    }
+    .navbar {
+      box-shadow: 0px 3px 10px #bfbfbf; 
+      transition: background-color 0.3s ease; 
+    }
+    .navbar.scrolled {
+      background-color: #FFFFFF;
+      color: #ffffff; 
+    }
+    .navbar-toggler {
+      position: absolute;
+      left: 10px;
+      z-index: 1100;
+    }
+    .navbar-brand {
+      transition: transform 0.3s ease;
+    }
+    .navbar-brand:hover {
+      transform: scale(1.1);
+    }</style>
+
+<style>
+  .total-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  margin-right: 10px;
+  background-color: #f8f9fa;
+}
+
+.total-item label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Ensure items are in one line */
+.row.mb-2 {
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.col-md-3.total-item {
+  display: inline-block;
+}
+</style>
+{% endblock %}

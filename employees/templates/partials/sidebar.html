@@ -1,0 +1,103 @@
+<nav id="sidebar" class="sidebar expanded">
+  <button id="sidebarToggle" class="btn btn-light" style="margin: 10px;">
+    <i class="fas fa-bars"></i>
+  </button>
+  <ul class="list-unstyled components">
+    <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" style="margin-top: 15px;">
+      <a href="{% url 'dashboard' %}" class="text-dark">
+        <i class="fas fa-tachometer-alt"></i> <span class="sidebar-text">Dashboard</span>
+      </a>
+    </li>
+    <br>
+    <li>
+      <a href="#projects" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark">
+        <i class="fas fa-project-diagram"></i> <span class="sidebar-text">Project</span>
+      </a>
+      <ul class="collapse list-unstyled" id="projects">
+        <li class="{% if request.resolver_match.url_name == 'view_project' %}active{% endif %}" style="margin: 10px 0;">
+          <a href="{% url 'view_project' %}" class="text-dark">
+            <i class="fas fa-eye"></i> <span class="sidebar-text">View Ongoing Projects</span>
+          </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'projects' %}active{% endif %}" style="margin: 10px 0;">
+          <a href="{% url 'projects' %}" class="text-dark">
+            <i class="fas fa-plus-circle"></i> <span class="sidebar-text">Add Projects Details</span>
+          </a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'add_project' %}active{% endif %}" style="margin: 10px 0;">
+          <a href="{% url 'add_project' %}" class="text-dark">
+            <i class="fas fa-folder-plus"></i> <span class="sidebar-text">Add Projects</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<style>
+  #sidebar {
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    color: #000;
+    position: fixed;
+    left: 0;
+    top: 56px; 
+    height: calc(100% - 56px); 
+    z-index: 1000; 
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+
+  }
+
+  #sidebar.compact {
+    width: 60px;
+  }
+
+  #sidebar.expanded {
+    width: 250px;
+  }
+
+  #sidebar .list-unstyled li a {
+    color: #000;
+    text-decoration: none;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+  }
+
+  #sidebar .list-unstyled li a:hover,
+  #sidebar .list-unstyled li.active > a {
+    background-color: #0080ff;
+    color: #fff;
+  }
+
+  #sidebar .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+  }
+
+  #sidebar .sidebar-text {
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  #sidebar.compact .sidebar-text {
+    display: none;
+  }
+</style>
+
+<script>
+  document.getElementById('sidebarToggle').addEventListener('click', function () {
+    document.getElementById('sidebar').classList.toggle('compact');
+    document.getElementById('sidebar').classList.toggle('expanded');
+    document.querySelector('.main-content').classList.toggle('sidebar-compact');
+  });
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+Add Amount Released
+{% endblock %}
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR -->
+  <div class="col-md-2" style="margin-top: -15px; height: 100%;">
+    <!-- Your sidebar content -->
+  </div>
+  <!-- SIDEBAR END -->
+
+  <div class="col-md-10 offset-md-2" id="messages">
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success" role="alert">
+      {{ success }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="col-md-10 offset-md-2">
+    <div class="container-fluid">
+      <h3>Add Amount Released :</h3><br />
+
+      <form id="form-container" method="post" action="">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Released_Amount_Date">Released Date:</label>
+            <input type="date" name="Released_Amount_Date" id="id_Released_Amount_Date" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-4 mb-3">
+            <label for="id_Released_Amount">Amount Released (In Lacs):</label>
+            <!-- Change input type to text to accept float values -->
+            <input type="number" step="0.01"  name="Released_Amount" id="id_Released_Amount" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="add-button">Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-container');
+    const addButton = document.getElementById('add-button');
+    const inputs = form.querySelectorAll('input[required]');
+    const dateInput = document.getElementById('id_Released_Amount_Date');
+
+    function setMaxDate() {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.setAttribute('max', today); // Set max attribute to today's date
+    }
+
+    function checkFormValidity() {
+      let allFilled = true;
+      inputs.forEach(input => {
+        if (!input.value) {
+          allFilled = false;
+        }
+      });
+      addButton.disabled = !allFilled;
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener('input', checkFormValidity);
+    });
+
+    setMaxDate(); 
+    checkFormValidity();
+  });
+</script>
+
+{% endblock %}

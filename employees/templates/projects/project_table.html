@@ -1,0 +1,31 @@
+{% load project_filters %}
+
+{% for project in projects %}
+  <tr>
+    <td>{{ project.id }}</td>
+    <td>{{ project.Name_Of_Project }}</td>
+    <td>{{ project.Start_date }}</td>
+    <td>{{ project.get_Client_Department_display }}</td>
+    <td>{{ project.get_Division_display }}</td>
+    <td>Rs. {{ project.Sanctioned_Amount }} Lacs</td>
+    <td>Rs. {{ total_expenditure }} Lacs</td>
+    <td>
+      {% if project.id in recent_physical_progress %}
+        <p>{{ recent_physical_progress|get_value:project.id }}%</p>
+      {% else %}
+        <p>0%</p>
+      {% endif %}
+    </td>
+    <td>
+      Rs. {{ project.remaining_amount }} Lacs
+    </td>
+    <td>
+      <a href="{% url 'project_detail' project.id %}" class="btn btn-sm btn-primary">View Details</a>
+      <!-- Add other action buttons as needed -->
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="10">No projects found.</td>
+  </tr>
+{% endfor %}

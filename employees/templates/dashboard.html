@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- MAIN CONTENT -->
+
+    <div class="col-md-10 main-content">
+      <div class="row">
+        <div class="col-md-4">
+          <a href="{% url 'view_project' %}" class="card-link">
+            <div class="card text-white bg-primary mb-3 card-hover">
+              <div class="card-body d-flex justify-content-center align-items-center flex-column">
+                <h5 class="card-title">Ongoing Projects</h5>
+                <p class="card-text">{{ ongoing_count }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-4">
+          <a href="{% url 'view_project' %}" class="card-link">
+            <div class="card text-white bg-success mb-3 card-hover">
+              <div class="card-body d-flex justify-content-center align-items-center flex-column">
+                <h5 class="card-title">Completed Projects</h5>
+                <p class="card-text">{{ completed_count }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-4">
+          <a href="{% url 'view_project' %}" class="card-link">
+            <div class="card text-white bg-warning mb-3 card-hover">
+              <div class="card-body d-flex justify-content-center align-items-center flex-column">
+                <h5 class="card-title">Handed Over Projects</h5>
+                <p class="card-text">{{ handedover_count }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  .card {
+      box-shadow: 0px 3px 10px #bfbfbf;
+      border: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease;
+      font-family: 'Lato', sans-serif;
+      border-radius: 10px; 
+  }
+  
+  .card-hover:hover {
+      transform: translateY(-10px);
+      box-shadow: 0px 6px 15px #bfbfbf;
+      border-radius: 50%; 
+  }
+  
+  .card-body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100%;
+  }
+  
+  .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+      font-family: 'Roboto', sans-serif;
+      text-align: center;
+  }
+  
+  .card-text {
+      font-size: 2rem; 
+      font-weight: 700;
+      font-family: 'Lato', sans-serif;
+      margin-top: 10px;
+      text-align: center;
+  }
+  
+  .row {
+      margin-top: 20px;
+  }
+  
+  .bg-primary {
+      background-color: #007bff !important;
+  }
+  
+  .bg-success {
+      background-color: #28a745 !important;
+  }
+  
+  .bg-warning {
+      background-color: #ffc107 !important;
+  }
+
+  .main-content {
+    transition: margin-left 0.3s ease;
+    margin-left: 250px;
+  }
+
+  .sidebar-compact .main-content {
+    margin-left: 60px;
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+{% endblock %}

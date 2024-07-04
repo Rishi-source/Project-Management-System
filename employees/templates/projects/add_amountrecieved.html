@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Add Amount Received
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR -->
+  <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%;">
+  </div>
+  <!-- SIDEBAR END -->
+
+  <div class="col-md-10 offset-md-2" id="messages">
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success" role="alert">
+      {{ success }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="col-md-10 offset-md-2">
+    <div class="container-fluid">
+      <h3>Add Amount Received:</h3><br />
+
+      <form id="form-container" method="post" action="">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Recieved_Amount_Date">Recieved Date:</label>
+            <input type="date" name="Recieved_Amount_Date" id="id_Recieved_Amount_Date" class="form-control" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-4 mb-3">
+            <label for="id_Recieved_Amount">Amount Received (In Lacs):</label>
+            <input type="number" name="Recieved_Amount" id="id_Recieved_Amount" class="form-control" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="submit-button" disabled>Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("form-container");
+    const submitButton = document.getElementById("submit-button");
+    const inputs = form.querySelectorAll("input");
+
+    function setMaxDate() {
+      const today = new Date().toISOString().split('T')[0];
+      inputs.forEach(input => {
+        if (input.type === "date") {
+          input.setAttribute('max', today); 
+        }
+      });
+    }
+
+    function checkFormValidity() {
+      let allFilled = true;
+      inputs.forEach(input => {
+        if (!input.value) {
+          allFilled = false;
+        }
+      });
+      submitButton.disabled = !allFilled;
+    }
+
+    setMaxDate(); 
+    inputs.forEach(input => {
+      input.addEventListener("input", checkFormValidity); 
+    });
+
+    checkFormValidity();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add Project
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- SIDEBAR -->
+    <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
+    </div>
+    <!-- SIDEBAR END -->
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-10">
+        <div class="container-fluid">
+            <h3 class="mt-4">Add Project</h3><br />
+
+            <div class="col-md-12 offset-md-2" id="messages">
+                {% if status %}
+                <div class="alert alert-danger" role="alert">
+                  {{ status }}
+                </div>
+                {% endif %}
+                </div>
+            
+            <form id="form-container" method="post" action="{% url 'add_project' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Client_Department">Client Department:</label>
+                        <select class="form-control" id="id_Client_Department" name="Client_Department" required>
+                            <option value="" disabled selected>Select Client Department</option>
+                            <option value="1">Sports Department</option>
+                            <option value="2">Skill Department</option>
+                            <option value="3">LSG Department</option>
+                            <option value="4">Technical & Higher Education</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a client department.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Division">Division:</label>
+                        <select class="form-control" id="id_Division" name="Division" required>
+                            <option value="" disabled selected>Select Division</option>
+                            <option value="1">Udaipur</option>
+                            <option value="2">Jodhpur</option>
+                            <option value="3">Kota</option>
+                            <option value="4">Bikaner</option>
+                            <option value="5">Jaipur</option>
+                            <option value="6">Ajmer</option>
+                            <option value="7">Bharatpur</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a division.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Name_Of_Project">Name of Project:</label>
+                        <input type="text" name="Name_Of_Project" id="id_Name_Of_Project" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the project name.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Sanctioned_Amount">Sanctioned Amount (In Lacs):</label>
+                        <input type="number" step="0.01"s name="Sanctioned_Amount" id="id_Sanctioned_Amount" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the sanctioned amount.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Sanctioned_Amount_Date">Sanctioned Amount Date:</label>
+                        <input type="date" name="Sanctioned_Amount_Date" id="id_Sanctioned_Amount_Date" class="form-control" required />
+                        <div class="invalid-feedback">Please select the Valid sanctioned amount date.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Technical_Sanctioned_Amount">Technical Sanctioned Amount (In Lacs):</label>
+                        <input type="number" step="0.01" name="Technical_Sanctioned_Amount" id="id_Technical_Sanctioned_Amount" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the technical sanctioned amount.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Work_Order_Amount_Date">Work Order Date:</label>
+                        <input type="date" name="Work_Order_Amount_Date" id="id_Work_Order_Amount_Date" class="form-control" required />
+                        <div class="invalid-feedback">Please select the Valid Work Order date.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                  <div class="col-md-6 mb-3">
+                      <label for="id_Work_Order_Amount">Work Order Amount (In Lacs):</label>
+                      <input type="number" step="0.01" name="Work_Order_Amount" id="id_Work_Order_Amount" class="form-control" required />
+                      <div class="invalid-feedback">Please enter the Valid Work Order amount.</div>
+                  </div>
+              </div>
+
+              <div class="form-row">
+                  <div class="col-md-6 mb-3">
+                      <label for="id_Technical_Sanctioned_Amount_Date">Technical Sanctioned Date:</label>
+                      <input type="date" name="Technical_Sanctioned_Amount_Date" id="id_Technical_Sanctioned_Amount_Date" class="form-control" required />
+                      <div class="invalid-feedback">Please select the Valid technical sanctioned date.</div>
+                  </div>
+              </div>
+
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Start_date">Start Date:</label>
+                        <input type="date" name="Start_date" id="id_Start_date" class="form-control" required />
+                        <div class="invalid-feedback">Please Valid the start date.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Stipulated_Date_Of_Completion">Stipulated Date of Completion:</label>
+                        <input type="date" name="Stipulated_Date_Of_Completion" id="id_Stipulated_Date_Of_Completion" class="form-control" required />
+                        <div class="invalid-feedback">Please select the Valid stipulated date of completion.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <button type="submit" class="btn btn-primary" id="add-button" disabled>Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-container');
+    const addButton = document.getElementById('add-button');
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    const startDateInput = document.getElementById('id_Start_date');
+    const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
+    const sanctionedDateInput = document.getElementById('id_Sanctioned_Amount_Date');
+    const tsanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
+    const WorkOrderAmountDate = document.getElementById('id_Work_Order_Amount_Date');
+    function setMaxDate() {
+      const today = new Date().toISOString().split('T')[0];
+      sanctionedDateInput.setAttribute('max', today); 
+      tsanctionedDateInput.setAttribute('max', today); 
+      completionDateInput.setAttribute('min', today);
+      WorkOrderAmountDate.setAttribute('max', today);
+
+    }
+
+    function checkFormValidity() {
+      let allFilled = true;
+      inputs.forEach(input => {
+        if (!input.value) {
+          allFilled = false;
+        }
+      });
+
+      let datesValid = true;
+
+      if (startDateInput.value && completionDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const completionDate = new Date(completionDateInput.value);
+        if (completionDate <= startDate) {
+          datesValid = false;
+          startDateInput.classList.add('is-invalid');
+          completionDateInput.classList.add('is-invalid');
+        } else {
+          startDateInput.classList.remove('is-invalid');
+          completionDateInput.classList.remove('is-invalid');
+        }
+      }
+
+      if (startDateInput.value && sanctionedDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const sanctionedDate = new Date(sanctionedDateInput.value);
+        if (sanctionedDate >= startDate) {
+          datesValid = false;
+          startDateInput.classList.add('is-invalid');
+          sanctionedDateInput.classList.add('is-invalid');
+        } else {
+          startDateInput.classList.remove('is-invalid');
+          sanctionedDateInput.classList.remove('is-invalid');
+        }
+      }
+
+      if (startDateInput.value && tsanctionedDateInput.value) {
+        const startDate = new Date(startDateInput.value);
+        const tsanctionedDate = new Date(tsanctionedDateInput.value);
+        if (tsanctionedDate >= startDate) {
+          datesValid = false;
+          startDateInput.classList.add('is-invalid');
+          tsanctionedDateInput.classList.add('is-invalid');
+        } else {
+          startDateInput.classList.remove('is-invalid');
+          tsanctionedDateInput.classList.remove('is-invalid');
+        }
+      }
+
+      addButton.disabled = !allFilled || !datesValid;
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener('input', checkFormValidity);
+    });
+
+    checkFormValidity(); 
+    setMaxDate();
+
+    form.addEventListener('submit', function(event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+</script>
+
+<style>
+  .is-invalid {
+    border-color: red;
+  }
+
+  .form-row {
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .card-text {
+    font-size: 1.5rem;
+    font-weight: 400;
+    font-family: 'Lato', sans-serif;
+  }
+</style>
+{% endblock %}
