@@ -8,7 +8,7 @@
     </div>
     <!-- SIDEBAR END -->
 
-    <div id="messages">
+    <div id="messages" class="col-md-10 offset-md-2">
         {% if status %}
             <script>
                 alert("{{ status }}");
@@ -17,7 +17,7 @@
     </div>
 
     <!-- MAIN CONTENT -->
-    <div class="col-md-10">
+    <div class="col-md-10 offset-md-2">
         <div class="container-fluid">
             <h1>Edit Amount Released Entries for Project: {{ project.name }}</h1>
 
@@ -73,7 +73,7 @@
                 <form method="post" id="deleteForm">
                     {% csrf_token %}
                     <input type="hidden" name="entry_id" id="deleteEntryId">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>

@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+
+{% block title %}
+View Projects
+{% endblock %}
+
+{% block extra_css %}
+<!-- Include any additional CSS files here -->
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <!-- SIDEBAR -->
+    <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top:-15px; height:100%;">
+        <!-- Sidebar content here if needed -->
+    </div>
+    <!-- SIDEBAR END -->
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-10">
+        <div class="container-fluid">
+            <h3>Expenditure Analysis for {{ year }} </h3><br />
+
+            <!-- Status Message -->
+            <div id="messages">
+                {% if status %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ status }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Status Message End -->
+<!-- Year Selection Form -->
+<div class="card shadow mb-4">
+    <div class="card-body text-center">
+        <h5 class="card-title text-primary mb-4">Select Year for Analysis</h5>
+        <form method="GET" action="{% url 'amount_released_analysis' %}">
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select id="year" name="year" class="form-select">
+                            {% for y in years %}
+                            <option value="{{ y }}" {% if y == year %} selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="year" class="form-label">Year:</label>
+                    </div>
+                </div>
+                <div class="col-md-2 align-self-center">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+            <!-- Table for Divisions and Amounts -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Expenditure data for each Client Department</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Client Department</th>
+                                    {% for client, amount in yearly_data.items %}
+                                    <th>{{ client }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Amount (In Rs. Lacs)</td>
+                                    {% for client, amount in yearly_data.items %}
+                                    <td>{{ amount|floatformat:2 }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Bar Chart for Divisions and Amounts -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h4 class="m-0 font-weight-bold text-primary">Bar Chart for Client Department and Expenditure Amount</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="barChart" style="height: 400px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly data Table for Divisions and Amounts - Udaipur -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-2">
+                    <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Sports Department</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTableUdaipur" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Months</th>
+                                    <th>January</th>
+                                    <th>February</th>
+                                    <th>March</th>
+                                    <th>April</th>
+                                    <th>May</th>
+                                    <th>June</th>
+                                    <th>July</th>
+                                    <th>August</th>
+                                    <th>September</th>
+                                    <th>October</th>
+                                    <th>November</th>
+                                    <th>December</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Amount (In Rs. Lacs)</td>
+                                    {% for amount in Sports_Department_monthly_data %}
+                                    <td>{{ amount|floatformat:2 }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="barChartUdaipur" style="height: 300px; min-height: 300px;"></canvas>
+                </div>
+            </div>
+                        
+        <script>
+            // Bar Chart Data for Udaipur
+            var ctxBarUdaipur = document.getElementById('barChartUdaipur').getContext('2d');
+            var barChartUdaipur = new Chart(ctxBarUdaipur, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Expenditure Amount (In Rs. Lacs)',
+                        data: [{% for amount in Sports_Department_monthly_data %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+            ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                    borderWidth: 1
+            }]
+          },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                            align: 'top',
+                                formatter: function(value, context) {
+                                    return value.toLocaleString(); // Format the value as needed
+                                }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        </script>
+
+        <!-- Monthly data Table for Divisions and Amounts - Jodhpur -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Skill Department</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTableJodhpur" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Months</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount (In Rs. Lacs)</td>
+                                {% for amount in Skill_Department_monthly_data %}
+                                <td>{{ amount|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="barChartJodhpur" style="height: 10px; min-height: 10px;"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Bar Chart Data for Udaipur
+            var ctxBarJodhpur = document.getElementById('barChartJodhpur').getContext('2d');
+            var barChartJodhpur = new Chart(ctxBarJodhpur, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Expenditure Amount (In Rs. Lacs)',
+                        data: [{% for amount in Skill_Department_monthly_data %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+            ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                    borderWidth: 1
+                  }]
+                },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                            align: 'top',
+                                formatter: function(value, context) {
+                                    return value.toLocaleString(); // Format the value as needed
+                                }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+              });
+        </script>
+
+        <!-- Monthly data Table for Divisions and Amounts - Kota -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h4 class="m-0 font-weight-bold text-primary">Monthly Data for LSG Department</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTableKota" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Months</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount (In Rs. Lacs)</td>
+                                {% for amount in LSG_Department_monthly_data %}
+                                <td>{{ amount|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="barChartKota" style="height: 10px; min-height: 10px;"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Bar Chart Data for Udaipur
+            var ctxBarKota = document.getElementById('barChartKota').getContext('2d');
+            var barChartKota = new Chart(ctxBarKota, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Expenditure Amount (In Rs. Lacs)',
+                        data: [{% for amount in LSG_Department_monthly_data %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+            ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                    borderWidth: 1
+                  }]
+                },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                            align: 'top',
+                                formatter: function(value, context) {
+                                    return value.toLocaleString(); // Format the value as needed
+                                }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+              });
+        </script>
+
+        <!-- Monthly data Table for Divisions and Amounts - Bikaner -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Technical & Higher Education</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTableBikaner" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Months</th>
+                                <th>January</th>
+                                <th>February</th>
+                                <th>March</th>
+                                <th>April</th>
+                                <th>May</th>
+                                <th>June</th>
+                                <th>July</th>
+                                <th>August</th>
+                                <th>September</th>
+                                <th>October</th>
+                                <th>November</th>
+                                <th>December</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Amount (In Rs. Lacs)</td>
+                                {% for amount in Technical_Higher_Education_monthly_data %}
+                                <td>{{ amount|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="barChartBikaner" style="height: 10px; min-height: 10px;"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Bar Chart Data for Udaipur
+            var ctxBarBikaner = document.getElementById('barChartBikaner').getContext('2d');
+            var barChartBikaner = new Chart(ctxBarBikaner, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Expenditure Amount (In Rs. Lacs)',
+                        data: [{% for amount in Technical_Higher_Education_monthly_data %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+            ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                    borderWidth: 1
+                  }]
+                },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                            align: 'top',
+                                formatter: function(value, context) {
+                                    return value.toLocaleString(); // Format the value as needed
+                                }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+              });
+        </script>
+
+        <script>
+            // Bar Chart Data
+            var ctxBar = document.getElementById('barChart').getContext('2d');
+            var barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: [{% for client in clients %}"{{ client }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Expenditure Amount (In Rs. Lacs)',
+                data: [{% for client, amount in yearly_data.items %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+            ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                ],
+                    borderWidth: 1
+        }]
+      },
+            options: {
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                            align: 'top',
+                                formatter: function(value, context) {
+                                    return value.toLocaleString(); // Format the value as needed
+                                }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+    });
+        </script>
+        {% endblock %}

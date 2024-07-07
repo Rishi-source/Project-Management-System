@@ -33,19 +33,19 @@ class Profile(models.Model):
 
 # Choices for Client Department and Division
 CLIENT_DEPARTMENT = (
-    ("1", "Sports Department"),
-    ("2", "Skill Department"),
-    ("3", "LSG Department"),
-    ("4", "Technical & Higher Education"),
+    ("Sports Department", "Sports Department"),
+    ("Skill Department", "Skill Department"),
+    ("LSG Department", "LSG Department"),
+    ("Technical & Higher Education", "Technical & Higher Education"),
 )
 DIVISION = (
-    ("1", "Udaipur"),
-    ("2", "Jodhpur"),
-    ("3", "Kota"),
-    ("4", "Bikaner"),
-    ("5", "Jaipur"),
-    ("6", "Ajmer"),
-    ("7", "Bharatpur"),
+    ("Udaipur", "Udaipur"),
+    ("Jodhpur", "Jodhpur"),
+    ("Kota", "Kota"),
+    ("Bikaner", "Bikaner"),
+    ("Jaipur", "Jaipur"),
+    ("Ajmer", "Ajmer"),
+    ("Bharatpur", "Bharatpur"),
     
 )
 

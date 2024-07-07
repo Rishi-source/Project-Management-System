@@ -8,14 +8,6 @@
     </div>
     <!-- SIDEBAR END -->
 
-    <div id="messages">
-        {% if status %}
-            <script>
-                alert("{{ status }}");
-            </script>
-        {% endif %}
-    </div>
-
     <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
@@ -32,16 +24,17 @@
                 <tbody>
                     {% for expenditure in expenditures %}
                         <tr>
-                            <form method="post" action="{% url 'edit_expenditure' project_id=project.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="entry_id" value="{{ expenditure.id }}">
-
-                                <td><input type="text" name="expenditure_date" value="{{ expenditure.Expenditure_date }}" disabled></td>
-                                <td><input type="number" step="0.01" name="expenditure_value" value="{{ expenditure.Expenditure_Value }}"></td>
-                                <td>
-                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                            </form>
-                            <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-entry-id="{{ expenditure.id }}">Delete</button>
+                            <td>
+                                <form method="post" action="{% url 'edit_expenditure' project_id=project.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="entry_id" value="{{ expenditure.id }}">
+                                    <input type="text" name="expenditure_date" value="{{ expenditure.Expenditure_date }}" disabled>
+                            </td>
+                            <td><input type="number" step="0.01" name="expenditure_value" value="{{ expenditure.Expenditure_Value }}"></td>
+                            <td>
+                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-entry-id="{{ expenditure.id }}">Delete</button>
                             </td>
                         </tr>
                     {% empty %}
@@ -60,7 +53,7 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Delete Confirmation</h5>
@@ -81,9 +74,14 @@
     </div>
 </div>
 
-{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
+            backdrop: 'static', // Ensure backdrop is static
+            keyboard: false // Disable keyboard interactions
+        });
+
+        // Show modal when delete button is clicked
         var deleteButtons = document.querySelectorAll('.delete-btn');
         deleteButtons.forEach(function (button) {
             button.addEventListener('click', function () {
@@ -91,11 +89,14 @@
                 var deleteEntryId = document.getElementById('deleteEntryId');
                 deleteEntryId.value = entryId;
 
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 deleteModal.show();
             });
         });
+
+        // Handle modal hidden event to refresh page on modal close
+        deleteModal._element.addEventListener('hidden.bs.modal', function () {
+            window.location.reload(); // Reload page after modal is closed
+        });
     });
 </script>
-{% endblock %}
 {% endblock %}

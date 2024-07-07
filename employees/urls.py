@@ -41,6 +41,12 @@ urlpatterns = [
     path('project/<int:project_id>/delete_physical_progress/', views.delete_physical_progress, name='delete_physical_progress'),
     path('project/<int:project_id>/edit_expenditure/', views.edit_expenditure, name='edit_expenditure'),
     path('project/<int:project_id>/delete_expenditure/', views.delete_expenditure, name='delete_expenditure'),
+    path('project/amount_released_analysis', views.amount_released_analysis, name='amount_released_analysis'),
+    path('project/amount_recieved_analysis', views.amount_recieved_analysis, name='amount_recieved_analysis'),
+    path('project/expenditure_analysis', views.expenditure_analysis, name='expenditure_analysis'),
+    path('project/expenditure_analysis_client', views.expenditure_analysis_client, name='expenditure_analysis_client'),
+    path('project/amount_released_analysis_client', views.amount_released_analysis_client, name='amount_released_analysis_client'),
+    path('project/amount_recieved_analysis_client', views.amount_recieved_analysis_client, name='amount_recieved_analysis_client'),
 
  ]
 

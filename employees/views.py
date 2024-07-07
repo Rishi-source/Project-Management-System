@@ -35,11 +35,10 @@ from django.utils.timezone import now
 from matplotlib.ticker import MaxNLocator
 from django.contrib.auth.decorators import login_required
 from urllib.parse import urlencode
-
-
-
-
-
+from collections import defaultdict
+import pandas as pd
+from django.utils import timezone
+from calendar import month_name, month_abbr
 # Create your views here.
 def dashboard(request):
     if not request.user.is_authenticated:
@@ -897,8 +896,413 @@ def delete_expenditure(request, project_id):
             messages.error(request, 'Invalid expenditure entry ID.')
     
     return redirect('edit_expenditure', project_id=project_id)
+def amount_released_analysis(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
 
-    
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    yearly_data = {division: 0 for division in divisions}
+
+    # Monthly data variables for each division
+    udaipur_monthly_data = [0] * 12
+    jodhpur_monthly_data = [0] * 12
+    kota_monthly_data = [0] * 12
+    bikaner_monthly_data = [0] * 12
+    jaipur_monthly_data = [0] * 12
+    ajmer_monthly_data = [0] * 12
+    bharatpur_monthly_data = [0] * 12
+
+    month_names = month_abbr[1:]
+
+    for division in divisions:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = AmountReleased.objects.filter(
+            project__Division=division,
+            Amount_Released_Date__year=selected_year
+        ).aggregate(total_amount=Sum('Amount_Released'))
+
+        yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = AmountReleased.objects.filter(
+                project__Division=division,
+                Amount_Released_Date__year=selected_year,
+                Amount_Released_Date__month=month
+            ).aggregate(total_amount=Sum('Amount_Released'))
+
+            # Assign monthly amounts to respective division variables
+            if division == 'Udaipur':
+                udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jodhpur':
+                jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Kota':
+                kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bikaner':
+                bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jaipur':
+                jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Ajmer':
+                ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bharatpur':
+                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+        'year': selected_year,
+        'divisions': divisions,
+        'yearly_data': yearly_data,
+        'udaipur_monthly_data': udaipur_monthly_data,
+        'jodhpur_monthly_data': jodhpur_monthly_data,
+        'kota_monthly_data': kota_monthly_data,
+        'bikaner_monthly_data': bikaner_monthly_data,
+        'jaipur_monthly_data': jaipur_monthly_data,
+        'ajmer_monthly_data': ajmer_monthly_data,
+        'bharatpur_monthly_data': bharatpur_monthly_data,
+        'years': years,
+    }
+    return render(request, 'projects/amount_released_analysis.html', context)
+def amount_recieved_analysis(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    yearly_data = {division: 0 for division in divisions}
+
+    # Monthly data variables for each division
+    udaipur_monthly_data = [0] * 12
+    jodhpur_monthly_data = [0] * 12
+    kota_monthly_data = [0] * 12
+    bikaner_monthly_data = [0] * 12
+    jaipur_monthly_data = [0] * 12
+    ajmer_monthly_data = [0] * 12
+    bharatpur_monthly_data = [0] * 12
+
+    month_names = month_abbr[1:]
+
+    for division in divisions:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = AmountReceived.objects.filter(
+            project__Division=division,
+            Amount_Received_Date__year=selected_year
+        ).aggregate(total_amount=Sum('Amount_Received'))
+
+        yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = AmountReceived.objects.filter(
+                project__Division=division,
+                Amount_Received_Date__year=selected_year,
+                Amount_Received_Date__month=month
+            ).aggregate(total_amount=Sum('Amount_Received'))
+
+            # Assign monthly amounts to respective division variables
+            if division == 'Udaipur':
+                udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jodhpur':
+                jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Kota':
+                kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bikaner':
+                bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jaipur':
+                jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Ajmer':
+                ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bharatpur':
+                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+        'year': selected_year,
+        'divisions': divisions,
+        'yearly_data': yearly_data,
+        'udaipur_monthly_data': udaipur_monthly_data,
+        'jodhpur_monthly_data': jodhpur_monthly_data,
+        'kota_monthly_data': kota_monthly_data,
+        'bikaner_monthly_data': bikaner_monthly_data,
+        'jaipur_monthly_data': jaipur_monthly_data,
+        'ajmer_monthly_data': ajmer_monthly_data,
+        'bharatpur_monthly_data': bharatpur_monthly_data,
+        'years': years,
+    }
+    return render(request, 'projects/amount_recieved_analysis.html', context)
+def expenditure_analysis(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    yearly_data = {division: 0 for division in divisions}
+
+    # Monthly data variables for each division
+    udaipur_monthly_data = [0] * 12
+    jodhpur_monthly_data = [0] * 12
+    kota_monthly_data = [0] * 12
+    bikaner_monthly_data = [0] * 12
+    jaipur_monthly_data = [0] * 12
+    ajmer_monthly_data = [0] * 12
+    bharatpur_monthly_data = [0] * 12
+
+    for division in divisions:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = Expenditure.objects.filter(
+            project__Division=division,
+            Expenditure_date__year=selected_year
+        ).aggregate(total_amount=Sum('Expenditure_Value'))
+
+        yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = Expenditure.objects.filter(
+                project__Division=division,
+                Expenditure_date__year=selected_year,
+                Expenditure_date__month=month
+            ).aggregate(total_amount=Sum('Expenditure_Value'))
+
+            # Assign monthly amounts to respective division variables
+            if division == 'Udaipur':
+                udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jodhpur':
+                jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Kota':
+                kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bikaner':
+                bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Jaipur':
+                jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Ajmer':
+                ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif division == 'Bharatpur':
+                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+        'year': selected_year,
+        'divisions': divisions,
+        'yearly_data': yearly_data,
+        'udaipur_monthly_data': udaipur_monthly_data,
+        'jodhpur_monthly_data': jodhpur_monthly_data,
+        'kota_monthly_data': kota_monthly_data,
+        'bikaner_monthly_data': bikaner_monthly_data,
+        'jaipur_monthly_data': jaipur_monthly_data,
+        'ajmer_monthly_data': ajmer_monthly_data,
+        'bharatpur_monthly_data': bharatpur_monthly_data,
+        'years': years,
+    }
+    return render(request, 'projects/expenditure_analysis.html', context)
+def expenditure_analysis_client(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    yearly_data = {client: 0 for client in clients}
+
+    # Monthly data variables for each division
+    Sports_Department_monthly_data = [0] * 12
+    Skill_Department_monthly_data = [0] * 12
+    LSG_Department_monthly_data = [0] * 12
+    Technical_Higher_Education_monthly_data = [0] * 12
+
+    for client in clients:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = Expenditure.objects.filter(
+            project__Client_Department=client,
+            Expenditure_date__year=selected_year
+        ).aggregate(total_amount=Sum('Expenditure_Value'))
+
+        yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = Expenditure.objects.filter(
+                project__Client_Department=client,
+                Expenditure_date__year=selected_year,
+                Expenditure_date__month=month
+            ).aggregate(total_amount=Sum('Expenditure_Value'))
+            # Assign monthly amounts to respective division variables
+            if client == 'Sports Department':
+                Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Skill Department':
+                Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Technical & Higher Education':
+                Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+    'year': selected_year,
+    'clients': clients,  # Corrected variable name
+    'yearly_data': yearly_data,
+    'Sports_Department_monthly_data': Sports_Department_monthly_data,
+    'Skill_Department_monthly_data': Skill_Department_monthly_data,
+    'LSG_Department_monthly_data': LSG_Department_monthly_data,
+    'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'years': years,
+}
+    return render(request, 'projects/expenditure_analysis_client.html', context)
+def amount_released_analysis_client(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    yearly_data = {client: 0 for client in clients}
+
+    # Monthly data variables for each division
+    Sports_Department_monthly_data = [0] * 12
+    Skill_Department_monthly_data = [0] * 12
+    LSG_Department_monthly_data = [0] * 12
+    Technical_Higher_Education_monthly_data = [0] * 12
+
+    for client in clients:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = AmountReleased.objects.filter(
+            project__Client_Department=client,
+            Amount_Released_Date__year=selected_year
+        ).aggregate(total_amount=Sum('Amount_Released'))
+
+        yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = AmountReleased.objects.filter(
+                project__Client_Department=client,
+                Amount_Released_Date__year=selected_year,
+                Amount_Released_Date__month=month
+            ).aggregate(total_amount=Sum('Amount_Released'))
+            # Assign monthly amounts to respective division variables
+            if client == 'Sports Department':
+                Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Skill Department':
+                Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Technical & Higher Education':
+                Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+    'year': selected_year,
+    'clients': clients,  # Corrected variable name
+    'yearly_data': yearly_data,
+    'Sports_Department_monthly_data': Sports_Department_monthly_data,
+    'Skill_Department_monthly_data': Skill_Department_monthly_data,
+    'LSG_Department_monthly_data': LSG_Department_monthly_data,
+    'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'years': years,
+}
+    return render(request, 'projects/amount_released_analysis_client.html', context)
+def amount_released_analysis_client(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    yearly_data = {client: 0 for client in clients}
+
+    # Monthly data variables for each division
+    Sports_Department_monthly_data = [0] * 12
+    Skill_Department_monthly_data = [0] * 12
+    LSG_Department_monthly_data = [0] * 12
+    Technical_Higher_Education_monthly_data = [0] * 12
+
+    for client in clients:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = AmountReleased.objects.filter(
+            project__Client_Department=client,
+            Amount_Released_Date__year=selected_year
+        ).aggregate(total_amount=Sum('Amount_Released'))
+
+        yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = AmountReleased.objects.filter(
+                project__Client_Department=client,
+                Amount_Released_Date__year=selected_year,
+                Amount_Released_Date__month=month
+            ).aggregate(total_amount=Sum('Amount_Released'))
+            # Assign monthly amounts to respective division variables
+            if client == 'Sports Department':
+                Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Skill Department':
+                Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Technical & Higher Education':
+                Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+    'year': selected_year,
+    'clients': clients,  # Corrected variable name
+    'yearly_data': yearly_data,
+    'Sports_Department_monthly_data': Sports_Department_monthly_data,
+    'Skill_Department_monthly_data': Skill_Department_monthly_data,
+    'LSG_Department_monthly_data': LSG_Department_monthly_data,
+    'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'years': years,
+}
+    return render(request, 'projects/amount_released_analysis_client.html', context)
+def amount_recieved_analysis_client(request):
+    current_year = timezone.now().year
+    selected_year = int(request.GET.get('year', current_year))
+
+    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    yearly_data = {client: 0 for client in clients}
+
+    # Monthly data variables for each division
+    Sports_Department_monthly_data = [0] * 12
+    Skill_Department_monthly_data = [0] * 12
+    LSG_Department_monthly_data = [0] * 12
+    Technical_Higher_Education_monthly_data = [0] * 12
+
+    for client in clients:
+        # Calculate yearly amounts for the division
+        yearly_amounts_data = AmountReceived.objects.filter(
+            project__Client_Department=client,
+            Amount_Received_Date__year=selected_year
+        ).aggregate(total_amount=Sum('Amount_Received'))
+
+        yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
+        # Calculate monthly amounts for the division
+        for month in range(1, 13):
+            monthly_amounts_data = AmountReceived.objects.filter(
+                project__Client_Department=client,
+                Amount_Received_Date__year=selected_year,
+                Amount_Received_Date__month=month
+            ).aggregate(total_amount=Sum('Amount_Received'))
+            # Assign monthly amounts to respective division variables
+            if client == 'Sports Department':
+                Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Skill Department':
+                Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Technical & Higher Education':
+                Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+
+    years = range(2020, 2031)  # List of years from 2020 to 2030
+
+    context = {
+    'year': selected_year,
+    'clients': clients,  # Corrected variable name
+    'yearly_data': yearly_data,
+    'Sports_Department_monthly_data': Sports_Department_monthly_data,
+    'Skill_Department_monthly_data': Skill_Department_monthly_data,
+    'LSG_Department_monthly_data': LSG_Department_monthly_data,
+    'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'years': years,
+}
+    return render(request, 'projects/amount_recieved_analysis_client.html', context)
 
 # ------------------------------ PROJECTS STOP ------------------------------ #
 
