@@ -16,14 +16,14 @@ Add Project
         <div class="container-fluid">
             <h3 class="mt-4">Add Project</h3><br />
 
-            <div class="col-md-12 offset-md-2" id="messages">
-                {% if status %}
-                <div class="alert alert-danger" role="alert">
-                  {{ status }}
-                </div>
-                {% endif %}
-                </div>
-            
+            <div class="col-md-7" id="messages">
+              {% if status %}
+                  <div class="alert alert-danger" role="alert">
+                      {{ status }}
+                  </div>
+              {% endif %}
+          </div>
+          <br>
             <form id="form-container" method="post" action="{% url 'add_project' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="form-row">

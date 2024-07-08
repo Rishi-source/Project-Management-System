@@ -12,7 +12,6 @@
   </div>
   <!-- SIDEBAR END -->
 
-
   <!-- MAIN CONTENT -->
   <div class="col-md-10">
     <div class="container-fluid">
@@ -44,4 +43,13 @@
   </div>
   <!-- MAIN CONTENT END -->
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get today's date in yyyy-mm-dd format
+    let today = new Date().toISOString().split('T')[0];
+    // Set the max attribute of the date input field to today's date
+    document.getElementById('id_Stipulated_Date').setAttribute('max', today);
+  });
+</script>
 {% endblock %}

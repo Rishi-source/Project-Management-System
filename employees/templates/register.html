@@ -59,7 +59,16 @@
           <span class="symbol-input100">
             <i class="fa fa-lock" aria-hidden="true"></i>
           </span>
-          <div id="password-error" class="text-danger"></div>
+        </div>
+
+        <div id="password-requirements" class="alert alert-info" role="alert" style="display: none;">
+          <ul>
+            <li id="length-requirement">At least 8 characters long</li>
+            <li id="uppercase-requirement">Contains at least one uppercase letter</li>
+            <li id="lowercase-requirement">Contains at least one lowercase letter</li>
+            <li id="digit-requirement">Contains at least one digit</li>
+            <li id="special-requirement">Contains at least one special character</li>
+          </ul>
         </div>
 
         <div class="container-login100-form-btn">
@@ -90,42 +99,98 @@
     const passwordInput = document.getElementById('password');
     const confirmInput = document.getElementById('confirm_password');
     const registerButton = document.getElementById('register-btn');
-    const passwordError = document.getElementById('password-error');
-    const usernameError = document.getElementById('username-error');
+    const passwordRequirements = document.getElementById('password-requirements');
+
+    const requirements = {
+      length: document.getElementById('length-requirement'),
+      uppercase: document.getElementById('uppercase-requirement'),
+      lowercase: document.getElementById('lowercase-requirement'),
+      digit: document.getElementById('digit-requirement'),
+      special: document.getElementById('special-requirement')
+    };
+
+    const passwordCriteria = {
+      minLength: 8,
+      uppercase: /[A-Z]/,
+      lowercase: /[a-z]/,
+      digit: /\d/,
+      specialChar: /[\W_]/
+    };
 
     function checkFormValidity() {
       const username = usernameInput.value.trim();
       const password = passwordInput.value;
       const confirm = confirmInput.value;
 
-      if (username.length > 0 && password.length > 0 && confirm.length > 0 && password === confirm) {
+      if (username.length > 0 && password.length > 0 && confirm.length > 0 && password === confirm && validatePassword(password)) {
         registerButton.disabled = false;
       } else {
         registerButton.disabled = true;
       }
     }
 
+    function validatePassword(password) {
+      let valid = true;
+
+      if (password.length >= passwordCriteria.minLength) {
+        requirements.length.classList.remove('text-danger');
+        requirements.length.classList.add('text-success');
+      } else {
+        requirements.length.classList.remove('text-success');
+        requirements.length.classList.add('text-danger');
+        valid = false;
+      }
+
+      if (passwordCriteria.uppercase.test(password)) {
+        requirements.uppercase.classList.remove('text-danger');
+        requirements.uppercase.classList.add('text-success');
+      } else {
+        requirements.uppercase.classList.remove('text-success');
+        requirements.uppercase.classList.add('text-danger');
+        valid = false;
+      }
+
+      if (passwordCriteria.lowercase.test(password)) {
+        requirements.lowercase.classList.remove('text-danger');
+        requirements.lowercase.classList.add('text-success');
+      } else {
+        requirements.lowercase.classList.remove('text-success');
+        requirements.lowercase.classList.add('text-danger');
+        valid = false;
+      }
+
+      if (passwordCriteria.digit.test(password)) {
+        requirements.digit.classList.remove('text-danger');
+        requirements.digit.classList.add('text-success');
+      } else {
+        requirements.digit.classList.remove('text-success');
+        requirements.digit.classList.add('text-danger');
+        valid = false;
+      }
+
+      if (passwordCriteria.specialChar.test(password)) {
+        requirements.special.classList.remove('text-danger');
+        requirements.special.classList.add('text-success');
+      } else {
+        requirements.special.classList.remove('text-success');
+        requirements.special.classList.add('text-danger');
+        valid = false;
+      }
+
+      return valid;
+    }
+
     usernameInput.addEventListener('input', function() {
       checkFormValidity();
-      usernameError.innerHTML = ''; 
     });
 
     passwordInput.addEventListener('input', function() {
+      passwordRequirements.style.display = 'block';
       checkFormValidity();
-      if (passwordInput.value !== confirmInput.value) {
-        passwordError.innerHTML = 'Passwords do not match.';
-      } else {
-        passwordError.innerHTML = '';
-      }
     });
 
     confirmInput.addEventListener('input', function() {
       checkFormValidity();
-      if (passwordInput.value !== confirmInput.value) {
-        passwordError.innerHTML = 'Passwords do not match.';
-      } else {
-        passwordError.innerHTML = '';
-      }
     });
   });
 </script>

@@ -47,11 +47,14 @@ def dashboard(request):
     ongoing_count = Project.objects.filter(is_completed=False, is_handed_over=False).count()
     completed_count = Project.objects.filter(is_completed=True, is_handed_over=False).count()
     handedover_count = Project.objects.filter(is_completed=True, is_handed_over=True).count()
+    newly_added_projects = Project.objects.order_by('-Sanctioned_Amount_Date')[:5]  
 
     context = {
         'ongoing_count': ongoing_count,
         'completed_count': completed_count,
         'handedover_count': handedover_count,
+        'newly_added_projects': newly_added_projects,
+
     }
 
     return render(request, 'dashboard.html', context)
@@ -142,6 +145,7 @@ def register_user(request):
             return redirect('register_user')
 
     return render(request, 'register.html')
+
 # ------------------------------ PROJECTS START ------------------------------ #
 
 def projects(request):
@@ -855,12 +859,14 @@ def edit_physical_progress(request, project_id):
 def delete_physical_progress(request, project_id):
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
-        physical_progress_entry = get_object_or_404(PhysicalProgress, pk=entry_id)
-        physical_progress_entry.delete()
-        messages.success(request, 'Physical Progress entry deleted successfully.')
+        if entry_id:
+            physical_progress = get_object_or_404(PhysicalProgress, pk=entry_id)
+            physical_progress.delete()
+            messages.success(request, 'Expenditure entry deleted successfully.')
+        else:
+            messages.error(request, 'Invalid expenditure entry ID.')
     
-    # Redirect back to the edit_physical_progress view after deletion or for GET request handling
-    return redirect('edit_physical_progress', project_id=project_id)
+    return redirect('projects/edit_physical_progress', project_id=project_id)
 def edit_expenditure(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     expenditures = Expenditure.objects.filter(project=project)

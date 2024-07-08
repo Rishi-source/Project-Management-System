@@ -47,7 +47,6 @@ urlpatterns = [
     path('project/expenditure_analysis_client', views.expenditure_analysis_client, name='expenditure_analysis_client'),
     path('project/amount_released_analysis_client', views.amount_released_analysis_client, name='amount_released_analysis_client'),
     path('project/amount_recieved_analysis_client', views.amount_recieved_analysis_client, name='amount_recieved_analysis_client'),
-
  ]
 
 

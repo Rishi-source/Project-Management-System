@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
     'widget_tweaks',
     'employees',
-    'project',
     'employees.templatetags',
 ]
 
@@ -159,10 +158,9 @@ STATICFILES_DIRS = (
 )
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587  # or the appropriate port for your SMTP server
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rishigarg2503@gmail.com'  # Replace with your email address
-EMAIL_HOST_PASSWORD = password  # Replace with your email password or app-specific password
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = 'rishigarg2503@gmail.com'
+EMAIL_HOST_PASSWORD = 'bfxdiddrksqcmbkr'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

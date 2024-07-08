@@ -4,7 +4,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
 from crispy_forms.bootstrap import *
 from django.forms.models import inlineformset_factory
-
 class LoginForm(forms.Form):
     username = forms.CharField(max_length = 255)
     password = forms.CharField(widget = forms.PasswordInput)
@@ -16,6 +15,24 @@ class LoginForm(forms.Form):
 
         if not username and not password:
             raise forms.ValidationError('Add username and password')
+
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+    confirm_password = forms.CharField(widget=forms.PasswordInput())
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")
+        
+        return cleaned_data
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -55,5 +72,11 @@ class PhysicalProgressForm(forms.ModelForm):
         model = PhysicalProgress
         fields = ['Date_Of_Reporting', 'Physical_Progress_Percentage']
 
+class PasswordResetForm(forms.Form):
+    email = forms.EmailField()
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(max_length=6)
+    new_password = forms.CharField(widget=forms.PasswordInput)
 
 
