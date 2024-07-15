@@ -3,6 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -10,13 +11,8 @@ urlpatterns = [
     path('login', views.loginView, name='login'),
     path('login_user', views.login_user, name='login_user'),
     path('logout', views.logout_user, name='logout'),
-
     path('forgot_password', auth_views.PasswordChangeView.as_view(template_name='forgot_password.html'), name='forgot_password'),
-
- # This 'Z' character should not be here.
-
     # -------------------- PROJECTS --------------------#
-
     path('projects', views.projects, name='projects'),
     path('register/', views.register, name='register'),
     path('register_user/', views.register_user, name='register_user'),
@@ -47,12 +43,11 @@ urlpatterns = [
     path('project/expenditure_analysis_client', views.expenditure_analysis_client, name='expenditure_analysis_client'),
     path('project/amount_released_analysis_client', views.amount_released_analysis_client, name='amount_released_analysis_client'),
     path('project/amount_recieved_analysis_client', views.amount_recieved_analysis_client, name='amount_recieved_analysis_client'),
+    path('notifications/', views.notification, name='notification'),
+    path('project/<int:pk>/pdf/', views.GenerateProjectPDF.as_view(), name='generate_project_pdf'),
+    path('not_allowed/', views.not_allowed, name='not_allowed'),
+
  ]
-
-
-
-
-
     # -------------------- PROJECTS --------------------#
 
 

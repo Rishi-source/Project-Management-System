@@ -32,12 +32,28 @@
         <div class="card-header py-3">
           <h4 class="m-0 font-weight-bold text-primary">Projects List</h4>
         </div>
+
         <div class="card-body">
           <div class="table-responsive">
+            <form method="get" action="{% url 'projects' %}">
+              <div class="row mb-3">
+                <div class="col-md-10">
+                  <label for="searchInput" class="form-label">Search Project:</label>
+                  <div class="input-group">
+                    <input type="text" id="searchInput" name="search" class="form-control" placeholder="Enter project name or A&F/T.S/W.O. Number" value="{{ request.GET.search }}">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-search"></i> <!-- Font Awesome search icon -->
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            </div>   
+          </div>
+
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Title</th>
                   <th>Start Date</th>
                   <th>Add Amount Received</th>
@@ -50,22 +66,35 @@
               <tbody>
                 {% for project in projects %}
                   <tr>
-                    <td>{{ project.id }}</td>
                     <td>{{ project.Name_Of_Project }}</td>
                     <td>{{ project.Start_date }}</td>
-                    <td class="text-center"><a href='{% url "add_amount_recieved" project_id=project.id %}' class="btn btn-secondary">Add Amount Received</a></td>
-                    <td class="text-center"><a href='{% url "add_amount_released" project_id=project.id %}' class="btn btn-warning">Add Amount Released</a></td>
-                    <td class="text-center"><a href='{% url "add_expenditure" project_id=project.id %}' class="btn btn-info">Add Expenditure</a></td>
+                    <td class="text-center">
+                      <a href="{% url 'add_amount_recieved' project_id=project.id %}" 
+                         class="btn btn-secondary  {% if  user.is_active and not user.is_staff and  not user.is_superuser %}
+                         disabled{% endif %}">
+                              Add Amount Received
+                      </a>
+                  </td>
+                  <td class="text-center">
+                      <a href="{% url 'add_amount_released' project_id=project.id %}" 
+                         class="btn btn-warning {% if  user.is_active and not user.is_staff and  not user.is_superuser %}
+                         disabled{% endif %}">
+                              Add Amount Released
+                      </a>
+                  </td>
+                                      <td class="text-center"><a href='{% url "add_expenditure" project_id=project.id %}' class="btn btn-info">Add Expenditure</a></td>
                     <td class="text-center"><a href='{% url "add_progress" project_id=project.id %}' class="btn btn-dark">Add Progress</a></td>
                     <td class="text-center">
                       <div class="btn-group" role="group" aria-label="Project Actions">
+                        {% if user.is_superuser %}
                         <a href='{% url "edit_project" project_id=project.id %}' class="btn btn-primary mr-1">Edit</a>
+                        {% endif %}
                         <a href='{% url "project_detail" project_id=project.id %}' class="btn btn-success mr-1">View</a>
-                        <!-- Delete Confirmation Modal Trigger -->
+                        {% if user.is_superuser %}
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ project.id }}">
                           Delete
                         </button>
-                        <!-- Delete Confirmation Modal -->
+                        {% endif %}
                         <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -86,7 +115,6 @@
                             </div>
                           </div>
                         </div>
-                                                <!-- Delete Confirmation Modal End -->
                       </div>
                     </td>
                   </tr>

@@ -9,6 +9,12 @@ admin.site.register(AmountReceived)
 admin.site.register(AmountReleased)
 admin.site.register(PhysicalProgress)
 admin.site.register(Expenditure)
+admin.site.register(LikelyDate)
+admin.site.register(CompletionDate)
+admin.site.register(HandoverDate)
+admin.site.register(Notification)
+
+
 
 
 

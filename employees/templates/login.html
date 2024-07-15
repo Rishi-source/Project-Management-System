@@ -31,10 +31,13 @@
         </div>
 
         <div class="wrap-input100 validate-input" data-validate="Password is required">
-          <input class="input100" type="password" name="password" placeholder="Password">
+          <input class="input100" type="password" name="password" placeholder="Password" id="password-field">
           <span class="focus-input100"></span>
           <span class="symbol-input100">
             <i class="fa fa-lock" aria-hidden="true"></i>
+          </span>
+          <span class="btn-show-pass">
+            <i class="fa fa-eye" aria-hidden="true" onclick="togglePassword()"></i>
           </span>
         </div>
 
@@ -54,10 +57,36 @@
           </a>
         </div>
 
-
       </form>
 
+    </div>
   </div>
 </div>
 
 {% include 'partials/footer.html' %}
+
+<script>
+function togglePassword() {
+  var passwordField = document.getElementById("password-field");
+  var showPassIcon = document.querySelector(".btn-show-pass i");
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+    showPassIcon.classList.remove("fa-eye");
+    showPassIcon.classList.add("fa-eye-slash");
+  } else {
+    passwordField.type = "password";
+    showPassIcon.classList.remove("fa-eye-slash");
+    showPassIcon.classList.add("fa-eye");
+  }
+}
+</script>
+
+<style>
+.btn-show-pass {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+</style>

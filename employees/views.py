@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_date
 from django.db.models import Sum
 import matplotlib
 matplotlib.use('Agg')  
+from django.db import transaction
 import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
@@ -38,30 +39,34 @@ from urllib.parse import urlencode
 from collections import defaultdict
 import pandas as pd
 from django.utils import timezone
-from calendar import month_name, month_abbr
+import tempfile
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import os
+from django.views.generic import View
+
 # Create your views here.
 def dashboard(request):
+    user =request.user
     if not request.user.is_authenticated:
         return redirect('login')
 
     ongoing_count = Project.objects.filter(is_completed=False, is_handed_over=False).count()
     completed_count = Project.objects.filter(is_completed=True, is_handed_over=False).count()
     handedover_count = Project.objects.filter(is_completed=True, is_handed_over=True).count()
-    newly_added_projects = Project.objects.order_by('-Sanctioned_Amount_Date')[:5]  
+    notifications = Notification.objects.order_by('-Date', '-time')[:50]
 
     context = {
+        'user' : user,
         'ongoing_count': ongoing_count,
         'completed_count': completed_count,
         'handedover_count': handedover_count,
-        'newly_added_projects': newly_added_projects,
-
+        'notifications': notifications,
     }
 
     return render(request, 'dashboard.html', context)
-
-
-
-
 def login_user(request):
     if 'error' in request.session:
         del request.session['error']
@@ -149,20 +154,44 @@ def register_user(request):
 # ------------------------------ PROJECTS START ------------------------------ #
 
 def projects(request):
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return redirect('login')
-    project = Project.objects.all()
-    return render(request, 'projects/projects_list.html', {'projects' : project} )
-
+    
+    projects = Project.objects.all()
+    search_query = request.GET.get('search', None)
+    
+    if search_query:
+        # Split the search query into individual keywords
+        search_keywords = search_query.split()
+        
+        # Create a Q object to perform AND operations on fields
+        q_objects = Q()
+        for keyword in search_keywords:
+            q_objects &= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+        
+        # Filter projects using Q objects to match any keyword in any field
+        projects = projects.filter(q_objects)
+    
+    context = {
+        'user': user,
+        'projects': projects,
+    }
+    
+    return render(request, 'projects/projects_list.html', context)
 
 def add_project(request):
     if not request.user.is_authenticated:
         return redirect('login')
-
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
+ 
     if request.method == "POST":
         try:
             cd = request.POST["Client_Department"]
             dd = request.POST["Division"]
+            bt = request.POST["Budget"]
             nop = request.POST["Name_Of_Project"]
             sa = request.POST["Sanctioned_Amount"]
             sad = request.POST["Sanctioned_Amount_Date"]
@@ -172,28 +201,42 @@ def add_project(request):
             sdoc = request.POST["Stipulated_Date_Of_Completion"]
             woad = request.POST["Work_Order_Amount_Date"]
             woa =request.POST["Work_Order_Amount"]
-
+            ldc =request.POST["Likely_Date_Of_Completion"]
+            an = request.POST["A&F_number"]
+            tsn = request.POST["Technical_Sanctioned_number"]
+            won = request.POST["Work_Order_number"]
+            fy =request.POST["Financial_Year"] 
             sad_date = parse_date(sad)
             sd_date = parse_date(sd)
             tsad_date = parse_date(tsad)
             sdoc_date = parse_date(sdoc)
             woad_date = parse_date(woad)
+            ldc_date = parse_date(ldc)
             new_project = Project(
                 Client_Department=cd,
                 Division=dd,
+                Budget_type =bt,
                 Name_Of_Project=nop,
-                Sanctioned_Amount=sa,
-                Sanctioned_Amount_Date=sad_date,
+                A_and_F_Amount=sa,
+                A_and_F_Date=sad_date,
                 Technical_Sanctioned_Amount=tsa,
-                Technical_Sanctioned_Amount_Date=tsad_date,
-                Work_order_Amount_Date = woad_date,
+                Technical_Sanctioned_Date=tsad_date,
+                Work_order_Date = woad_date,
                 Work_order_Amount = woa,
                 Start_date=sd_date,
-                Stipulated_Date_Of_Completion=sdoc_date
+                Stipulated_Date_Of_Completion=sdoc_date,
+                Likely_Date_Of_Completion = ldc_date,
+                A_and_F_Number = an,
+                Technical_Sanctioned_Number = tsn,
+                Work_order_Number = won,
+                Financial_year = fy
             )
-            
             new_project.save()
-
+            notification = Notification(
+                user = user,
+                message=f"{user.username} has added a new project {nop}"
+            )
+            notification.save()
             res = "Project {} is successfully added".format(nop)
             return render(request, "projects/add_project.html", {"status": res})
 
@@ -212,19 +255,28 @@ def add_project(request):
 def delete_project(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
-
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = Project.objects.filter(pk = project_id)
     if project:
         project = Project.objects.get(pk = project_id)
         project.delete()
+        notification = Notification(
+                user = user,
+                message=f"{user.username} has deleted the project {project.Name_Of_Project}"
+             )
+        notification.save()
+
     return redirect('projects')
 
 def add_amount_received(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     project_instance = get_object_or_404(Project, pk=project_id) 
-    print(project_instance)
-    
     if request.method == "POST":
         try:
             rad = request.POST["Recieved_Amount_Date"]
@@ -240,7 +292,13 @@ def add_amount_received(request, project_id):
             
         
             data.save()
-
+            user = request.user
+            notification = Notification(
+                user = user,
+                project = project_instance,
+                message=f"{user.username} has added an entry for amount received of Rs. {ra} Lacs dated {rad_date} for the project {project_instance.Name_Of_Project}"
+             )
+            notification.save()        
             success = "Amount of Rs. {} lacs is successfully added".format(ra)
             return render(request, "projects/add_amountrecieved.html", {"success": success})
 
@@ -259,6 +317,9 @@ def add_amount_received(request, project_id):
 def add_amount_released(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     project_instance = get_object_or_404(Project, pk=project_id)  
     
 
@@ -276,7 +337,13 @@ def add_amount_released(request, project_id):
             )
             
             data.save()
-
+            user = request.user
+            notification = Notification(
+                user = user,
+                project = project_instance,
+                message=f"{user.username} has added an entry for amount released of Rs. {ra} Lacs dated {rad_date} for the project {project_instance.Name_Of_Project}"
+             )
+            notification.save() 
             success = "Released Amount of Rs. {} lacs is successfully added".format(ra)
             return render(request, "projects/add_amountreleased.html", {"success": success})
 
@@ -311,6 +378,13 @@ def add_progress(request, project_id):
             )
             
             progress.save()
+            user = request.user
+            notification = Notification(
+                user = user,
+                project = project_instance,
+                message=f"{user.username} has added an entry for Physical Progress of  {ra}% dated {rad_date} for the project {project_instance.Name_Of_Project}"
+             )
+            notification.save() 
 
             res = f"Physical Progress of {ra}% is successfully recorded."
             return render(request, "projects/add_progress.html", {"success": res})
@@ -337,19 +411,32 @@ def add_total_expenditure(request, project_id):
     
     if request.method == "POST":
         try:
-            total_expenditure = request.POST.get("Total_Expenditure")
-            date_str = request.POST.get("Date")
-            date = make_aware(datetime.strptime(date_str, "%Y-%m-%d"))
+            expenditure_value = request.POST.get("expenditure_value")
+            date_str = request.POST.get("expenditure_date")
+            physical_progress = request.POST.get("physical_progress")
+            remarks = request.POST.get("remarks")
+            photo = request.FILES.get("photo")
+
+            date = parse_date(date_str)
 
             expenditure = Expenditure(
                 project=project_instance,
                 Expenditure_date=date,
-                Expenditure_Value=total_expenditure
+                Expenditure_Value=expenditure_value,
+                physical_progress=physical_progress,
+                remarks=remarks,
+                photo=photo
             )
             
             expenditure.save()
-
-            success = f"Total expenditure of Rs. {total_expenditure} is successfully added for {date.strftime('%B %Y')}."
+            user = request.user
+            notification = Notification(
+                user = user,
+                project = project_instance,
+                message=f"{user.username} has added an entry for Expenditure of Rs. {expenditure_value} Lacs dated {date} for the project {project_instance.Name_Of_Project}"
+             )
+            notification.save() 
+            success = f"Total expenditure of Rs. {expenditure_value} Lacs is successfully added for {date.strftime('%B %Y')}."
             return render(request, "projects/add_expenditure.html", {"success": success, "project": project_instance})
         
         except ValueError as e:
@@ -357,6 +444,9 @@ def add_total_expenditure(request, project_id):
             return render(request, "projects/add_expenditure.html", {"error": error, "project": project_instance})
         except IntegrityError as e:
             error = f"Database Error: {e}"
+            return render(request, "projects/add_expenditure.html", {"error": error, "project": project_instance})
+        except ValidationError as e:
+            error = f"Validation Error: {e}"
             return render(request, "projects/add_expenditure.html", {"error": error, "project": project_instance})
         except Exception as e:
             error = f"An error occurred: {e}"
@@ -499,8 +589,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Amounts Received")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, rotation=45)  # Rotate ticks for better readability
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure ticks are integers
+            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
             plt.tight_layout()
 
             for bar in bars:
@@ -521,8 +611,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Amounts Released")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, rotation=45)  # Rotate ticks for better readability
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure ticks are integers
+            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
             plt.tight_layout()
             plt.tight_layout()
 
@@ -544,8 +634,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Total Expenditure")
             plt.xlabel("Year")
             plt.ylabel("Total Expenditure (Rs. Lacs)")
-            plt.xticks(years_received, rotation=45)  # Rotate ticks for better readability
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure ticks are integers
+            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
             plt.tight_layout()
 
             plt.tight_layout()
@@ -576,9 +666,8 @@ def project_detail(request, project_id):
     
     total_expenditure = Expenditure.objects.filter(project=project).aggregate(total=Sum('Expenditure_Value'))['total'] or 0
 
-    remaining_amount = total_amount_received - total_expenditure
-    agencycharge = project.Sanctioned_Amount - project.Technical_Sanctioned_Amount
-    percentage = (agencycharge/project.Sanctioned_Amount)*100
+    remaining_amount = project.Work_order_Amount - total_expenditure
+    agencycharge =  project.Technical_Sanctioned_Amount*9/100
 
     context = {
         'project': project,
@@ -598,7 +687,6 @@ def project_detail(request, project_id):
         'total_expenditure_sum': total_expenditure_sum,
         'remaining_amount': remaining_amount,
         'agencycharge':agencycharge,
-        'percentage':percentage,
     }
 
     return render(request, 'projects/project_detail.html', context)
@@ -613,8 +701,6 @@ def fetch_project_data(projects, total_expenditure_sum):
     recent_physical_progress = {}
 
     for project in projects:
-        # Example logic to calculate recent physical progress
-        # Replace this with your actual logic
         recent_physical_progress[project.id] = {
             'percentage': calculate_percentage(project.total_expenditure_sum, total_expenditure_sum)
         }
@@ -629,38 +715,121 @@ def calculate_percentage(project_expenditure_sum, total_expenditure_sum):
 
 
 def view_project(request):
+    user = request.user
     if not request.user.is_authenticated:
         return redirect('login')
     
     projects = Project.objects.all()
+    search_query = request.GET.get('search', None)
+    financial_year = request.GET.get('financial_year', None)
+
+    if search_query:
+        # Split the search query into individual keywords
+        search_keywords = search_query.split()
+        
+        # Create a Q object to perform OR operations on fields
+        q_objects = Q()
+        for keyword in search_keywords:
+            q_objects |= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+        
+        # Filter projects using Q objects to match any keyword in any field
+        projects = projects.filter(q_objects)
+    
+    if financial_year:
+        projects = projects.filter(Financial_year=financial_year)
+    
     for project in projects:
-        # Calculate total expenditure for the project
         total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
         total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
         total_AmountReceived = AmountReceived.objects.filter(project=project).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
-        project.total_expenditure_sum = total_expenditures  # Attach total_expenditure_sum to each project instance
+        project.total_expenditure_sum = total_expenditures 
         project.total_AmountReleased = total_AmountReleased
         project.total_AmountReceived = total_AmountReceived
-        # Fetch project status (assuming Project_Status model is linked to Project)    
+    
     context = {
+        'user': user,
         'projects': projects,
+        'search_query': search_query,  # Pass search query back to the template for display
+        'financial_year': financial_year,  # Pass financial year back to the template for display
     }
     return render(request, 'projects/view_project.html', context)
 def edit_stipulated_date(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
+    
     status = ""
     try:
         project = get_object_or_404(Project, id=project_id)
         
         if request.method == 'POST':
-            new_stipulated_date = request.POST.get('Stipulated_Date')
-            project.Stipulated_Date_Of_Completion = new_stipulated_date
-            project.save()
+            new_likely_date = request.POST.get('Likely_Date')
+            new_completion_date = request.POST.get('Completion_Date')
+            new_handover_date = request.POST.get('Handover_Date')
+            
+            if new_likely_date:
+                likelydate = LikelyDate(
+                    project=project,
+                    Likely_date=new_likely_date
+                )
+                likelydate.save()
+                user = request.user
+                notification = Notification(
+                    user = user,
+                    project = project,
+                    message=f"{user.username} has added a new entry for Likely date of completion of {new_likely_date} for the project {project.Name_Of_Project}"
+             )
+                notification.save() 
 
-            status = "Stipulated date of completion updated successfully."
-            return render(request, "projects/edit_date_of_completion.html", {'status': status})
+                status = "Likely date of completion updated successfully."
+            
+            if new_completion_date:
+                completiondate = CompletionDate(
+                    project=project,
+                    Completion_date=new_completion_date
+                )
+                completiondate.save()
+                user = request.user
+                notification = Notification(
+                    user = user,
+                    project = project,
+                    message=f"{user.username} has added a new entry for date of completion of {new_completion_date} for the project {project.Name_Of_Project}"
+             )
+                notification.save() 
+                status = "Date of completion updated successfully."
+            
+            if new_handover_date:
+                handoverdate = HandoverDate(
+                    project=project,
+                    Handover_date=new_handover_date
+                )
+                handoverdate.save()
+                user = request.user
+                notification = Notification(
+                    user = user,
+                    project = project,
+                    message=f"{user.username} has added a new entry for date of handover of {new_handover_date} for the project {project.Name_Of_Project}"
+             )
+                notification.save() 
 
+                status = "Date of handover updated successfully."
+
+        likely_date_entries = LikelyDate.objects.filter(project=project)
+        completion_date_entries = CompletionDate.objects.filter(project=project)
+        handover_date_entries = HandoverDate.objects.filter(project=project)
+        
+        context = {
+            'project': project,
+            'likely_date_entries': likely_date_entries,
+            'completion_date_entries': completion_date_entries,
+            'handover_date_entries': handover_date_entries,
+            'status': status
+        }
+        
+        return render(request, "projects/edit_date_of_completion.html", context)
+    
     except KeyError as e:
         status = "Missing field: {}".format(e)
     except ValidationError as e:
@@ -668,15 +837,33 @@ def edit_stipulated_date(request, project_id):
     except Exception as e:
         status = "An error occurred: {}".format(e)
 
-    return render(request, "projects/edit_date_of_completion.html", {'status': status, 'project': project})
+    likely_date_entries = LikelyDate.objects.filter(project=project)
+    completion_date_entries = CompletionDate.objects.filter(project=project)
+    handover_date_entries = HandoverDate.objects.filter(project=project)
+    
+    return render(request, "projects/edit_date_of_completion.html", {
+        'status': status,
+        'project': project,
+        'likely_date_entries': likely_date_entries,
+        'completion_date_entries': completion_date_entries,
+        'handover_date_entries': handover_date_entries
+    })
 def mark_project_completed(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
-    
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     project = get_object_or_404(Project, id=project_id)
     project.is_completed = True
-    project.save()  # Save the project object after making changes
-
+    project.save()  
+    user = request.user
+    notification = Notification(
+        user = user,
+        project = project,
+        message=f"{user.username} has marked the project {project.Name_Of_Project} as COMPLETED "
+    )
+    notification.save() 
     status = "Project {} marked as completed".format(project.Name_Of_Project)
     query_params = urlencode({'status': status, 'project': project.id})
 
@@ -699,7 +886,7 @@ def fetch_project_data(projects, total_expenditure):
             }
 
         project.total_expenditure = total_expenditure
-        project.remaining_amount = calculate_remaining_amount(project.Sanctioned_Amount, total_expenditure)
+        project.remaining_amount = calculate_remaining_amount(project.A_and_F_Amount, total_expenditure)
     
     return recent_physical_progress
 
@@ -710,10 +897,19 @@ def calculate_remaining_amount(sanctioned_amount, total_expenditure):
 def mark_project_handedover(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
-    
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     project = get_object_or_404(Project, id=project_id)
     project.is_handed_over = True
-    project.save()  # Save the project object after making changes
+    project.save()  
+    user = request.user
+    notification = Notification(
+    user = user,
+    project = project,
+    message=f"{user.username} has marked the project {project.Name_Of_Project} as HANDOVER "
+    )
+    notification.save() 
 
     status = "Project {} marked as handed over".format(project.Name_Of_Project)
     query_params = urlencode({'status': status, 'project': project.id})
@@ -722,20 +918,29 @@ def mark_project_handedover(request, project_id):
 def edit_project(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
-    
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = get_object_or_404(Project, id=project_id)
     
     if request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
         if form.is_valid():
             form.save()
+            user = request.user
+            notification = Notification(
+            user = user,
+            project = project,
+            message=f"{user.username} has edited the project {project.Name_Of_Project} "
+                )
+            notification.save() 
+
             status = f"Project '{project.Name_Of_Project}' is successfully edited."
             projects = Project.objects.all()
             return render(request, 'projects/projects_list.html', {'projects': projects, 'status': status})
     else:
         form = ProjectForm(instance=project)
         status = ""
-
     context = {
         'form': form,
         'project_id': project_id,
@@ -753,47 +958,68 @@ def amount_received(request, project_id):
 
     return render(request, 'projects/edit_amountreceived.html', context)
 
+@login_required
 def edit_amount_received(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
         amount_received = request.POST.get('amount_received')
         
-        # Retrieve the existing entry
         entry = get_object_or_404(AmountReceived, pk=entry_id)
+        amount = entry.Amount_Received
+        date = entry.Amount_Received_Date
 
-        # Update the fields
         entry.Amount_Received = amount_received
-        
-        # Ensure Amount_Received_Date is set appropriately
-        # For example, you might set it to the current date or retrieve it from the form
-        entry.Amount_Received_Date = entry.Amount_Received_Date  # Ensure this is properly set
+        entry.Amount_Received_Date = entry.Amount_Received_Date  
 
-        # Save the entry
         entry.save()
-
-        # Optionally, add a success message or redirect
+        user = request.user
+        notification = Notification(
+            user=user,
+            project=project,
+            message=f"{user.username} has edited amount received entry dated for {date} of amount Rs. {amount} Lacs to Rs. {amount_received} Lacs in the project {project.Name_Of_Project}"
+        )
+        notification.save()
         messages.success(request, 'Amount Received entry updated successfully.')
         return redirect('edit_amount_received', project_id=project.pk)
 
-    # Handle GET request (rendering form)
-    amount_received_entries = project.amount_received.all()  # Corrected related name usage
+    amount_received_entries = project.amount_received.all()  
     return render(request, 'projects/edit_amountreceived.html', {
         'project': project,
         'amount_received_entries': amount_received_entries,
     })
+
+@login_required
 def delete_amount_received(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
+    project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
-        
-        # Retrieve the amount received entry to delete
         entry = get_object_or_404(AmountReceived, pk=entry_id)
+        amount = entry.Amount_Received
+        date = entry.Amount_Received_Date
         entry.delete()
-        
+        user = request.user
+        notification = Notification(
+            user=user,
+            project=project,
+            message=f"{user.username} has deleted the amount received entry dated for {date} of amount Rs. {amount} Lacs in the project {project.Name_Of_Project}"
+        )
+        notification.save()
         messages.success(request, 'Amount received entry deleted successfully.')
     
     return redirect('edit_amount_received', project_id=project_id)
+
+@login_required
 def edit_amount_released(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
@@ -801,8 +1027,19 @@ def edit_amount_released(request, project_id):
         
         if entry_id:
             amount_released_entry = get_object_or_404(AmountReleased, pk=entry_id, project=project)
+            old_amount = amount_released_entry.Amount_Released
+            date = amount_released_entry.Amount_Released_Date
             amount_released_entry.Amount_Released = amount_released
             amount_released_entry.save()
+
+            user = request.user
+            notification = Notification(
+                user=user,
+                project=project,
+                message=f"{user.username} has edited amount released entry from Rs. {old_amount} Lacs to Rs. {amount_released} Lacs dated for {date} in the project {project.Name_Of_Project}"
+            )
+            notification.save()
+
             messages.success(request, 'Amount released entry updated successfully.')
         else:
             messages.error(request, 'Invalid entry ID.')
@@ -814,18 +1051,38 @@ def edit_amount_released(request, project_id):
     }
     return render(request, 'projects/edit_amountrelesed.html', context)
 
+@login_required
 def delete_amount_released(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
         if entry_id:
             amount_released_entry = get_object_or_404(AmountReleased, pk=entry_id, project=project)
+            amount = amount_released_entry.Amount_Released
+            date = amount_released_entry.Amount_Released_Date
             amount_released_entry.delete()
+
+            user = request.user
+            notification = Notification(
+                user=user,
+                project=project,
+                message=f"{user.username} has deleted the amount released entry of Rs. {amount} Lacs dated for {date} in the project {project.Name_Of_Project}"
+            )
+            notification.save()
+
             messages.success(request, 'Amount released entry deleted successfully.')
         else:
             messages.error(request, 'Invalid entry ID.')
-    return redirect('projects/edit_amountrelesed.html', project_id=project_id)
+    return redirect('edit_amountreleased', project_id=project_id)
+
+@login_required
 def edit_physical_progress(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
     project = get_object_or_404(Project, pk=project_id)
     physical_progress_entries = project.physical_progress_entries.all()
 
@@ -833,21 +1090,27 @@ def edit_physical_progress(request, project_id):
         entry_id = request.POST.get('entry_id')
         physical_progress_entry = get_object_or_404(PhysicalProgress, pk=entry_id)
 
-        # Manually fetch form data from POST request
         physical_progress_percentage = request.POST.get('physical_progress_percentage')
 
-        # Validate form data
         if physical_progress_percentage:
-            # Update PhysicalProgress instance
+            old_percentage = physical_progress_entry.Physical_Progress_Percentage
+            date = physical_progress_entry.Date_Of_Reporting
             physical_progress_entry.Physical_Progress_Percentage = physical_progress_percentage
             physical_progress_entry.save()
+
+            user = request.user
+            notification = Notification(
+                user=user,
+                project=project,
+                message=f"{user.username} has edited physical progress percentage from {old_percentage}% to {physical_progress_percentage}%  dated for {date} in the project {project.Name_Of_Project}"
+            )
+            notification.save()
 
             messages.success(request, 'Physical Progress percentage updated successfully.')
             return redirect('edit_physical_progress', project_id=project_id)
         else:
             messages.error(request, 'Please fill in all fields.')
     else:
-        # Initialize an empty form for GET request
         form = None
 
     context = {
@@ -856,72 +1119,134 @@ def edit_physical_progress(request, project_id):
         'form': form,
     }
     return render(request, 'projects/edit_physical_progress.html', context)
+
+@login_required
 def delete_physical_progress(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
+    project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
         if entry_id:
             physical_progress = get_object_or_404(PhysicalProgress, pk=entry_id)
+            percentage = physical_progress.Physical_Progress_Percentage
+            date = physical_progress.Date_Of_Reporting
             physical_progress.delete()
-            messages.success(request, 'Expenditure entry deleted successfully.')
+
+            user = request.user
+            notification = Notification(
+                user=user,
+                project=project,
+                message=f"{user.username} has deleted the physical progress entry of {percentage}% dates for {date} in the project {project.Name_Of_Project}"
+            )
+            notification.save()
+
+            messages.success(request, 'Physical progress entry deleted successfully.')
         else:
-            messages.error(request, 'Invalid expenditure entry ID.')
+            messages.error(request, 'Invalid physical progress entry ID.')
     
-    return redirect('projects/edit_physical_progress', project_id=project_id)
+    return redirect('edit_physical_progress', project_id=project_id)
+
+@login_required
 def edit_expenditure(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
+
     project = get_object_or_404(Project, pk=project_id)
     expenditures = Expenditure.objects.filter(project=project)
 
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
         expenditure_value = request.POST.get('expenditure_value')
+        physical_progress = request.POST.get('physical_progress')
+        remarks = request.POST.get('remarks')
 
-        if entry_id and expenditure_value:
-            try:
-                expenditure = get_object_or_404(Expenditure, pk=entry_id, project=project)
-                expenditure.Expenditure_Value = expenditure_value
-                expenditure.save()
-                messages.success(request, 'Expenditure updated successfully.')
-            except Expenditure.DoesNotExist:
-                messages.error(request, 'Expenditure entry not found.')
-        else:
-            messages.error(request, 'Please provide a valid expenditure value.')
+        if not all([entry_id, expenditure_value, physical_progress, remarks]):
+            messages.error(request, 'All fields are required.')
+            return redirect('edit_expenditure', project_id=project_id)
+
+        expenditure = get_object_or_404(Expenditure, pk=entry_id, project=project)
+        old_value = expenditure.Expenditure_Value
+        old_physical_progress = expenditure.physical_progress
+        old_remarks = expenditure.remarks
+        date = expenditure.Expenditure_date
+        expenditure.Expenditure_Value = expenditure_value
+        expenditure.physical_progress = physical_progress
+        expenditure.remarks = remarks
+        expenditure.save()
+
+        user = request.user
+        notification_message = (f"{user.username} has edited an expenditure entry on {date}:\n"
+                                f"- Previous value: Rs. {old_value} Lacs\n"
+                                f"- New value: Rs. {expenditure_value} Lacs\n"
+                                f"- Previous progress: {old_physical_progress}%\n"
+                                f"- New progress: {physical_progress}%\n"
+                                f"- Previous remarks: {old_remarks}\n"
+                                f"- New remarks: {remarks}\n"
+                                f"In the project {project.Name_Of_Project}.")
+
+        Notification.objects.create(
+            user=user,
+            project=project,
+            message=notification_message
+        )
+
+        messages.success(request, 'Expenditure updated successfully.')
+        return redirect('edit_expenditure', project_id=project_id)
 
     context = {
         'project': project,
         'expenditures': expenditures,
     }
     return render(request, 'projects/edit_expenditure.html', context)
+@login_required
 def delete_expenditure(request, project_id):
+    user = request.user
+    if user.is_active and user.is_staff and not user.is_superuser:
+        return redirect('not_allowed')
+    project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
         entry_id = request.POST.get('entry_id')
         if entry_id:
             expenditure = get_object_or_404(Expenditure, pk=entry_id)
+            value = expenditure.Expenditure_Value
+            date = expenditure.Expenditure_date
             expenditure.delete()
+
+            user = request.user
+            notification = Notification(
+                user=user,
+                project=project,
+                message=f"{user.username} has deleted the expenditure entry of Rs. {value} Lacs dated for {date} in the project {project.Name_Of_Project}"
+            )
+            notification.save()
+
             messages.success(request, 'Expenditure entry deleted successfully.')
         else:
             messages.error(request, 'Invalid expenditure entry ID.')
     
     return redirect('edit_expenditure', project_id=project_id)
 def amount_released_analysis(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Unit II', 'Unit III', 'Unit IV']
     yearly_data = {division: 0 for division in divisions}
 
-    # Monthly data variables for each division
     udaipur_monthly_data = [0] * 12
     jodhpur_monthly_data = [0] * 12
     kota_monthly_data = [0] * 12
     bikaner_monthly_data = [0] * 12
     jaipur_monthly_data = [0] * 12
     ajmer_monthly_data = [0] * 12
-    bharatpur_monthly_data = [0] * 12
 
-    month_names = month_abbr[1:]
 
     for division in divisions:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = AmountReleased.objects.filter(
             project__Division=division,
             Amount_Released_Date__year=selected_year
@@ -929,7 +1254,6 @@ def amount_released_analysis(request):
 
         yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = AmountReleased.objects.filter(
                 project__Division=division,
@@ -937,23 +1261,20 @@ def amount_released_analysis(request):
                 Amount_Released_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Released'))
 
-            # Assign monthly amounts to respective division variables
             if division == 'Udaipur':
                 udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Jodhpur':
                 jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Kota':
                 kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bikaner':
+            elif division == 'Unit II':
                 bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Jaipur':
+            elif division == 'Unit III':
                 jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Ajmer':
+            elif division == 'Unit IV':
                 ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bharatpur':
-                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
+    years = range(2020, 2031) 
 
     context = {
         'year': selected_year,
@@ -965,30 +1286,27 @@ def amount_released_analysis(request):
         'bikaner_monthly_data': bikaner_monthly_data,
         'jaipur_monthly_data': jaipur_monthly_data,
         'ajmer_monthly_data': ajmer_monthly_data,
-        'bharatpur_monthly_data': bharatpur_monthly_data,
         'years': years,
     }
     return render(request, 'projects/amount_released_analysis.html', context)
 def amount_recieved_analysis(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Unit II', 'Unit III', 'Unit IV']
     yearly_data = {division: 0 for division in divisions}
 
-    # Monthly data variables for each division
     udaipur_monthly_data = [0] * 12
     jodhpur_monthly_data = [0] * 12
     kota_monthly_data = [0] * 12
     bikaner_monthly_data = [0] * 12
     jaipur_monthly_data = [0] * 12
     ajmer_monthly_data = [0] * 12
-    bharatpur_monthly_data = [0] * 12
-
-    month_names = month_abbr[1:]
 
     for division in divisions:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = AmountReceived.objects.filter(
             project__Division=division,
             Amount_Received_Date__year=selected_year
@@ -996,7 +1314,6 @@ def amount_recieved_analysis(request):
 
         yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = AmountReceived.objects.filter(
                 project__Division=division,
@@ -1004,24 +1321,20 @@ def amount_recieved_analysis(request):
                 Amount_Received_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Received'))
 
-            # Assign monthly amounts to respective division variables
             if division == 'Udaipur':
                 udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Jodhpur':
                 jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Kota':
                 kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bikaner':
+            elif division == 'Unit II':
                 bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Jaipur':
+            elif division == 'Unit III':
                 jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Ajmer':
+            elif division == 'Unit IV':
                 ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bharatpur':
-                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
-
+    years = range(2020, 2031) 
     context = {
         'year': selected_year,
         'divisions': divisions,
@@ -1032,28 +1345,27 @@ def amount_recieved_analysis(request):
         'bikaner_monthly_data': bikaner_monthly_data,
         'jaipur_monthly_data': jaipur_monthly_data,
         'ajmer_monthly_data': ajmer_monthly_data,
-        'bharatpur_monthly_data': bharatpur_monthly_data,
         'years': years,
     }
     return render(request, 'projects/amount_recieved_analysis.html', context)
 def expenditure_analysis(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Jaipur', 'Ajmer', 'Bharatpur']
+    divisions = ['Udaipur', 'Jodhpur', 'Kota', 'Unit II', 'Unit III', 'Unit IV']
     yearly_data = {division: 0 for division in divisions}
 
-    # Monthly data variables for each division
     udaipur_monthly_data = [0] * 12
     jodhpur_monthly_data = [0] * 12
     kota_monthly_data = [0] * 12
     bikaner_monthly_data = [0] * 12
     jaipur_monthly_data = [0] * 12
     ajmer_monthly_data = [0] * 12
-    bharatpur_monthly_data = [0] * 12
 
     for division in divisions:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = Expenditure.objects.filter(
             project__Division=division,
             Expenditure_date__year=selected_year
@@ -1061,7 +1373,6 @@ def expenditure_analysis(request):
 
         yearly_data[division] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = Expenditure.objects.filter(
                 project__Division=division,
@@ -1069,23 +1380,20 @@ def expenditure_analysis(request):
                 Expenditure_date__month=month
             ).aggregate(total_amount=Sum('Expenditure_Value'))
 
-            # Assign monthly amounts to respective division variables
             if division == 'Udaipur':
                 udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Jodhpur':
                 jodhpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif division == 'Kota':
                 kota_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bikaner':
+            elif division == 'Unit II':
                 bikaner_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Jaipur':
+            elif division == 'Unit III':
                 jaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Ajmer':
+            elif division == 'Unit IV':
                 ajmer_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif division == 'Bharatpur':
-                bharatpur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
+    years = range(2020, 2031) 
 
     context = {
         'year': selected_year,
@@ -1097,25 +1405,25 @@ def expenditure_analysis(request):
         'bikaner_monthly_data': bikaner_monthly_data,
         'jaipur_monthly_data': jaipur_monthly_data,
         'ajmer_monthly_data': ajmer_monthly_data,
-        'bharatpur_monthly_data': bharatpur_monthly_data,
         'years': years,
     }
     return render(request, 'projects/expenditure_analysis.html', context)
 def expenditure_analysis_client(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
     clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
     yearly_data = {client: 0 for client in clients}
 
-    # Monthly data variables for each division
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
 
     for client in clients:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = Expenditure.objects.filter(
             project__Client_Department=client,
             Expenditure_date__year=selected_year
@@ -1123,14 +1431,12 @@ def expenditure_analysis_client(request):
 
         yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = Expenditure.objects.filter(
                 project__Client_Department=client,
                 Expenditure_date__year=selected_year,
                 Expenditure_date__month=month
             ).aggregate(total_amount=Sum('Expenditure_Value'))
-            # Assign monthly amounts to respective division variables
             if client == 'Sports Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Skill Department':
@@ -1140,11 +1446,11 @@ def expenditure_analysis_client(request):
             elif client == 'Technical & Higher Education':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
+    years = range(2020, 2031) 
 
     context = {
     'year': selected_year,
-    'clients': clients,  # Corrected variable name
+    'clients': clients, 
     'yearly_data': yearly_data,
     'Sports_Department_monthly_data': Sports_Department_monthly_data,
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
@@ -1154,20 +1460,20 @@ def expenditure_analysis_client(request):
 }
     return render(request, 'projects/expenditure_analysis_client.html', context)
 def amount_released_analysis_client(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
     clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
     yearly_data = {client: 0 for client in clients}
-
-    # Monthly data variables for each division
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
 
     for client in clients:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = AmountReleased.objects.filter(
             project__Client_Department=client,
             Amount_Released_Date__year=selected_year
@@ -1175,14 +1481,12 @@ def amount_released_analysis_client(request):
 
         yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = AmountReleased.objects.filter(
                 project__Client_Department=client,
                 Amount_Released_Date__year=selected_year,
                 Amount_Released_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Released'))
-            # Assign monthly amounts to respective division variables
             if client == 'Sports Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Skill Department':
@@ -1192,11 +1496,11 @@ def amount_released_analysis_client(request):
             elif client == 'Technical & Higher Education':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
+    years = range(2020, 2031) 
 
     context = {
     'year': selected_year,
-    'clients': clients,  # Corrected variable name
+    'clients': clients, 
     'yearly_data': yearly_data,
     'Sports_Department_monthly_data': Sports_Department_monthly_data,
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
@@ -1206,20 +1510,20 @@ def amount_released_analysis_client(request):
 }
     return render(request, 'projects/amount_released_analysis_client.html', context)
 def amount_released_analysis_client(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
     clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
     yearly_data = {client: 0 for client in clients}
-
-    # Monthly data variables for each division
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
 
     for client in clients:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = AmountReleased.objects.filter(
             project__Client_Department=client,
             Amount_Released_Date__year=selected_year
@@ -1227,14 +1531,12 @@ def amount_released_analysis_client(request):
 
         yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
 
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = AmountReleased.objects.filter(
                 project__Client_Department=client,
                 Amount_Released_Date__year=selected_year,
                 Amount_Released_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Released'))
-            # Assign monthly amounts to respective division variables
             if client == 'Sports Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Skill Department':
@@ -1244,11 +1546,10 @@ def amount_released_analysis_client(request):
             elif client == 'Technical & Higher Education':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
-
+    years = range(2020, 2031) 
     context = {
     'year': selected_year,
-    'clients': clients,  # Corrected variable name
+    'clients': clients, 
     'yearly_data': yearly_data,
     'Sports_Department_monthly_data': Sports_Department_monthly_data,
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
@@ -1258,35 +1559,32 @@ def amount_released_analysis_client(request):
 }
     return render(request, 'projects/amount_released_analysis_client.html', context)
 def amount_recieved_analysis_client(request):
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
     clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
     yearly_data = {client: 0 for client in clients}
-
-    # Monthly data variables for each division
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
 
     for client in clients:
-        # Calculate yearly amounts for the division
         yearly_amounts_data = AmountReceived.objects.filter(
             project__Client_Department=client,
             Amount_Received_Date__year=selected_year
         ).aggregate(total_amount=Sum('Amount_Received'))
 
         yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
-
-        # Calculate monthly amounts for the division
         for month in range(1, 13):
             monthly_amounts_data = AmountReceived.objects.filter(
                 project__Client_Department=client,
                 Amount_Received_Date__year=selected_year,
                 Amount_Received_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Received'))
-            # Assign monthly amounts to respective division variables
             if client == 'Sports Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Skill Department':
@@ -1296,11 +1594,11 @@ def amount_recieved_analysis_client(request):
             elif client == 'Technical & Higher Education':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
 
-    years = range(2020, 2031)  # List of years from 2020 to 2030
+    years = range(2020, 2031)  
 
     context = {
     'year': selected_year,
-    'clients': clients,  # Corrected variable name
+    'clients': clients,  
     'yearly_data': yearly_data,
     'Sports_Department_monthly_data': Sports_Department_monthly_data,
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
@@ -1309,7 +1607,231 @@ def amount_recieved_analysis_client(request):
     'years': years,
 }
     return render(request, 'projects/amount_recieved_analysis_client.html', context)
+def notification(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
 
+    notifications = Notification.objects.order_by('-Date', '-time')[:50]
+
+    context = {
+        'notifications': notifications,
+    }
+
+    return render(request, 'notification.html', context)
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
+class GenerateProjectPDF(View):
+    def get(self,request,pk):
+        project = get_object_or_404(Project, id=pk)
+    
+        selected_year = None
+        graphic_month_received = None
+        graphic_month_released = None
+        graphic_month_expenditure = None
+        graphic_year_received = None
+        graphic_year_released = None
+        graphic_year_expenditure = None
+
+        if request.method == 'GET':
+            if 'years' in request.GET:
+                selected_year = request.GET.get('years')
+
+        monthly_data = fetch_monthly_data(project, selected_year or now().year)
+        
+        if monthly_data['received']:
+            months_received = [data['Amount_Received_Date__month'] for data in monthly_data['received']]
+            amounts_received = [data['total_received'] for data in monthly_data['received']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(months_received, amounts_received, color='blue')
+            plt.title(f"Monthly Amounts Received for {selected_year or now().year}")
+            plt.xlabel("Month")
+            plt.ylabel("Amount (Rs. Lacs)")
+            plt.xticks(np.arange(1, 13), calendar.month_name[1:13], rotation=45) 
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_month_received = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        if monthly_data['released']:
+            months_released = [data['Amount_Released_Date__month'] for data in monthly_data['released']]
+            amounts_released = [data['total_released'] for data in monthly_data['released']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(months_released, amounts_released, color='green')
+            plt.title(f"Monthly Amounts Released for {selected_year or now().year}")
+            plt.xlabel("Month")
+            plt.ylabel("Amount (Rs. Lacs)")
+            plt.xticks(np.arange(1, 13), calendar.month_name[1:13], rotation=45) 
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_month_released = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        if monthly_data['expenditure']:
+            months_expenditure = [data['Expenditure_date__month'] for data in monthly_data['expenditure']]
+            amounts_expenditure = [data['total_expenditure'] for data in monthly_data['expenditure']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(months_expenditure, amounts_expenditure, color='red')
+            plt.title(f"Monthly Expenditure for {selected_year or now().year}")
+            plt.xlabel("Month")
+            plt.ylabel("Expenditure (Rs. Lacs)")
+            plt.xticks(np.arange(1, 13), calendar.month_name[1:13], rotation=45) 
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_month_expenditure = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        yearly_data = fetch_yearly_data(project)
+
+        if yearly_data['received']:
+            years_received = [data['Amount_Received_Date__year'] for data in yearly_data['received']]
+            print(years_received)
+            amounts_received = [data['total_received'] for data in yearly_data['received']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(years_received, amounts_received, color='blue')
+            plt.title(f"Yearly Amounts Received")
+            plt.xlabel("Year")
+            plt.ylabel("Amount (Rs. Lacs)")
+            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_year_received = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        if yearly_data['released']:
+            years_released = [data['Amount_Released_Date__year'] for data in yearly_data['released']]
+            amounts_released = [data['total_released'] for data in yearly_data['released']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(years_released, amounts_released, color='green')
+            plt.title(f"Yearly Amounts Released")
+            plt.xlabel("Year")
+            plt.ylabel("Amount (Rs. Lacs)")
+            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.tight_layout()
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_year_released = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        if yearly_data['expenditure']:
+            years_expenditure = [data['Expenditure_date__year'] for data in yearly_data['expenditure']]
+            total_expenditure = [data['total_expenditure'] for data in yearly_data['expenditure']]
+            plt.figure(figsize=(8, 4))
+            bars = plt.bar(years_expenditure, total_expenditure, color='red')
+            plt.title(f"Yearly Total Expenditure")
+            plt.xlabel("Year")
+            plt.ylabel("Total Expenditure (Rs. Lacs)")
+            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.tight_layout()
+
+            plt.tight_layout()
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom')
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            graphic_year_expenditure = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+
+        amounts_received = AmountReceived.objects.filter(project=project).order_by('Amount_Received_Date')
+        amounts_released = AmountReleased.objects.filter(project=project).order_by('Amount_Released_Date')
+        physical_progress = PhysicalProgress.objects.filter(project=project).order_by('-Date_Of_Reporting')
+        total_expenditures = Expenditure.objects.filter(project=project).order_by('Expenditure_date')
+
+        total_amount_received = amounts_received.aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+        total_amount_released = amounts_released.aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_expenditure_sum = total_expenditures.aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        project = Project.objects.get(id=pk)
+    
+        total_amount_received = AmountReceived.objects.filter(project=project).aggregate(total=Sum('Amount_Received'))['total'] or 0
+    
+        total_amount_released = AmountReleased.objects.filter(project=project).aggregate(total=Sum('Amount_Released'))['total'] or 0
+    
+        total_expenditure = Expenditure.objects.filter(project=project).aggregate(total=Sum('Expenditure_Value'))['total'] or 0
+
+        remaining_amount = project.Work_order_Amount - total_expenditure
+        agencycharge =  project.Technical_Sanctioned_Amount*9/100
+
+        context = {
+        'project': project,
+        'selected_year': selected_year,
+        'graphic_month_received': graphic_month_received,
+        'graphic_month_released': graphic_month_released,
+        'graphic_month_expenditure': graphic_month_expenditure,
+        'graphic_year_received': graphic_year_received,
+        'graphic_year_released': graphic_year_released,
+        'graphic_year_expenditure': graphic_year_expenditure,
+        'amounts_received': amounts_received,
+        'total_amount_received': total_amount_received,
+        'amounts_released': amounts_released,
+        'total_amount_released': total_amount_released,
+        'physical_progress': physical_progress,
+        'total_expenditures': total_expenditures,
+        'total_expenditure_sum': total_expenditure_sum,
+        'remaining_amount': remaining_amount,
+        'agencycharge':agencycharge,
+    }
+        # Render the template into HTML
+        template = get_template('projects/project_pdf.html')
+        html = template.render(context)
+
+        # Create a PDF response
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+        if not pdf.err:
+            response = HttpResponse(result.getvalue(), content_type='application/pdf')
+            filename = f'{project.Name_Of_Project}_details_{selected_year}.pdf'
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        return HttpResponse('Error rendering PDF', status=500)
+def not_allowed(request):
+    return render(request, 'not_allowed.html')
 # ------------------------------ PROJECTS STOP ------------------------------ #
 
 

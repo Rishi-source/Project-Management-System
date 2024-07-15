@@ -22,6 +22,15 @@ Project Details
     <div class="card shadow-sm mb-4">
       <div class="card-body">
         <h3 class="card-title text-center mb-4"><strong>Project: {{ project.Name_Of_Project }}</strong></h3>
+        <div class="text-center mb-4">
+          <form method="get" action="{% url 'generate_project_pdf' project.pk %}" class="form-inline mt-3 justify-content-center">
+            <label for="id_years" class="mr-2">Enter Year(s):</label>
+            <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Export as PDF
+            </button>
+        </form>
+                            </div>
 
         <!-- Project Details -->
         <div class="text-center mb-4">
@@ -43,14 +52,43 @@ Project Details
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label>Sanctioned Amount:</label>
-                <p class="form-control-static"><strong>Rs. {{ project.Sanctioned_Amount }} Lacs</strong></p>
+                <label>A&F Number:</label>
+                <p class="form-control-static"><strong>{{ project.A_and_F_Number }}</strong></p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Sanctioned Amount Date:</label>
-                <p class="form-control-static"><strong>{{ project.Sanctioned_Amount_Date }}</strong></p>
+                <label>T.S. Number:</label>
+                <p class="form-control-static"><strong>{{ project.Technical_Sanctioned_Number }}</strong></p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>W.O. Number:</label>
+                <p class="form-control-static"><strong>{{ project.Work_order_Number }}</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Financial Year:</label>
+                <p class="form-control-static"><strong>{{ project.get_Financial_year_display }}</strong></p>
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>A&F Amount:</label>
+                <p class="form-control-static"><strong>Rs. {{ project.A_and_F_Amount }} Lacs</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>A&F Date:</label>
+                <p class="form-control-static"><strong>{{ project.A_and_F_Date }}</strong></p>
               </div>
             </div>
           </div>
@@ -63,8 +101,8 @@ Project Details
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Technical Sanctioned Amount Date:</label>
-                <p class="form-control-static"><strong>{{ project.Technical_Sanctioned_Amount_Date }}</strong></p>
+                <label>Technical Sanctioned Date:</label>
+                <p class="form-control-static"><strong>{{ project.Technical_Sanctioned_Date }}</strong></p>
               </div>
             </div>
           </div>
@@ -77,8 +115,8 @@ Project Details
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Work Order Amount Date:</label>
-                <p class="form-control-static"><strong>{{ project.Work_order_Amount_Date }}</strong></p>
+                <label>Work Order Date:</label>
+                <p class="form-control-static"><strong>{{ project.Work_order_Date }}</strong></p>
               </div>
             </div>
           </div>
@@ -135,7 +173,7 @@ Project Details
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>Agency Charge (In Percentage):</label>
-                    <p class="form-control-static"><strong> {{ percentage|floatformat:2  }} %</strong></p>
+                    <p class="form-control-static"><strong> 9%</strong></p>
                 </div>
             </div>
           </div>
@@ -309,6 +347,9 @@ Project Details
       <tr>
         <th class="text-center">Date</th>
         <th class="text-center">Total Expenditure (Rs. Lacs)</th>
+        <th class="text-center">Physical Progress (In %)</th>
+        <th class="text-center">Remarks</th>
+        <th class="text-center">Photos</th>
       </tr>
     </thead>
     <tbody>
@@ -316,16 +357,26 @@ Project Details
       <tr>
         <td>{{ expenditure.Expenditure_date }}</td>
         <td>{{ expenditure.Expenditure_Value }} Lacs</td>
+        <td>{{ expenditure.physical_progress }} %</td>
+        <td style="word-wrap: break-word; max-width: 200px;">{{ expenditure.remarks }}</td>
+        <td>
+          {% if expenditure.photo %}
+          <a href="{{ expenditure.photo.url }}" target="_blank">Download</a>
+          {% else %}
+          No photo
+          {% endif %}
+        </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="2">No total expenditures recorded yet.</td>
+        <td colspan="5">No total expenditures recorded yet.</td>
       </tr>
       {% endfor %}
       {% if total_expenditures %}
       <tr>
-        <td><strong>Total</strong></td>
-        <td><strong>{{ total_expenditure_sum|floatformat:2  }} Lacs</strong></td>
+        <td><strong>Total</strong></td>                       
+        <td><strong>{{ total_expenditure_sum|floatformat:2 }} Lacs</strong></td>
+        <td colspan="3"></td>
       </tr>
       {% endif %}
     </tbody>
@@ -354,12 +405,15 @@ Project Details
       placeholder="Enter year (e.g., 2023)">
     <button type="submit" class="btn btn-primary">Apply</button>
   </form>
-  <div class = "row">
-    <div class="cols-md-24">
-      <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
-    </div>
+  
+</div>
+<br>
+<div class="row justify-content-center">
+  <div class="col-md-6 text-center">
+    <a href="{% url 'view_project' %}" class="btn btn-primary">Back to Projects</a>
   </div>
 </div>
+
 <hr>
 
 
@@ -368,8 +422,6 @@ Project Details
 <hr>
 
 <!-- Back Button -->
-<div class="text-center mt-12">
-  <a href="{% url 'view_project' %}" class="btn btn-secondary">Back to Projects</a>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
@@ -413,6 +465,27 @@ Project Details
     });
   });
 </script>
+<style>
+.table-responsive {
+  overflow-x: auto;
+}
 
+.table {
+  word-wrap: break-word;
+  table-layout: fixed;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.table td {
+  max-width: 200px; /* Adjust as needed */
+}
+
+.thead-light th {
+  background-color: #f8f9fa;
+}
+</style>
 
 {% endblock %}

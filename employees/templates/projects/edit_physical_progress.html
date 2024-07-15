@@ -100,30 +100,27 @@
             });
         });
 
-        // Handle form submission via JavaScript
         var deleteForm = document.getElementById('deleteForm');
         deleteForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault(); 
             var formData = new FormData(deleteForm);
 
-            // Perform AJAX request
             fetch(deleteForm.getAttribute('action'), {
                 method: 'POST',
                 body: formData
             })
             .then(response => {
                 if (response.ok) {
-                    // Optionally, update UI or show success message
                     console.log('Entry deleted successfully.');
-                    location.reload(); // Reload the page to reflect changes
+                    location.reload(); 
                 } else {
                     console.error('Failed to delete entry.');
                 }
-                deleteModal.hide(); // Hide modal after action
+                deleteModal.hide();
             })
             .catch(error => {
                 console.error('Error:', error);
-                deleteModal.hide(); // Hide modal on error
+                deleteModal.hide(); 
             });
         });
     });

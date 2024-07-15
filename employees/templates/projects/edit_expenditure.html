@@ -18,19 +18,23 @@
                     <tr>
                         <th>Expenditure Date</th>
                         <th>Expenditure Value</th>
+                        <th>Physical Progress (%)</th>
+                        <th>Remarks</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for expenditure in expenditures %}
                         <tr>
+                            <td>{{ expenditure.Expenditure_date }}</td>
                             <td>
                                 <form method="post" action="{% url 'edit_expenditure' project_id=project.pk %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="entry_id" value="{{ expenditure.id }}">
-                                    <input type="text" name="expenditure_date" value="{{ expenditure.Expenditure_date }}" disabled>
+                                    <input type="text" name="expenditure_value" value="{{ expenditure.Expenditure_Value }}">
                             </td>
-                            <td><input type="number" step="0.01" name="expenditure_value" value="{{ expenditure.Expenditure_Value }}"></td>
+                            <td><input type="number" step="0.01" name="physical_progress" value="{{ expenditure.physical_progress }}"></td>
+                            <td><textarea name="remarks" rows="3">{{ expenditure.remarks }}</textarea></td>
                             <td>
                                 <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                 </form>
@@ -39,7 +43,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="3">No expenditure entries found.</td>
+                            <td colspan="6">No expenditure entries found.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -78,11 +82,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
-            backdrop: 'static', // Ensure backdrop is static
-            keyboard: false // Disable keyboard interactions
+            backdrop: 'static',
+            keyboard: false
         });
 
-        // Show modal when delete button is clicked
         var deleteButtons = document.querySelectorAll('.delete-btn');
         deleteButtons.forEach(function (button) {
             button.addEventListener('click', function () {
@@ -93,10 +96,8 @@
                 deleteModal.show();
             });
         });
-
-        // Handle modal hidden event to refresh page on modal close
         deleteModal._element.addEventListener('hidden.bs.modal', function () {
-            window.location.reload(); // Reload page after modal is closed
+            window.location.reload();
         });
     });
 </script>

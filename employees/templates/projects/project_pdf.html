@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Details</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px;
+            margin: 0;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #000;
+            background-color: #f9f9f9;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 10px;
+        }
+        .project-info {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .table-container {
+            margin-bottom: 20px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        .table th, .table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        .table th {
+            background-color: #e6e6e6;
+        }
+        .graph {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .graph img {
+            max-width: 100%;
+            height: auto;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #000;
+            margin: 20px 0;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h2>Project Details</h2>
+            <h3>Project: {{ project.Name_Of_Project }}</h3>
+        </div>
+    
+        <div class="project-info">
+            <div class="form-group">
+                <label>Client Department:</label>
+                <p>{{ project.get_Client_Department_display }}</p>
+            </div>
+            <div class="form-group">
+                <label>Division:</label>
+                <p>{{ project.get_Division_display }}</p>
+            </div>
+            <div class="form-group">
+                <label>A&F Number:</label>
+                <p>{{ project.A_and_F_Number }}</p>
+            </div>
+            <div class="form-group">
+                <label>T.S. Number:</label>
+                <p>{{ project.Technical_Sanctioned_Number }}</p>
+            </div>
+            <div class="form-group">
+                <label>W.O. Number:</label>
+                <p>{{ project.Work_order_Number }}</p>
+            </div>
+            <div class="form-group">
+                <label>Financial Year:</label>
+                <p>{{ project.get_Financial_year_display }}</p>
+            </div>
+            <div class="form-group">
+                <label>A&F Amount:</label>
+                <p>Rs. {{ project.A_and_F_Amount }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>A&F Date:</label>
+                <p>{{ project.A_and_F_Date }}</p>
+            </div>
+            <div class="form-group">
+                <label>Technical Sanctioned Amount:</label>
+                <p>Rs. {{ project.Technical_Sanctioned_Amount }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Technical Sanctioned Date:</label>
+                <p>{{ project.Technical_Sanctioned_Date }}</p>
+            </div>
+            <div class="form-group">
+                <label>Work Order Amount:</label>
+                <p>Rs. {{ project.Work_order_Amount }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Work Order Date:</label>
+                <p>{{ project.Work_order_Date }}</p>
+            </div>
+            <div class="form-group">
+                <label>Start Date:</label>
+                <p>{{ project.Start_date }}</p>
+            </div>
+            <div class="form-group">
+                <label>Stipulated Date Of Completion:</label>
+                <p>{{ project.Stipulated_Date_Of_Completion }}</p>
+            </div>
+            <div class="form-group">
+                <label>Total Amount Received:</label>
+                <p>Rs. {{ total_amount_received|floatformat:2 }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Total Amount Released:</label>
+                <p>Rs. {{ total_amount_released|floatformat:2 }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Total Expenditure:</label>
+                <p>Rs. {{ total_expenditure_sum|floatformat:2 }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Total Amount Remaining:</label>
+                <p>Rs. {{ remaining_amount|floatformat:2 }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Agency Charge:</label>
+                <p>Rs. {{ agencycharge|floatformat:2 }} Lacs</p>
+            </div>
+            <div class="form-group">
+                <label>Agency Charge (In Percentage):</label>
+                <p>9%</p>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div class="table-container">
+        <div class="section-title">Amounts Received</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount (Rs. Lacs)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for amount in amounts_received %}
+                <tr>
+                    <td>{{ amount.Amount_Received_Date }}</td>
+                    <td>{{ amount.Amount_Received }} Lacs</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No amounts received yet.</td>
+                </tr>
+                {% endfor %}
+                {% if amounts_received %}
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>{{ total_amount_received|floatformat:2 }} Lacs</strong></td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <hr>
+
+    <!-- Yearly Amounts Received Graph -->
+    <div class="graph">
+        <div class="section-title">Yearly Amounts Received</div>
+        {% if graphic_year_received %}
+        <img src="data:image/png;base64,{{ graphic_year_received }}" alt="Yearly Amounts Received">
+        {% endif %}
+    </div>
+    
+    <!-- Monthly Amounts Received Graph -->
+    <div class="graph">
+        <div class="section-title">Monthly Amounts Received</div>
+        {% if graphic_month_received %}
+        <img src="data:image/png;base64,{{ graphic_month_received }}" alt="Monthly Amounts Received">
+        {% else %}
+        <p class="text-muted">No data available for the selected year.</p>
+        {% endif %}
+    </div>
+    <hr>
+
+    <div class="table-container">
+        <div class="section-title">Amounts Released</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount (Rs. Lacs)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for amount in amounts_released %}
+                <tr>
+                    <td>{{ amount.Amount_Released_Date }}</td>
+                    <td>{{ amount.Amount_Released }} Lacs</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No amounts released yet.</td>
+                </tr>
+                {% endfor %}
+                {% if amounts_released %}
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>{{ total_amount_released|floatformat:2 }} Lacs</strong></td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <hr>
+
+    <!-- Yearly Amounts Released Graph -->
+    <div class="graph">
+        <div class="section-title">Yearly Amounts Released</div>
+        {% if graphic_year_released %}
+        <img src="data:image/png;base64,{{ graphic_year_released }}" alt="Yearly Amounts Released">
+        {% endif %}
+    </div>
+    
+    <!-- Monthly Amounts Released Graph -->
+    <div class="graph">
+        <div class="section-title">Monthly Amounts Released</div>
+        {% if graphic_month_released %}
+        <img src="data:image/png;base64,{{ graphic_month_released }}" alt="Monthly Amounts Released">
+        {% else %}
+        <p class="text-muted">No data available for the selected year.</p>
+        {% endif %}
+    </div>
+    <hr>
+
+    <div class="table-container">
+        <div class="section-title">Physical Progress</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date of Reporting</th>
+                    <th>Physical Progress (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for progress in physical_progress %}
+                <tr>
+                    <td>{{ progress.Date_Of_Reporting }}</td>
+                    <td>{{ progress.Physical_Progress_Percentage }}%</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No physical progress reported yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <hr>
+
+    <div class="table-container">
+        <div class="section-title">Total Expenditures</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total Expenditure (Rs. Lacs)</th>
+                    <th>Physical Progress (In %)</th>
+                    <th>Remarks</th>
+                    <th>Photos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expenditure in total_expenditures %}
+                <tr>
+                    <td>{{ expenditure.Expenditure_date }}</td>
+                    <td>{{ expenditure.Expenditure_Value }} Lacs</td>
+                    <td>{{ expenditure.physical_progress }} %</td>
+                    <td>{{ expenditure.remarks }}</td>
+                    <td>
+                        {% if expenditure.photo %}
+                        <a href="{{ expenditure.photo.url }}" target="_blank">Download</a>
+                        {% else %}
+                        No photo
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No total expenditures recorded yet.</td>
+                </tr>
+                {% endfor %}
+                {% if total_expenditures %}
+                <tr>
+                    <td><strong>Total</strong></td>                       
+                    <td><strong>{{ total_expenditure_sum|floatformat:2 }} Lacs</strong></td>
+                    <td colspan="3"></td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    
+    <hr>
+
+    <!-- Yearly Expenditure Graph -->
+    <div class="graph">
+        <div class="section-title">Yearly Expenditure (In Rs. Lacs)</div>
+        {% if graphic_year_expenditure %}
+        <img src="data:image/png;base64,{{ graphic_year_expenditure }}" alt="Yearly Expenditure">
+        {% endif %}
+    </div>
+    <!-- Monthly Expenditure Graph -->
+    <div class="graph">
+        <div class="section-title">Monthly Expenditure (In Rs. Lacs)</div>
+        {% if graphic_month_expenditure %}
+        <img src="data:image/png;base64,{{ graphic_month_expenditure }}" alt="Monthly Expenditure">
+        {% else %}
+        <p class="text-muted">No data available for the selected year.</p>
+        {% endif %}
+    </div>
+    </body>
+</html>
