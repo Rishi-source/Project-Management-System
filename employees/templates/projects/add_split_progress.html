@@ -34,6 +34,18 @@ Add Physical Progress
         {% csrf_token %}
         <div class="form-row">
           <div class="col-md-6 mb-3">
+            <label for="id_Project">Choose Sub Project:</label>
+            <select class="form-control" id="id_Project" name="Project" required>
+              <option value="" disabled selected>Select Project</option>
+              {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
+              {% endfor %}
+            </select>
+            <div class="invalid-feedback">Please select a project.</div>
+          </div>
+        </div>    
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
             <label for="id_Date_Of_Reporting">Date Of Reporting:</label>
             <input type="date" name="Date_Of_Reporting" id="id_Date_Of_Reporting" class="form-control" required>
           </div>
@@ -47,7 +59,7 @@ Add Physical Progress
         <div class="form-row">
           <div class="col-md-6 mb-3">
             <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
-            <button type="submit" class="btn btn-primary" id="submit-button" {% if error or project_completed %}disabled{% endif %}>Add</button>
+            <button type="submit" class="btn btn-primary" id="submit-button" disabled>Add</button>
           </div>
         </div>
       </form>
@@ -68,8 +80,7 @@ Add Physical Progress
     }
 
     function checkFormValidity() {
-      
-      const inputs = form.querySelectorAll("input[required]");
+      const inputs = form.querySelectorAll("input[required], select[required]");
       let allFilled = true;
       inputs.forEach(input => {
         if (!input.value) {
@@ -79,13 +90,11 @@ Add Physical Progress
       submitButton.disabled = !allFilled;
     }
 
-   
+    setMaxDate();
     form.addEventListener("input", checkFormValidity);
     form.addEventListener("change", checkFormValidity);
 
-   
     checkFormValidity();
-    setMaxDate(); 
   });
 </script>
 

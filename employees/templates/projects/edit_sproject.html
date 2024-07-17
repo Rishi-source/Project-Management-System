@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Edit Project
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- SIDEBAR -->
+    <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%;">
+        <!-- Sidebar Content Here if Needed -->
+    </div>
+    <!-- SIDEBAR END -->
+    <!-- MAIN CONTENT -->
+    <div class="col-md-10">
+        <div class="container-fluid">
+            <h3>Edit Project</h3><br />
+
+            <div id="messages">
+                {% if status %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  {{ status }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+              </div>
+                    <div class="mt-4 ">
+              <h5 >Edit Options:</h5><br>
+              <div class="btn-group text-center" role="group">
+                  <a href="{% url 'edit_split_amount_received' project_id=project_id %}"  class="btn btn-success mr-5">Edit Amount Received</a>
+                  <a href="{% url 'edit_split_amount_released' project_id=project_id %}" class="btn btn-secondary mr-5">Edit Amount Released</a>
+                  <a href="{% url 'edit_split_physical_progress' project_id=project_id %}" class="btn btn-danger mr-5">Edit Physical Progress</a>
+                  <a  href="{% url 'edit_split_expenditure' project_id=project_id %}" class="btn btn-warning mr-5">Edit Expenditure</a> 
+              </div>
+              <br>
+              <br>
+              <br>
+            <!-- Form for basic project details editing -->
+            <form id="form-container" method="post" action="">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+                <a href="{% url 'edit_split_project' id  %}" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                
+            </form>
+
+            <!-- Options to edit different aspects -->
+            </div>
+        </div>
+    </div>
+    <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('form-container');
+      const addButton = document.getElementById('add-button');
+      const inputs = form.querySelectorAll('input[required], select[required]');
+      const startDateInput = document.getElementById('id_Start_date');
+      const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
+      const sanctionedDateInput = document.getElementById('id_Sanctioned_Amount_Date');
+      const tsanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
+      const WorkOrderAmountDate = document.getElementById('id_Work_Order_Amount_Date');
+      const LikelyDate = document.getElementById('id_Likely_Date_Of_Completion');
+      function setMaxDate() {
+        const today = new Date().toISOString().split('T')[0];
+        sanctionedDateInput.setAttribute('max', today); 
+        tsanctionedDateInput.setAttribute('max', today); 
+        WorkOrderAmountDate.setAttribute('max', today);
+        LikelyDate.setAttribute('min', today);
+  
+      }
+  
+      function checkFormValidity() {
+        let allFilled = true;
+        inputs.forEach(input => {
+          if (!input.value) {
+            allFilled = false;
+          }
+        });
+  
+        let datesValid = true;
+  
+        if (startDateInput.value && completionDateInput.value) {
+          const startDate = new Date(startDateInput.value);
+          const completionDate = new Date(completionDateInput.value);
+          if (completionDate <= startDate) {
+            datesValid = false;
+            startDateInput.classList.add('is-invalid');
+            completionDateInput.classList.add('is-invalid');
+          } else {
+            startDateInput.classList.remove('is-invalid');
+            completionDateInput.classList.remove('is-invalid');
+          }
+        }
+  
+        if (startDateInput.value && sanctionedDateInput.value) {
+          const startDate = new Date(startDateInput.value);
+          const sanctionedDate = new Date(sanctionedDateInput.value);
+          if (sanctionedDate >= startDate) {
+            datesValid = false;
+            startDateInput.classList.add('is-invalid');
+            sanctionedDateInput.classList.add('is-invalid');
+          } else {
+            startDateInput.classList.remove('is-invalid');
+            sanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+        // 1
+        if (tsanctionedDateInput.value && sanctionedDateInput.value) {
+          const tsanctionedDate = new Date(tsanctionedDateInput.value);
+          const sanctionedDate = new Date(sanctionedDateInput.value);
+          if (sanctionedDate >= tsanctionedDate) {
+            datesValid = false;
+            tsanctionedDateInput.classList.add('is-invalid');
+            sanctionedDateInput.classList.add('is-invalid');
+          } else {
+            tsanctionedDateInput.classList.remove('is-invalid');
+            sanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+        //1.1
+        if (sanctionedDateInput.value && WorkOrderAmountDate.value) {
+          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
+          const sanctionedDate = new Date(sanctionedDateInput.value);
+          if (sanctionedDate >= WorkOrderDate) {
+            datesValid = false;
+            WorkOrderAmountDate.classList.add('is-invalid');
+            sanctionedDateInput.classList.add('is-invalid');
+          } else {
+            WorkOrderAmountDate.classList.add('is-invalid');
+            sanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+        //2
+        if (WorkOrderAmountDate.value && tsanctionedDateInput.value) {
+          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
+          const tsanctionedDate = new Date(tsanctionedDateInput.value);
+          if (tsanctionedDate >= WorkOrderDate) {
+            datesValid = false;
+            WorkOrderAmountDate.classList.add('is-invalid');
+            tsanctionedDateInput.classList.add('is-invalid');
+          } else {
+            WorkOrderAmountDate.classList.remove('is-invalid');
+            tsanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+        if (tsanctionedDateInput.value && WorkOrderAmountDate.value) {
+          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
+          const tsanctionedDate = new Date(tsanctionedDateInput.value);
+          if (tsanctionedDate >= WorkOrderDate) {
+            datesValid = false;
+            WorkOrderAmountDate.classList.add('is-invalid');
+            tsanctionedDateInput.classList.add('is-invalid');
+          } else {
+            WorkOrderAmountDate.classList.remove('is-invalid');
+            tsanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+  
+        if (startDateInput.value && tsanctionedDateInput.value) {
+          const startDate = new Date(startDateInput.value);
+          const tsanctionedDate = new Date(tsanctionedDateInput.value);
+          if (tsanctionedDate >= startDate) {
+            datesValid = false;
+            startDateInput.classList.add('is-invalid');
+            tsanctionedDateInput.classList.add('is-invalid');
+          } else {
+            startDateInput.classList.remove('is-invalid');
+            tsanctionedDateInput.classList.remove('is-invalid');
+          }
+        }
+  
+        addButton.disabled = !allFilled || !datesValid;
+      }
+  
+      inputs.forEach(input => {
+        input.addEventListener('input', checkFormValidity);
+      });
+  
+      checkFormValidity(); 
+      setMaxDate();
+  
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  </script>
+  
+<style>
+    .is-invalid {
+        border-color: red;
+    }
+
+    .form-row {
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .card-text {
+        font-size: 1.5rem;
+        font-weight: 400;
+        font-family: 'Lato', sans-serif;
+    }
+
+    #error-message {
+        color: red;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+</style>
+
+<div id="error-message"></div>
+{% endblock %}

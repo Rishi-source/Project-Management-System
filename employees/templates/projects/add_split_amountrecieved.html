@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-Add Physical Progress
+  Add Amount Received
 {% endblock %}
 
 {% block content %}
@@ -28,26 +28,40 @@ Add Physical Progress
   <!-- MAIN CONTENT -->
   <div class="col-md-10 offset-md-2">
     <div class="container-fluid">
-      <h3>Add Physical Progress :</h3><br />
+      <h3>Add Amount Received:</h3><br />
 
-      <form id="form-container" method="post" action="">
+      <form id="form-container" method="post" action="{% url 'add_split_amountrecieved' project_id  %}">
         {% csrf_token %}
         <div class="form-row">
           <div class="col-md-6 mb-3">
-            <label for="id_Date_Of_Reporting">Date Of Reporting:</label>
-            <input type="date" name="Date_Of_Reporting" id="id_Date_Of_Reporting" class="form-control" required>
+            <label for="id_Project">Choose Sub Project:</label>
+            <select class="form-control" id="id_Project" name="Project" required>
+              <option value="" disabled selected>Select Project</option>
+              {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
+              {% endfor %}
+            </select>
+            <div class="invalid-feedback">Please select a project.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Recieved_Amount_Date">Received Date:</label>
+            <input type="date" name="Recieved_Amount_Date" id="id_Recieved_Amount_Date" class="form-control" required />
+            <div class="invalid-feedback">Please enter a received date.</div>
           </div>
         </div>
         <div class="form-row">
           <div class="col-md-4 mb-3">
-            <label for="id_Physical_Progress_Percentage">Work Completed (In Percent):</label>
-            <input type="number" name="Physical_Progress_Percentage" id="id_Physical_Progress_Percentage" class="form-control" required min="0" max="100">
+            <label for="id_Recieved_Amount">Amount Received (In Lacs):</label>
+            <input type="number" name="Recieved_Amount" id="id_Recieved_Amount" class="form-control" required />
+            <div class="invalid-feedback">Please enter the amount received.</div>
           </div>
         </div>
         <div class="form-row">
           <div class="col-md-6 mb-3">
             <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
-            <button type="submit" class="btn btn-primary" id="submit-button" {% if error or project_completed %}disabled{% endif %}>Add</button>
+            <button type="submit" class="btn btn-primary" id="submit-button" disabled>Add</button>
           </div>
         </div>
       </form>
@@ -60,16 +74,16 @@ Add Physical Progress
   document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("form-container");
     const submitButton = document.getElementById("submit-button");
-    const dateInput = document.getElementById("id_Date_Of_Reporting");
+    const inputs = form.querySelectorAll("input, select");
 
     function setMaxDate() {
       const today = new Date().toISOString().split('T')[0];
-      dateInput.setAttribute('max', today);
+      form.querySelectorAll('input[type="date"]').forEach(input => {
+        input.setAttribute('max', today); 
+      });
     }
 
     function checkFormValidity() {
-      
-      const inputs = form.querySelectorAll("input[required]");
       let allFilled = true;
       inputs.forEach(input => {
         if (!input.value) {
@@ -79,14 +93,12 @@ Add Physical Progress
       submitButton.disabled = !allFilled;
     }
 
-   
-    form.addEventListener("input", checkFormValidity);
-    form.addEventListener("change", checkFormValidity);
-
-   
-    checkFormValidity();
     setMaxDate(); 
+    inputs.forEach(input => {
+      input.addEventListener("input", checkFormValidity); 
+    });
+
+    checkFormValidity();
   });
 </script>
-
 {% endblock %}

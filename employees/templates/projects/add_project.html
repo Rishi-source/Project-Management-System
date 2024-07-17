@@ -46,7 +46,7 @@ Add Project
                           <option value="2027-2028">2027-2028</option>
                           <option value="2028-2029">2028-2029</option>
                           <option value="2029-2030">2029-2030</option>
-                          <option value="2029-2030">2030-2030</option>
+                          <option value="2029-2030">2030-2031</option>
 
                       </select>
                       <div class="invalid-feedback">Please select a financial year.</div>
@@ -123,6 +123,18 @@ Add Project
                       <div class="invalid-feedback">Please enter the A&F number.</div>
                   </div>
               </div>
+              <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_split">Split Project:</label>
+                    <select class="form-control" id="id_split" name="split" required>
+                        <option value="" disabled selected>Select Yes/No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    <div class="invalid-feedback">Please select Yes/No .</div>
+                </div>
+              </div>
+
                 <div class="form-row">
                   <div class="col-md-6 mb-3">
                       <label for="id_Technical_Sanctioned_Amount_Date">Technical Sanctioned Date:</label>
@@ -210,27 +222,67 @@ Add Project
     const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
     const sanctionedDateInput = document.getElementById('id_Sanctioned_Amount_Date');
     const tsanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
-    const WorkOrderAmountDate = document.getElementById('id_Work_Order_Amount_Date');
-    const LikelyDate = document.getElementById('id_Likely_Date_Of_Completion');
+    const workOrderDateInput = document.getElementById('id_Work_Order_Amount_Date');
+    const likelyCompletionDateInput = document.getElementById('id_Likely_Date_Of_Completion');
+    const splitProjectSelect = document.getElementById('id_split');
+
     function setMaxDate() {
       const today = new Date().toISOString().split('T')[0];
       sanctionedDateInput.setAttribute('max', today); 
       tsanctionedDateInput.setAttribute('max', today); 
-      WorkOrderAmountDate.setAttribute('max', today);
-      LikelyDate.setAttribute('min', today);
+      workOrderDateInput.setAttribute('max', today);
+      likelyCompletionDateInput.setAttribute('min', today);
+    }
 
+    function toggleFieldsBasedOnSplit() {
+      const splitValue = splitProjectSelect.value;
+      const disableFields = splitValue === 'Yes';
+
+      // Flag to determine when to start disabling fields
+      let startDisabling = false;
+
+      // Loop through form fields
+      inputs.forEach(field => {
+        if (field === splitProjectSelect) {
+          startDisabling = true; // Start disabling fields after splitProjectSelect
+        }
+
+        if (startDisabling && field !== splitProjectSelect) {
+          // Disable and clear fields if they are below split project
+          field.disabled = disableFields;
+          field.value = '';
+          field.removeAttribute('required');
+          field.classList.remove('is-invalid');
+        } else {
+          // Enable fields if they are above or equal to split project
+          field.disabled = false;
+          field.setAttribute('required', 'required');
+        }
+      });
+
+      // Check if all fields above or equal to split project are filled
+      let allAboveFilled = true;
+      inputs.forEach(field => {
+        if (!field.disabled && !field.value.trim()) {
+          allAboveFilled = false;
+        }
+      });
+
+      // Enable/disable add button based on conditions
+      addButton.disabled = disableFields || !allAboveFilled;
     }
 
     function checkFormValidity() {
       let allFilled = true;
       inputs.forEach(input => {
-        if (!input.value) {
+        if (!input.value && !input.disabled) {
           allFilled = false;
         }
       });
 
       let datesValid = true;
 
+      // Date validation logic
       if (startDateInput.value && completionDateInput.value) {
         const startDate = new Date(startDateInput.value);
         const completionDate = new Date(completionDateInput.value);
@@ -256,7 +308,7 @@ Add Project
           sanctionedDateInput.classList.remove('is-invalid');
         }
       }
-      // 1
+
       if (tsanctionedDateInput.value && sanctionedDateInput.value) {
         const tsanctionedDate = new Date(tsanctionedDateInput.value);
         const sanctionedDate = new Date(sanctionedDateInput.value);
@@ -269,42 +321,30 @@ Add Project
           sanctionedDateInput.classList.remove('is-invalid');
         }
       }
-      //1.1
-      if (sanctionedDateInput.value && WorkOrderAmountDate.value) {
-        const WorkOrderDate = new Date(WorkOrderAmountDate.value);
+
+      if (sanctionedDateInput.value && workOrderDateInput.value) {
         const sanctionedDate = new Date(sanctionedDateInput.value);
-        if (sanctionedDate >= WorkOrderDate) {
+        const workOrderDate = new Date(workOrderDateInput.value);
+        if (sanctionedDate >= workOrderDate) {
           datesValid = false;
-          WorkOrderAmountDate.classList.add('is-invalid');
           sanctionedDateInput.classList.add('is-invalid');
+          workOrderDateInput.classList.add('is-invalid');
         } else {
-          WorkOrderAmountDate.classList.add('is-invalid');
           sanctionedDateInput.classList.remove('is-invalid');
+          workOrderDateInput.classList.remove('is-invalid');
         }
       }
-      //2
-      if (WorkOrderAmountDate.value && tsanctionedDateInput.value) {
-        const WorkOrderDate = new Date(WorkOrderAmountDate.value);
+
+      if (tsanctionedDateInput.value && workOrderDateInput.value) {
         const tsanctionedDate = new Date(tsanctionedDateInput.value);
-        if (tsanctionedDate >= WorkOrderDate) {
+        const workOrderDate = new Date(workOrderDateInput.value);
+        if (tsanctionedDate >= workOrderDate) {
           datesValid = false;
-          WorkOrderAmountDate.classList.add('is-invalid');
           tsanctionedDateInput.classList.add('is-invalid');
+          workOrderDateInput.classList.add('is-invalid');
         } else {
-          WorkOrderAmountDate.classList.remove('is-invalid');
           tsanctionedDateInput.classList.remove('is-invalid');
-        }
-      }
-      if (tsanctionedDateInput.value && WorkOrderAmountDate.value) {
-        const WorkOrderDate = new Date(WorkOrderAmountDate.value);
-        const tsanctionedDate = new Date(tsanctionedDateInput.value);
-        if (tsanctionedDate >= WorkOrderDate) {
-          datesValid = false;
-          WorkOrderAmountDate.classList.add('is-invalid');
-          tsanctionedDateInput.classList.add('is-invalid');
-        } else {
-          WorkOrderAmountDate.classList.remove('is-invalid');
-          tsanctionedDateInput.classList.remove('is-invalid');
+          workOrderDateInput.classList.remove('is-invalid');
         }
       }
 
@@ -324,13 +364,22 @@ Add Project
       addButton.disabled = !allFilled || !datesValid;
     }
 
+    // Event listeners
     inputs.forEach(input => {
       input.addEventListener('input', checkFormValidity);
     });
 
-    checkFormValidity(); 
+    splitProjectSelect.addEventListener('change', function() {
+      toggleFieldsBasedOnSplit();
+      checkFormValidity(); // Revalidate form on splitProjectSelect change
+    });
+
+    // Initial setup
+    toggleFieldsBasedOnSplit();
+    checkFormValidity();
     setMaxDate();
 
+    // Form submission validation
     form.addEventListener('submit', function(event) {
       if (!form.checkValidity()) {
         event.preventDefault();

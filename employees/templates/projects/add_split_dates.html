@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Edit Important Dates
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- SIDEBAR -->
+  <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%;">
+  </div>
+  <!-- SIDEBAR END -->
+
+  <!-- MAIN CONTENT -->
+  <div class="col-md-9">
+    <div class="container-fluid">
+      <h2>Add Important Dates:</h2><br />
+      {% if project.is_completed and not project.is_handed_over %}
+      <div id="messages">
+        <div class="alert alert-danger" role="alert">
+          The Project is marked completed
+        </div>
+      </div>
+      {% endif %}
+      {% if project.is_handed_over and project.is_completed %}
+      <div id="messages">
+        <div class="alert alert-danger" role="alert">
+          The Project is marked handover
+        </div>
+      </div>
+      {% endif %}
+      <div id="messages">
+        {% if status %}
+        <div class="alert alert-danger" role="alert">
+          {{ status }}
+        </div>
+        {% endif %}
+      </div>
+    
+      <form id="form-container-likely" method="post" action="">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-3 mb-3">
+            <label for="id_Likely_Date">Enter Likely Date Of Completion:</label>
+            <input type="date" name="Likely_Date" id="id_Likely_Date" class="form-control" value="{{ project.Likely_Date_Of_Completion }}" {% if project.is_completed or project.is_handed_over %}disabled{% endif %}>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'view_split_project' project_id %}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="submit-likely" {% if project.is_completed or project.is_handed_over %}disabled{% endif %}>Update</button>
+          </div>
+        </div>
+      </form>
+      <form id="form-container-completion" method="post" action="">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-3 mb-3">
+            <label for="id_Completion_Date">Enter Date Of Completion:</label>
+            <input type="date" name="Completion_Date" id="id_Completion_Date" class="form-control" {% if not project.is_completed or project.is_handed_over %}disabled{% endif %}>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'view_split_project' project_id %}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="submit-completion" {% if not project.is_completed or project.is_handed_over %}disabled{% endif %}>Update</button>
+          </div>
+        </div>
+      </form>
+      <form id="form-container-handover" method="post" action="">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-3 mb-3">
+            <label for="id_Handover_Date">Enter Date Of Handover:</label>
+            <input type="date" name="Handover_Date" id="id_Handover_Date" class="form-control" {% if not project.is_handed_over %}disabled{% endif %}>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <a href="{% url 'view_split_project' project_id %}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="submit-handover" {% if not project.is_handed_over %}disabled{% endif %} >Update</button>
+          </div>
+        </div>
+      </form>
+      <br><br>
+      <h4>Previous Likely Date Changes:</h4>
+      <br>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date of Change</th>
+            <th scope="col">Changed To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>{{ project.Reporting_Date }}</td>
+            <td>{{ project.Likely_Date_Of_Completion }}</td>
+          </tr>
+          {% for change in likely_date_entries %}
+          <tr>
+            <th scope="row">{{ forloop.counter0|add:2 }}</th>
+            <td>{{ change.Date }}</td>
+            <td>{{ change.Likely_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h4>Previous Date of Completion Changes:</h4>
+      <br>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date of Change</th>
+            <th scope="col">Changed To</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for change in completion_date_entries %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ change.Date }}</td>
+            <td>{{ change.Completion_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h4>Previous Handover Date Changes:</h4>
+      <br>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date of Change</th>
+            <th scope="col">Changed To</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for change in handover_date_entries %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ change.Date }}</td>
+            <td>{{ change.Handover_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let today = new Date().toISOString().split('T')[0];
+    document.getElementById('id_Likely_Date').setAttribute('min', today);
+    document.getElementById('id_Completion_Date').setAttribute('max', today);
+    document.getElementById('id_Handover_Date').setAttribute('max', today);
+  });
+</script>
+{% endblock %}

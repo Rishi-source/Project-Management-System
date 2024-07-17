@@ -30,18 +30,6 @@
         
         <!-- Card Body -->
         <div class="card-body">
-          <style>
-            .filter-control {
-              opacity: 0;
-              transform: translateY(-20px);
-              transition: opacity 0.3s ease, transform 0.3s ease;
-            }
-          
-            .filter-control.show {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          </style>
           
           <div class="row mb-3 filter-control">
             <div class="col-md-6">
@@ -180,6 +168,10 @@
           <br>
           
           <!-- Table -->
+           <div>
+          <span class="badge bg-info">Project is Splitted</span>
+        </div>
+        <br>
           <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
@@ -250,6 +242,50 @@
                     </td>
                   </tr>
                 {% endfor %}
+                      {% for sproject in sprojects %}
+                        <tr data-division="{{ sproject.get_Division_display }}" data-department="{{ sproject.get_Client_Department_display }}"  data-name="{{ sproject.Name_Of_Project }}" data-budget="{{ sproject.get_Budget_type_display }}">
+                          <td><span class="badge bg-info">{{ sproject.id }}</span></td>
+                          <td>{{ sproject.Name_Of_Project }}</td>
+                          <td>{{ sproject.get_Financial_year_display }}</td>
+                          <td>{{ sproject.Start_date }}</td>
+                          <td>{{ sproject.get_Client_Department_display }}</td>
+                          <td>{{ sproject.get_Division_display }}</td>
+                          <td>{{ sproject.get_Budget_type_display }}</td>
+                          <td>Rs. {{ sproject.A_and_F_Amount|floatformat:2 }} Lacs</td>
+                          <td>Rs. {{ sproject.total_technical_sanctioned_sum|floatformat:2 }} Lacs</td>
+                          <td>Rs. {{ sproject.total_work_order|floatformat:2 }} Lacs</td>
+                          <td>Rs. {{ sproject.total_AmountReceived|floatformat:2 }} Lacs</td>
+                          <td>Rs. {{ sproject.total_AmountReleased|floatformat:2 }} Lacs</td>
+                          <td>Rs. {{ sproject.total_expenditure_sum|floatformat:2 }} Lacs</td>
+                          <td id="remainingAmount{{ project.id }}">
+                          </td>
+                          <td>
+                            {{ sproject.Stipulated_Date_Of_Completion }}
+                          </td>
+                          <td>
+                            {% if sproject.is_handed_over %}
+                              <span class="badge bg-primary">Handed Over</span>
+                            {% elif sproject.is_completed %}
+                              <span class="badge bg-success">Completed</span>
+                            {% else %}
+                              <span class="badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            <div class="btn-group" role="group">
+                              <a href="{% url 'view_split_project' sproject.id %}" class="btn btn-info btn-sm mr-1">View Projects</a>
+                              {% if user.is_superuser or user.is_staff  %}
+                              {% if sproject.is_completed == False %}
+                                <button type="button" class="btn btn-success btn-sm mr-1" onclick="confirmMarkCompleted('{{ sproject.id }}')">Mark Completed</button>
+                              {% elif sproject.is_handed_over == False %}
+                                <button type="button" class="btn btn-primary btn-sm mr-1" onclick="confirmMarkHandedOver('{{ sproject.id }}')">Mark Handover</button>
+                              {% endif %}
+                              {% endif %}
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+      
               </tbody>
             </table>
           </div>
@@ -318,7 +354,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const departmentFilterValue = document.getElementById('departmentFilter').value.toLowerCase();
         const statusFilterValue = document.getElementById('statusFilter').value.toLowerCase();
         const budgetFilterValue = document.getElementById('budgetFilter').value.toLowerCase();
-        const yearFilterValue = document.getElementById('yearFilter').value;
 
         let totalProjects = 0;
         let totalSanctionedAmount = 0;
@@ -330,26 +365,12 @@ document.addEventListener('DOMContentLoaded', function () {
         let totalRemainingAmount = 0;
 
         // Parse year filter values
-        let startYear = null;
-        let endYear = null;
-        const yearRangeMatch = yearFilterValue.match(/^(\d{4})-(\d{4})$/);
-        if (yearRangeMatch) {
-            startYear = parseInt(yearRangeMatch[1]);
-            endYear = parseInt(yearRangeMatch[2]);
-        }
-
-        console.log('Start Year:', startYear);
-        console.log('End Year:', endYear);
-
         rows.forEach(row => {
             const division = row.getAttribute('data-division').toLowerCase();
             const department = row.getAttribute('data-department').toLowerCase();
-            const statusCell = row.querySelector('td:nth-child(14)');
+            const statusCell = row.querySelector('td:nth-child(15)');
             const status = statusCell.innerText.toLowerCase();
             const budget = row.getAttribute('data-budget').toLowerCase();
-            const year = parseInt(row.getAttribute('data-year'));
-
-            console.log('Row Year:', year);
 
             let showRow = true;
 
@@ -365,20 +386,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 showRow = false;
             }
 
-            if (yearFilterValue && (year < startYear && year > endYear)) {
-                showRow = false;
-            }
-
             if (statusFilterValue) {
-                if (statusFilterValue === 'completed' && !status.includes('completed')) {
+                console.log(`Status Filter Value: ${statusFilterValue}`);
+                console.log(`Status Value: ${status}`);
+
+                if (statusFilterValue === 'completed' && status !== 'completed') {
                     showRow = false;
-                } else if (statusFilterValue === 'handed-over' && !status.includes('handed over')) {
+                  }
+                else if (statusFilterValue === 'handed-over' && status !== 'handed over') {
                     showRow = false;
-                } else if (statusFilterValue === 'ongoing' && !status.includes('ongoing')) {
+                  } 
+                else if (statusFilterValue === 'ongoing' && status !== 'ongoing') {
                     showRow = false;
-                } else if (statusFilterValue === 'no-status' && status !== '') {
+                  } 
+                else if (statusFilterValue === 'no-status' && status !== '') {
                     showRow = false;
-                }
+                  }
             }
 
             if (showRow) {
@@ -390,19 +413,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 totalReceivedAmount += parseFloat(row.cells[10].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
                 totalReleasedAmount += parseFloat(row.cells[11].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
                 totalExpenditureAmount += parseFloat(row.cells[12].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-
-                const workorderAmount = parseFloat(row.cells[9].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+                const workOrderAmount = parseFloat(row.cells[9].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
                 const expenditureAmount = parseFloat(row.cells[12].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                const remainingAmount = workorderAmount - expenditureAmount;
-                totalRemainingAmount += remainingAmount;
+                const unspentAmount = workOrderAmount - expenditureAmount;
+                totalRemainingAmount += unspentAmount;
 
-                row.querySelector(`#remainingAmount${row.cells[0].innerText}`).innerText = `Rs. ${remainingAmount.toFixed(2)} Lacs`;
+                // Update remaining amount cell
+                row.cells[13].innerText = `Rs. ${unspentAmount.toFixed(2)} Lacs`;
             } else {
                 row.style.display = 'none';
             }
         });
 
-        // Update totals in the summary section
+        // Update totals
         document.getElementById('totalProjects').innerText = totalProjects;
         document.getElementById('totalSanctionedAmount').innerText = `Rs. ${totalSanctionedAmount.toFixed(2)} Lacs`;
         document.getElementById('TotalTechnicalSanctionedAmount').innerText = `Rs. ${totalTechnicalSanctionedAmount.toFixed(2)} Lacs`;
@@ -413,25 +436,13 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('totalRemainingAmount').innerText = `Rs. ${totalRemainingAmount.toFixed(2)} Lacs`;
     }
 
-    // Initialize filter table function
-    filterTable();
-
-    // Event listeners for filter controls
     document.getElementById('divisionFilter').addEventListener('change', filterTable);
     document.getElementById('departmentFilter').addEventListener('change', filterTable);
     document.getElementById('statusFilter').addEventListener('change', filterTable);
-    document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('budgetFilter').addEventListener('change', filterTable);
-    document.getElementById('yearFilter').addEventListener('change', filterTable);
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Ensure filter controls are shown
-    const filterControls = document.querySelectorAll('.filter-control');
-    filterControls.forEach(control => {
-        control.classList.add('show');
-    });
-    
+    // Initial filter to set totals based on current data
+    filterTable();
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js" integrity="sha512-xxxxxx" crossorigin="anonymous"></script>

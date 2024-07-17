@@ -55,44 +55,56 @@ FINANCIAL_YEAR = [
     ("2029-2030", "2029-2030"),
     ("2030-2031", "2030-2031"),
 ]
+SPLITING = [
+    ("Yes", "Yes"),
+    ("No", "No"),
+]
+
 # Project Model
 class Project(models.Model):
+    parent_project = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='sub_projects')
     Client_Department = models.CharField(
         max_length=40,
         choices=CLIENT_DEPARTMENT,
-        default='Sports Department'
+        null=True, blank=True
     )
     Division = models.CharField(
         max_length=40,
         choices=DIVISION,
-        default='Udaipur'
+        null=True, blank=True
     )
     Budget_type = models.CharField(
         max_length=40,
         choices=BUDGET_TYPE,
-        default='Budget Ghoshna'
+        null=True, blank=True
     )
     Financial_year = models.CharField(
         max_length=40,
         choices=FINANCIAL_YEAR,
-        default='2016-2017'
+        null=True, blank=True
     )
-    Name_Of_Project = models.CharField(max_length=50)
-    A_and_F_Amount = models.FloatField(default=0, db_column='A&F_Amount', verbose_name='A&F Amount')
-    A_and_F_Date = models.DateField(default=datetime.date.today, db_column='A&F_Date',verbose_name='A&F Date')
-    A_and_F_Number = models.CharField(max_length=50, db_column='A&F_Number',verbose_name='A&F Number')
-    Technical_Sanctioned_Amount = models.FloatField(default=0)
-    Technical_Sanctioned_Date = models.DateField(default=datetime.date.today)
-    Technical_Sanctioned_Number = models.CharField(max_length=50,blank =True)
-    Work_order_Amount = models.FloatField(default=0)
-    Work_order_Date = models.DateField(default=datetime.date.today)
-    Work_order_Number = models.CharField(max_length=50,blank =True)
-    Start_date = models.DateField(default=datetime.date.today)
-    Stipulated_Date_Of_Completion = models.DateField(default=datetime.date.today)
-    is_completed = models.BooleanField(default=False)
-    is_handed_over = models.BooleanField(default=False)
-    Likely_Date_Of_Completion = models.DateField(default=datetime.date.today)
-    Reporting_Date = models.DateField(default=datetime.date.today, editable=False)
+    Name_Of_Project = models.CharField(max_length=50,null=True, blank=True)
+    A_and_F_Amount = models.FloatField( db_column='A&F_Amount', verbose_name='A&F Amount',null=True, blank=True)
+    A_and_F_Date = models.DateField( db_column='A&F_Date',verbose_name='A&F Date',null=True, blank=True)
+    A_and_F_Number = models.CharField(max_length=50, db_column='A&F_Number',verbose_name='A&F Number',null=True, blank=True)
+    Is_Splited = models.CharField(
+        max_length=40,
+        choices=SPLITING,
+     null=True, blank=True
+    )
+
+    Technical_Sanctioned_Amount = models.FloatField(null=True, blank=True)
+    Technical_Sanctioned_Date = models.DateField(default=datetime.date.today, null=True, blank=True)
+    Technical_Sanctioned_Number = models.CharField(max_length=50,null=True, blank=True)
+    Work_order_Amount = models.FloatField(null=True, blank=True)
+    Work_order_Date = models.DateField(default=datetime.date.today, null=True, blank=True)
+    Work_order_Number = models.CharField(max_length=50,null=True, blank=True)
+    Start_date = models.DateField(default=datetime.date.today, null=True, blank=True)
+    Stipulated_Date_Of_Completion = models.DateField(default=datetime.date.today, null=True, blank=True)
+    is_completed = models.BooleanField(default=False, null=True, blank=True)
+    is_handed_over = models.BooleanField(default=False, null=True, blank=True)
+    Likely_Date_Of_Completion = models.DateField(default=datetime.date.today, null=True, blank=True)
+    Reporting_Date = models.DateField(default=datetime.date.today, editable=False, null=True, blank=True)
 
 
 

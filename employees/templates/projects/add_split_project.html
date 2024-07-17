@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add Project
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- SIDEBAR -->
+    <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
+    </div>
+    <!-- SIDEBAR END -->
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-10">
+        <div class="container-fluid">
+            <h3 class="mt-4">Add Project</h3><br />
+
+            <div class="col-md-7" id="messages">
+                {% if status %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ status }}
+                    </div>
+                {% endif %}
+            </div>
+            <br>
+            <form id="form-container" method="post" action="{% url 'add_split_projects' project_id  %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Name_Of_Project">Name of Project:</label>
+                        <input type="text" name="Name_Of_Project" id="id_Name_Of_Project" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the project name.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Technical_Sanctioned_Amount_Date">Technical Sanctioned Date:</label>
+                        <input type="date" name="Technical_Sanctioned_Amount_Date" id="id_Technical_Sanctioned_Amount_Date" class="form-control" required />
+                        <div class="invalid-feedback">Please select the valid technical sanctioned date.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Technical_Sanctioned_Amount">Technical Sanctioned Amount (In Lacs):</label>
+                        <input type="number" step="0.01" name="Technical_Sanctioned_Amount" id="id_Technical_Sanctioned_Amount" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the technical sanctioned amount.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Technical_Sanctioned_number">Technical Sanctioned Number:</label>
+                        <input type="text" name="Technical_Sanctioned_number" id="id_Technical_Sanctioned_number" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the Technical Sanctioned number.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Work_Order_Amount_Date">Work Order Date:</label>
+                        <input type="date" name="Work_Order_Amount_Date" id="id_Work_Order_Amount_Date" class="form-control" required />
+                        <div class="invalid-feedback">Please select the valid work order date.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Work_Order_Amount">Work Order Amount (In Lacs):</label>
+                        <input type="number" step="0.01" name="Work_Order_Amount" id="id_Work_Order_Amount" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the valid work order amount.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Work_Order_number">Work Order Number:</label>
+                        <input type="text" name="Work_Order_number" id="id_Work_Order_number" class="form-control" required />
+                        <div class="invalid-feedback">Please enter the Work Order number.</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Start_date">Start Date:</label>
+                        <input type="date" name="Start_date" id="id_Start_date" class="form-control" required />
+                        <div class="invalid-feedback">Please select the valid start date.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Stipulated_Date_Of_Completion">Stipulated Date of Completion:</label>
+                        <input type="date" name="Stipulated_Date_Of_Completion" id="id_Stipulated_Date_Of_Completion" class="form-control" required />
+                        <div class="invalid-feedback">Please select the valid stipulated date of completion.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_Likely_Date_Of_Completion">Likely Date of Completion:</label>
+                        <input type="date" name="Likely_Date_Of_Completion" id="id_Likely_Date_Of_Completion" class="form-control" required />
+                        <div class="invalid-feedback">Please select the valid likely date of completion.</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
+                        <button type="submit" class="btn btn-primary" id="add-button" disabled>Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MAIN CONTENT END -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('form-container');
+        const addButton = document.getElementById('add-button');
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        const startDateInput = document.getElementById('id_Start_date');
+        const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
+        const likelyCompletionDateInput = document.getElementById('id_Likely_Date_Of_Completion');
+        const technicalSanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
+        const workOrderDateInput = document.getElementById('id_Work_Order_Amount_Date');
+
+        function setMaxDate() {
+            const today = new Date().toISOString().split('T')[0];
+            technicalSanctionedDateInput.setAttribute('max', today);
+            workOrderDateInput.setAttribute('max', today);
+            likelyCompletionDateInput.setAttribute('min', today);
+        }
+
+        function checkFormValidity() {
+            let allFilled = true;
+
+            inputs.forEach(input => {
+                if (!input.value && !input.disabled) {
+                    allFilled = false;
+                }
+            });
+
+            let datesValid = true;
+
+            // Date validation logic
+            if (startDateInput.value && completionDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const completionDate = new Date(completionDateInput.value);
+                if (completionDate <= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    completionDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    completionDateInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (technicalSanctionedDateInput.value && workOrderDateInput.value) {
+                const tsdate = new Date(technicalSanctionedDateInput.value);
+                const workOrderDate = new Date(workOrderDateInput.value);
+                if (workOrderDate <= tsdate) {
+                    datesValid = false;
+                    technicalSanctionedDateInput.classList.add('is-invalid');
+                    workOrderDateInput.classList.add('is-invalid');
+                } else {
+                    technicalSanctionedDateInput.classList.remove('is-invalid');
+                    workOrderDateInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (startDateInput.value && likelyCompletionDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const likelyCompletionDate = new Date(likelyCompletionDateInput.value);
+                if (likelyCompletionDate <= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    likelyCompletionDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    likelyCompletionDateInput.classList.remove('is-invalid');
+                }
+            }
+            if (startDateInput.value && workOrderDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const workOrderDate = new Date(workOrderDateInput.value);
+                if (workOrderDate >= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    workOrderDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    workOrderDateInput.classList.remove('is-invalid');
+                }
+            }
+
+
+            addButton.disabled = !allFilled || !datesValid;
+        }
+
+        // Event listeners
+        inputs.forEach(input => {
+            input.addEventListener('input', checkFormValidity);
+        });
+
+        // Initial setup
+        checkFormValidity();
+        setMaxDate();
+
+        // Form submission validation
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+</script>
+
+<style>
+    .is-invalid {
+        border-color: red;
+    }
+
+    .form-row {
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .card-text {
+        font-size: 1.5rem;
+        font-weight: 400;
+        font-family: 'Lato', sans-serif;
+    }
+</style>
+{% endblock %}

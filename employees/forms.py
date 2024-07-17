@@ -94,4 +94,35 @@ class ExpenditureForm(forms.ModelForm):
             'remarks': forms.Textarea(attrs={'rows': 4}),
         }
 
+class SplitProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['Name_Of_Project','Financial_year', 'Client_Department', 'Division', 'Budget_type', 'Name_Of_Project', 'A_and_F_Amount', 'A_and_F_Date', 'A_and_F_Number']
+        widgets = {
+            'Name_Of_Project': forms.TextInput(attrs={'class': 'form-control'}),
+            'Financial_year': forms.Select(attrs={'class': 'form-control'}),
+            'Client_Department': forms.Select(attrs={'class': 'form-control'}),
+            'Division': forms.Select(attrs={'class': 'form-control'}),
+            'Budget_type': forms.Select(attrs={'class': 'form-control'}),
+            'Name_Of_Project': forms.TextInput(attrs={'class': 'form-control'}),
+            'A_and_F_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'A_and_F_Date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'A_and_F_Number': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+class SProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['Name_Of_Project','Technical_Sanctioned_Amount', 'Technical_Sanctioned_Date','Technical_Sanctioned_Number','Work_order_Amount', 'Work_order_Date','Work_order_Number',
+                  'Start_date', 'Stipulated_Date_Of_Completion']
+        widgets = {
+            'Name_Of_Project': forms.TextInput(attrs={'class': 'form-control'}),
+            'Technical_Sanctioned_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'Technical_Sanctioned_Date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'Technical_Sanctioned_Number': forms.TextInput(attrs={'class': 'form-control'}),
+            'Work_order_Amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'Work_order_Date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'Work_order_Number': forms.TextInput(attrs={'class': 'form-control'}),
+            'Start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'Stipulated_Date_Of_Completion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
