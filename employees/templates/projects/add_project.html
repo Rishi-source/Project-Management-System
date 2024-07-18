@@ -6,12 +6,8 @@ Add Project
 
 {% block content %}
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
     </div>
-    <!-- SIDEBAR END -->
-
-    <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
             <h3 class="mt-4">Add Project</h3><br />
@@ -210,7 +206,6 @@ Add Project
             </form>
         </div>
     </div>
-    <!-- MAIN CONTENT END -->
 </div>
 
 <script>
@@ -238,37 +233,29 @@ Add Project
       const splitValue = splitProjectSelect.value;
       const disableFields = splitValue === 'Yes';
 
-      // Flag to determine when to start disabling fields
       let startDisabling = false;
 
-      // Loop through form fields
       inputs.forEach(field => {
         if (field === splitProjectSelect) {
-          startDisabling = true; // Start disabling fields after splitProjectSelect
+          startDisabling = true; 
         }
 
         if (startDisabling && field !== splitProjectSelect) {
-          // Disable and clear fields if they are below split project
           field.disabled = disableFields;
           field.value = '';
           field.removeAttribute('required');
           field.classList.remove('is-invalid');
         } else {
-          // Enable fields if they are above or equal to split project
           field.disabled = false;
           field.setAttribute('required', 'required');
         }
       });
-
-      // Check if all fields above or equal to split project are filled
       let allAboveFilled = true;
       inputs.forEach(field => {
         if (!field.disabled && !field.value.trim()) {
           allAboveFilled = false;
         }
       });
-
-      // Enable/disable add button based on conditions
       addButton.disabled = disableFields || !allAboveFilled;
     }
 
@@ -282,7 +269,6 @@ Add Project
 
       let datesValid = true;
 
-      // Date validation logic
       if (startDateInput.value && completionDateInput.value) {
         const startDate = new Date(startDateInput.value);
         const completionDate = new Date(completionDateInput.value);
@@ -364,22 +350,19 @@ Add Project
       addButton.disabled = !allFilled || !datesValid;
     }
 
-    // Event listeners
     inputs.forEach(input => {
       input.addEventListener('input', checkFormValidity);
     });
 
     splitProjectSelect.addEventListener('change', function() {
       toggleFieldsBasedOnSplit();
-      checkFormValidity(); // Revalidate form on splitProjectSelect change
+      checkFormValidity(); 
     });
 
-    // Initial setup
     toggleFieldsBasedOnSplit();
     checkFormValidity();
     setMaxDate();
 
-    // Form submission validation
     form.addEventListener('submit', function(event) {
       if (!form.checkValidity()) {
         event.preventDefault();

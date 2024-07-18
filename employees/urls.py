@@ -12,7 +12,6 @@ urlpatterns = [
     path('login_user', views.login_user, name='login_user'),
     path('logout', views.logout_user, name='logout'),
     path('forgot_password', auth_views.PasswordChangeView.as_view(template_name='forgot_password.html'), name='forgot_password'),
-    # -------------------- PROJECTS --------------------#
     path('projects', views.projects, name='projects'),
     path('register/', views.register, name='register'),
     path('register_user/', views.register_user, name='register_user'),
@@ -69,6 +68,5 @@ urlpatterns = [
     path('mark_split_project_handedover/<int:project_id>/', views.mark_split_project_handedover, name='mark_split_project_handedover'),
 
  ]
-    # -------------------- PROJECTS --------------------#
 
 

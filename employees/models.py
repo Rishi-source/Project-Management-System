@@ -18,7 +18,6 @@ class Profile(models.Model):
         return self.user.username
 
 
-# Choices for Client Department and Division
 CLIENT_DEPARTMENT = (
     ("Sports Department", "Sports Department"),
     ("Skill Department", "Skill Department"),
@@ -60,7 +59,6 @@ SPLITING = [
     ("No", "No"),
 ]
 
-# Project Model
 class Project(models.Model):
     parent_project = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='sub_projects')
     Client_Department = models.CharField(

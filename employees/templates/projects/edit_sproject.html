@@ -7,12 +7,8 @@ Edit Project
 
 {% block content %}
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%;">
-        <!-- Sidebar Content Here if Needed -->
     </div>
-    <!-- SIDEBAR END -->
-    <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
             <h3>Edit Project</h3><br />
@@ -50,7 +46,6 @@ Edit Project
               <br>
               <br>
               <br>
-            <!-- Form for basic project details editing -->
             <form id="form-container" method="post" action="">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -61,11 +56,9 @@ Edit Project
                 
             </form>
 
-            <!-- Options to edit different aspects -->
             </div>
         </div>
     </div>
-    <!-- MAIN CONTENT END -->
 </div>
 
 <script>
@@ -97,7 +90,6 @@ Edit Project
 
             let datesValid = true;
 
-            // Date validation logic
             if (startDateInput.value && completionDateInput.value) {
                 const startDate = new Date(startDateInput.value);
                 const completionDate = new Date(completionDateInput.value);
@@ -153,16 +145,13 @@ Edit Project
             addButton.disabled = !allFilled || !datesValid;
         }
 
-        // Event listeners
         inputs.forEach(input => {
             input.addEventListener('input', checkFormValidity);
         });
 
-        // Initial setup
         checkFormValidity();
         setMaxDate();
 
-        // Form submission validation
         form.addEventListener('submit', function(event) {
             if (!form.checkValidity()) {
                 event.preventDefault();

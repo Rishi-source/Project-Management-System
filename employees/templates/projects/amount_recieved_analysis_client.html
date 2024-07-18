@@ -5,24 +5,17 @@ View Projects
 {% endblock %}
 
 {% block extra_css %}
-<!-- Include any additional CSS files here -->
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top:-15px; height:100%;">
-        <!-- Sidebar content here if needed -->
     </div>
-    <!-- SIDEBAR END -->
-
-    <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
             <h3>Expenditure Analysis for {{ year }} </h3><br />
 
-            <!-- Status Message -->
             <div id="messages">
                 {% if status %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -31,8 +24,6 @@ View Projects
                 </div>
                 {% endif %}
             </div>
-            <!-- Status Message End -->
-<!-- Year Selection Form -->
 <div class="card shadow mb-4">
     <div class="card-body text-center">
         <h5 class="card-title text-primary mb-4">Select Year for Analysis</h5>
@@ -56,7 +47,6 @@ View Projects
     </div>
 </div>
 
-            <!-- Table for Divisions and Amounts -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h4 class="m-0 font-weight-bold text-primary">Expenditure data for each Client Department</h4>
@@ -86,7 +76,6 @@ View Projects
             </div>
 
 
-            <!-- Bar Chart for Divisions and Amounts -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h4 class="m-0 font-weight-bold text-primary">Bar Chart for Client Department and Expenditure Amount</h4>
@@ -96,7 +85,6 @@ View Projects
                 </div>
             </div>
 
-            <!-- Monthly data Table for Divisions and Amounts - Udaipur -->
             <div class="card shadow mb-4">
                 <div class="card-header py-2">
                     <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Sports Department</h4>
@@ -138,7 +126,6 @@ View Projects
             </div>
                         
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarUdaipur = document.getElementById('barChartUdaipur').getContext('2d');
             var barChartUdaipur = new Chart(ctxBarUdaipur, {
                 type: 'bar',
@@ -184,7 +171,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -197,7 +184,6 @@ View Projects
         });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Jodhpur -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Skill Department</h4>
@@ -239,7 +225,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarJodhpur = document.getElementById('barChartJodhpur').getContext('2d');
             var barChartJodhpur = new Chart(ctxBarJodhpur, {
                 type: 'bar',
@@ -298,7 +283,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Kota -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for LSG Department</h4>
@@ -340,7 +324,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarKota = document.getElementById('barChartKota').getContext('2d');
             var barChartKota = new Chart(ctxBarKota, {
                 type: 'bar',
@@ -386,7 +369,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -399,7 +382,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Bikaner -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Technical & Higher Education</h4>
@@ -441,7 +423,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarBikaner = document.getElementById('barChartBikaner').getContext('2d');
             var barChartBikaner = new Chart(ctxBarBikaner, {
                 type: 'bar',
@@ -487,7 +468,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -501,7 +482,6 @@ View Projects
         </script>
 
         <script>
-            // Bar Chart Data
             var ctxBar = document.getElementById('barChart').getContext('2d');
             var barChart = new Chart(ctxBar, {
                 type: 'bar',
@@ -537,7 +517,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },

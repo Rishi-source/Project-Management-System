@@ -2,12 +2,8 @@
 
 {% block content %}
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%;">
     </div>
-    <!-- SIDEBAR END -->
-
-    <!-- Status Message -->
     <div id="messages" class="col-md-10 offset-md-2">
         {% if status %}
             <script>
@@ -15,8 +11,6 @@
             </script>
         {% endif %}
     </div>
-
-    <!-- MAIN CONTENT -->
     <div class="col-md-10 offset-md-2">
         <div class="container-fluid">
             <h1>Edit Amount Released Entries for Project: {{ project.name }}</h1>
@@ -55,10 +49,8 @@
             <a href="{% url 'edit_sproject' project_id=project.pk %}" class="btn btn-secondary">Back to Project</a>
         </div>
     </div>
-    <!-- MAIN CONTENT END -->
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

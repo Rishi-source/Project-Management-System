@@ -8,17 +8,12 @@
 
 {% block content %}
 <div class="row">
-  <!-- SIDEBAR -->
   <div class="col-md-2 ">
   </div>
-  <!-- SIDEBAR END -->
-  
-  <!-- MAIN CONTENT -->
   <div class="col-md-10">
     <div class="container-fluid">
       <h3 class="mt-4 mb-4">View Split Projects - {{ parent_proj.Name_Of_Project }}</h3>
 
-      <!-- Card Header -->
       <div id="messages">
         {% if status %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -36,11 +31,9 @@
         </div>
         </div>
         
-        <!-- Card Body -->
         <div class="card-body">          
           <div class="row mb-3 filter-control">
               <div class="container">
-                <!-- Project Search Form -->
                 <form id="projectSearchForm" method="GET" action="{% url 'view_split_project' project_id %}">
                   <div class="row mb-3">
                     <div class="col-md-10">
@@ -58,7 +51,6 @@
                           </div>   
           </div>
                     
-          <!-- Totals Section -->
           <div class="row mb-13 col-md-12 filter-control">
             <div class="col-md-2 mb-2 total-item navbar-expand-lg  ">
               <label>Total Number of Projects:</label>
@@ -94,7 +86,6 @@
 
           <br>
           
-          <!-- Table -->
         <br>
           <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -168,7 +159,6 @@
       </div>
     </div>
   </div>
-  <!-- MAIN CONTENT END -->
 </div>
 
 <div class="modal fade" id="confirmMarkCompletedModal" tabindex="-1" aria-labelledby="confirmMarkCompletedModalLabel" aria-hidden="true">
@@ -244,11 +234,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const unspentAmount = workOrderAmount - expenditureAmount;
                 totalRemainingAmount += unspentAmount;
 
-                // Update remaining amount cell
                 row.cells[7].innerText = `Rs. ${unspentAmount.toFixed(2)} Lacs`;
         });
 
-        // Update totals
         document.getElementById('totalProjects').innerText = totalProjects;
         document.getElementById('TotalTechnicalSanctionedAmount').innerText = `Rs. ${totalTechnicalSanctionedAmount.toFixed(2)} Lacs`;
         document.getElementById('totalWorkOrderAmount').innerText = `Rs. ${totalWorkOrderAmount.toFixed(2)} Lacs`;
@@ -257,7 +245,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('totalExpenditureAmount').innerText = `Rs. ${totalExpenditureAmount.toFixed(2)} Lacs`;
         document.getElementById('totalRemainingAmount').innerText = `Rs. ${totalRemainingAmount.toFixed(2)} Lacs`;
     }
-    // Initial filter to set totals based on current data
     filterTable();
 });
 </script>
@@ -272,16 +259,13 @@ document.addEventListener('DOMContentLoaded', function () {
     exportBtn.addEventListener('click', function() {
       console.log('Export button clicked');
       
-      // Clone the table to modify it for export
       const clonedTable = projectsTable.cloneNode(true);
       
-      // Remove the last column from the cloned table
       const lastColumnIndex = clonedTable.rows[0].cells.length - 1;
       for (let i = 0; i < clonedTable.rows.length; i++) {
         clonedTable.rows[i].deleteCell(lastColumnIndex);
       }
 
-      // Convert the modified table to workbook
       const wb = XLSX.utils.table_to_book(clonedTable, {sheet:"Projects"});
       XLSX.writeFile(wb, 'projects.xlsx');
     });

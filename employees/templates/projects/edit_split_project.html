@@ -8,17 +8,11 @@
 
 {% block content %}
 <div class="row">
-  <!-- SIDEBAR -->
   <div class="col-md-2 ">
   </div>
-  <!-- SIDEBAR END -->
-  
-  <!-- MAIN CONTENT -->
   <div class="col-md-10">
     <div class="container-fluid">
       <h3 class="mt-4 mb-4">Edit Split Projects</h3>
-
-      <!-- Card Header -->
       <form id="form-container" method="post" action="">
         {% csrf_token %}
         {{ form.as_p }}
@@ -34,9 +28,7 @@
           <h5 class="m-0 font-weight-bold text-primary"> Split Projects List - {{ parent_proj.Name_Of_Project }}</h5>
         
         </div>
-        
-        <!-- Card Body -->
-        <div class="card-body">
+                <div class="card-body">
           <style>
             .filter-control {
               opacity: 0;
@@ -51,7 +43,6 @@
           </style>
         <br>
           
-          <!-- Table -->
           <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
@@ -71,9 +62,7 @@
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ project.id }}">
                           Delete
                         </button>
-                
-                        <!-- Delete Modal -->
-                        <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
+                                        <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
@@ -93,7 +82,6 @@
                             </div>
                           </div>
                         </div>
-                        <!-- End Delete Modal -->
                 
                       </div>
                     </div>
@@ -107,7 +95,6 @@
       </div>
     </div>
   </div>
-  <!-- MAIN CONTENT END -->
 </div>
 
 <style>

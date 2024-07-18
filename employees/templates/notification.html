@@ -5,12 +5,9 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- SIDEBAR -->
         <div class="col-md-2">
-            <!-- Sidebar content here -->
         </div>
 
-        <!-- MAIN CONTENT -->
         <div class="col-md-10" style="background-color: #f8f9fa;">
             <div class="py-4">
                 <h1 class="display-4 text-center">Notifications</h1>
@@ -41,8 +38,8 @@
 <style>
     .notification {
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s;
-        margin-bottom: 15px; /* Add some margin between notifications */
-        cursor: pointer; /* Add pointer cursor for better mobile interaction */
+        margin-bottom: 15px; 
+        cursor: pointer; 
     }
     .notification:hover {
         transform: scale(1.02);
@@ -59,15 +56,12 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Animation CSS (e.g., Animate.css) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-<!-- Additional JS Libraries for effects -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy-bundle.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/themes/light.css"/>
 
-<!-- JS for additional interactivity -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const notifications = document.querySelectorAll('.notification');
@@ -78,8 +72,6 @@
                     notification.remove();
                 }, 1000);
             });
-
-            // Tooltip for timestamp
             const timestamp = notification.querySelector('.timestamp');
             tippy(timestamp, {
                 content: 'Click to remove notification',

@@ -151,7 +151,6 @@ def register_user(request):
 
     return render(request, 'register.html')
 
-# ------------------------------ PROJECTS START ------------------------------ #
 
 def projects(request):
     user = request.user
@@ -619,8 +618,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Amounts Released")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_released, years_released, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
             plt.tight_layout()
 
@@ -642,8 +641,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Total Expenditure")
             plt.xlabel("Year")
             plt.ylabel("Total Expenditure (Rs. Lacs)")
-            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_expenditure, years_expenditure, rotation=45) 
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  
             plt.tight_layout()
 
             plt.tight_layout()
@@ -743,7 +742,6 @@ def view_project(request):
         projects = projects.filter(Financial_year=financial_year)
         sprojects = sprojects.filter(Financial_year=financial_year)
 
-    # Aggregate totals for regular projects
     for project in projects:
         total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
         total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
@@ -752,7 +750,6 @@ def view_project(request):
         project.total_AmountReleased = total_AmountReleased
         project.total_AmountReceived = total_AmountReceived
 
-    # Aggregate totals for splitted projects and their sub-projects
     for sproject in sprojects:
         projs = Project.objects.filter(parent_project=sproject)
         if not projs.exists():
@@ -1749,8 +1746,8 @@ class GenerateProjectPDF(View):
             plt.title(f"Yearly Amounts Received")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_received, years_received, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
 
             for bar in bars:
@@ -1771,8 +1768,8 @@ class GenerateProjectPDF(View):
             plt.title(f"Yearly Amounts Released")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_released, years_released, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
             plt.tight_layout()
 
@@ -1794,8 +1791,8 @@ class GenerateProjectPDF(View):
             plt.title(f"Yearly Total Expenditure")
             plt.xlabel("Year")
             plt.ylabel("Total Expenditure (Rs. Lacs)")
-            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_expenditure, years_expenditure, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
 
             plt.tight_layout()
@@ -1848,11 +1845,9 @@ class GenerateProjectPDF(View):
         'remaining_amount': remaining_amount,
         'agencycharge':agencycharge,
     }
-        # Render the template into HTML
         template = get_template('projects/project_pdf.html')
         html = template.render(context)
 
-        # Create a PDF response
         result = BytesIO()
         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
         if not pdf.err:
@@ -1888,7 +1883,6 @@ def add_split_project(request, project_id):
                     work_order_amount, start_date, stipulated_completion_date, likely_completion_date, tsn, won]):
             return HttpResponseBadRequest('All fields are required.')
 
-        # Validate dates
         try:
             tech_sanction_date = parse_date(tech_sanction_date)
             work_order_date = parse_date(work_order_date)
@@ -1898,7 +1892,6 @@ def add_split_project(request, project_id):
         except ValueError:
             return HttpResponseBadRequest('Invalid date format.')
 
-        # Perform additional validations as needed
         if tech_sanction_date > start_date:
             return HttpResponseBadRequest('Technical sanctioned date cannot be after start date.')
 
@@ -1908,7 +1901,6 @@ def add_split_project(request, project_id):
         if likely_completion_date < stipulated_completion_date:
             return HttpResponseBadRequest('Likely completion date cannot be before stipulated completion date.')
 
-        # Save data to database
         project = Project(
             parent_project=parent_project,
             Name_Of_Project=name_of_project,
@@ -2082,7 +2074,7 @@ def add_split_progress(request, project_id):
         try:
             pj = request.POST["Project"]
             rad = request.POST["Date_Of_Reporting"]
-            ra = float(request.POST["Physical_Progress_Percentage"])  # Convert to float
+            ra = float(request.POST["Physical_Progress_Percentage"]) 
 
             project = get_object_or_404(Project, pk=pj)
             rad_date = parse_date(rad)
@@ -2683,8 +2675,8 @@ def view_split_details(request,project_id):
             plt.title(f"Yearly Amounts Received")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_received, years_received, rotation=45) 
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  
             plt.tight_layout()
 
             for bar in bars:
@@ -2705,8 +2697,8 @@ def view_split_details(request,project_id):
             plt.title(f"Yearly Amounts Released")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_released, years_released, rotation=45) 
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
             plt.tight_layout()
 
@@ -2728,8 +2720,8 @@ def view_split_details(request,project_id):
             plt.title(f"Yearly Total Expenditure")
             plt.xlabel("Year")
             plt.ylabel("Total Expenditure (Rs. Lacs)")
-            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_expenditure, years_expenditure, rotation=45) 
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.tight_layout()
 
             plt.tight_layout()
@@ -2878,8 +2870,8 @@ class splitGenerateProjectPDF(View):
             plt.title(f"Yearly Amounts Received")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_received, years_received, rotation=45)
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  
             plt.tight_layout()
 
             for bar in bars:
@@ -2900,8 +2892,8 @@ class splitGenerateProjectPDF(View):
             plt.title(f"Yearly Amounts Released")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_released, years_released, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_released, years_released, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  
             plt.tight_layout()
             plt.tight_layout()
 
@@ -2923,8 +2915,8 @@ class splitGenerateProjectPDF(View):
             plt.title(f"Yearly Total Expenditure")
             plt.xlabel("Year")
             plt.ylabel("Total Expenditure (Rs. Lacs)")
-            plt.xticks(years_expenditure, years_expenditure, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_expenditure, years_expenditure, rotation=45)  
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  
             plt.tight_layout()
 
             plt.tight_layout()
@@ -2977,11 +2969,8 @@ class splitGenerateProjectPDF(View):
         'remaining_amount': remaining_amount,
         'agencycharge':agencycharge,
     }
-        # Render the template into HTML
         template = get_template('projects/split_project_pdf.html')
         html = template.render(context)
-
-        # Create a PDF response
         result = BytesIO()
         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
         if not pdf.err:
@@ -3030,4 +3019,3 @@ def mark_split_project_handedover(request, project_id):
 
     return redirect(f"{reverse('view_split_project', args=[project.parent_project.id])}?{query_params}")
 
-# ------------------------------ PROJECTS STOP ------------------------------ #

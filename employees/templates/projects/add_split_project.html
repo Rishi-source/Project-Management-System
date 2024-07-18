@@ -6,12 +6,8 @@ Add Project
 
 {% block content %}
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
     </div>
-    <!-- SIDEBAR END -->
-
-    <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
             <h3 class="mt-4">Add Project</h3><br />
@@ -116,7 +112,6 @@ Add Project
             </form>
         </div>
     </div>
-    <!-- MAIN CONTENT END -->
 </div>
 
 <script>
@@ -148,7 +143,6 @@ Add Project
 
             let datesValid = true;
 
-            // Date validation logic
             if (startDateInput.value && completionDateInput.value) {
                 const startDate = new Date(startDateInput.value);
                 const completionDate = new Date(completionDateInput.value);
@@ -204,16 +198,13 @@ Add Project
             addButton.disabled = !allFilled || !datesValid;
         }
 
-        // Event listeners
         inputs.forEach(input => {
             input.addEventListener('input', checkFormValidity);
         });
 
-        // Initial setup
         checkFormValidity();
         setMaxDate();
 
-        // Form submission validation
         form.addEventListener('submit', function(event) {
             if (!form.checkValidity()) {
                 event.preventDefault();

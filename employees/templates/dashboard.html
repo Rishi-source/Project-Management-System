@@ -6,7 +6,6 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- MAIN CONTENT -->
     <div class="col-md-10 main-content">
       <div class="row mt-4">
         <div class="col-md-4 mb-4">
@@ -62,7 +61,6 @@
         </div>
       </div>
     
-    <!-- MAIN CONTENT END -->
 </div>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 
@@ -106,7 +104,7 @@
 
   .main-content {
     transition: margin-left 0.3s ease;
-    margin-left: 250px; /* Adjust as needed */
+    margin-left: 250px; 
   }
 
   .card-link {
@@ -116,8 +114,8 @@
   }
 
   .notification-scroll {
-    max-height: 1200px; /* Adjust max height as needed */
-    overflow-y: auto; /* Enable vertical scroll */
+    max-height: 1200px; 
+    overflow-y: auto; 
   }
 
   .notification-item {
@@ -149,24 +147,20 @@
 
   @media (max-width: 768px) {
     .main-content {
-      margin-left: 0; /* Adjust for mobile view */
+      margin-left: 0; 
     }
 
     .col-md-4 {
-      margin-bottom: 20px; /* Space between cards on mobile */
+      margin-bottom: 20px;
     }
   }
 </style>
 <script>
   $(document).ready(function () {
-    // Check if the user has already seen the modal
     if (!sessionStorage.getItem('mobileWarningShown')) {
-      // Show the modal if screen width is less than 768px
       if ($(window).width() < 768) {
         $('#mobileWarningModal').modal('show');
       }
-
-      // Set the flag in session storage indicating the modal has been shown
       sessionStorage.setItem('mobileWarningShown', 'true');
     }
   });

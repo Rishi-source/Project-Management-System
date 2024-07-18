@@ -45,9 +45,7 @@
     .container-fluid.content {
       position: relative;
       left: 15px;
-      /* Adjust this value based on the width of your sidebar */
       padding-top: 10px;
-      /* Adjust padding as needed */
     }
 
     body {
@@ -91,12 +89,11 @@
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ user.username }} <!-- Display username or user information -->
+            {{ user.username }} 
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'notification' %}">Notifications</a>
             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-            <!-- Add more dropdown items as needed -->
           </div>
         </li>
       </ul>
@@ -130,8 +127,6 @@
     }
   </style>
           
-  <!-- Main content -->
-  <!-- Sidebar -->
   <div> {% include 'partials/sidebar.html' %}
 
     <div class="container-fluid content">

@@ -5,24 +5,17 @@ View Projects
 {% endblock %}
 
 {% block extra_css %}
-<!-- Include any additional CSS files here -->
-{% endblock %}
+]{% endblock %}
 
 {% block content %}
 
 <div class="row">
-    <!-- SIDEBAR -->
     <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top:-15px; height:100%;">
-        <!-- Sidebar content here if needed -->
     </div>
-    <!-- SIDEBAR END -->
-
-    <!-- MAIN CONTENT -->
     <div class="col-md-10">
         <div class="container-fluid">
             <h3>Amount Recieved Analysis for {{ year }} </h3><br />
 
-            <!-- Status Message -->
             <div id="messages">
                 {% if status %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -31,8 +24,6 @@ View Projects
                 </div>
                 {% endif %}
             </div>
-            <!-- Status Message End -->
-            <!-- Year Selection Form -->
             <div class="card shadow mb-4">
                 <div class="card-body text-center">
                     <h5 class="card-title text-primary mb-4">Select Year for Analysis</h5>
@@ -55,9 +46,6 @@ View Projects
                     </form>
                 </div>
             </div>
-            <!-- Year Selection Form End -->
-
-            <!-- Table for Divisions and Amounts -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h4 class="m-0 font-weight-bold text-primary">Amount Recieved data for each division
@@ -88,7 +76,6 @@ View Projects
             </div>
 
 
-            <!-- Bar Chart for Divisions and Amounts -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h4 class="m-0 font-weight-bold text-primary">Bar Chart for Divisions and Amount Recieved</h4>
@@ -98,13 +85,10 @@ View Projects
                 </div>
             </div>
 
-            <!-- Monthly data Table for Divisions and Amounts - Udaipur -->
             <div class="card shadow mb-4">
-                <div class="card-header py-2"> <!-- Reduced padding -->
+                <div class="card-header py-2"> 
                     <h5 class="m-0 font-weight-bold text-primary">Monthly Data for Udaipur</h5>
-                    <!-- Smaller font size -->
                 </div>
-                <!-- Rest of your card content -->
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -143,7 +127,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarUdaipur = document.getElementById('barChartUdaipur').getContext('2d');
             var barChartUdaipur = new Chart(ctxBarUdaipur, {
                 type: 'bar',
@@ -189,7 +172,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -202,7 +185,6 @@ View Projects
         });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Jodhpur -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Jodhpur</h4>
@@ -244,7 +226,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarJodhpur = document.getElementById('barChartJodhpur').getContext('2d');
             var barChartJodhpur = new Chart(ctxBarJodhpur, {
                 type: 'bar',
@@ -290,7 +271,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -303,7 +284,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Kota -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Kota</h4>
@@ -345,7 +325,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarKota = document.getElementById('barChartKota').getContext('2d');
             var barChartKota = new Chart(ctxBarKota, {
                 type: 'bar',
@@ -391,7 +370,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -404,7 +383,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Bikaner -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Unit II</h4>
@@ -446,7 +424,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarBikaner = document.getElementById('barChartBikaner').getContext('2d');
             var barChartBikaner = new Chart(ctxBarBikaner, {
                 type: 'bar',
@@ -492,7 +469,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -505,7 +482,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Jaipur -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Unit III</h4>
@@ -547,7 +523,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarJaipur = document.getElementById('barChartJaipur').getContext('2d');
             var barChartJaipur = new Chart(ctxBarJaipur, {
                 type: 'bar',
@@ -593,7 +568,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -606,7 +581,6 @@ View Projects
               });
         </script>
 
-        <!-- Monthly data Table for Divisions and Amounts - Ajmer -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Monthly Data for Unit IV</h4>
@@ -648,7 +622,6 @@ View Projects
         </div>
 
         <script>
-            // Bar Chart Data for Udaipur
             var ctxBarAjmer = document.getElementById('barChartAjmer').getContext('2d');
             var barChartAjmer = new Chart(ctxBarAjmer, {
                 type: 'bar',
@@ -694,7 +667,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString(); 
                                 }
                     }
                 },
@@ -708,7 +681,6 @@ View Projects
         </script>
 
         <script>
-            // Bar Chart Data
             var ctxBar = document.getElementById('barChart').getContext('2d');
             var barChart = new Chart(ctxBar, {
                 type: 'bar',
@@ -744,7 +716,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); // Format the value as needed
+                                    return value.toLocaleString();
                                 }
                     }
                 },
