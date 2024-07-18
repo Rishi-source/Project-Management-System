@@ -12,24 +12,24 @@ Add Physical Progress
   </div>
   <!-- SIDEBAR END -->
 
-  <div class="col-md-10 offset-md-2" id="messages">
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
-    </div>
-    {% endif %}
-    {% if success %}
-    <div class="alert alert-success" role="alert">
-      {{ success }}
-    </div>
-    {% endif %}
-  </div>
 
   <!-- MAIN CONTENT -->
   <div class="col-md-10 offset-md-2">
     <div class="container-fluid">
       <h3>Add Physical Progress :</h3><br />
-
+      <div class="col-md-12" id="messages">
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+          {{ success }}
+        </div>
+        {% endif %}
+      </div>
+    
       <form id="form-container" method="post" action="">
         {% csrf_token %}
         <div class="form-row">

@@ -19,7 +19,15 @@
       <h3 class="mt-4 mb-4">View Split Projects - {{ parent_proj.Name_Of_Project }}</h3>
 
       <!-- Card Header -->
-       
+      <div id="messages">
+        {% if status %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ status }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+      </div>
+
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
           <h5 class="m-0 font-weight-bold text-primary">Projects List</h5>
@@ -70,7 +78,7 @@
               </div>  
           </div>
           <div class="row mb-13 col-md-12 filter-control">
-            <div class="col-md-3 mb-2 total-item">
+            <div class="col-md-2 mb-2 total-item">
               <label>Total Released Amount:</label>
               <span id="TotalReleasedAmount">Rs. 0.00 Lacs</span>
             </div>
@@ -201,12 +209,12 @@
 
 <script>
   function confirmMarkCompleted(projectId) {
-    $('#confirmMarkCompletedBtn').attr('href', '{% url "mark_project_completed" 0 %}'.replace('0', projectId));
+    $('#confirmMarkCompletedBtn').attr('href', '{% url "mark_split_project_completed" 0 %}'.replace('0', projectId));
     $('#confirmMarkCompletedModal').modal('show');
   }
 
   function confirmMarkHandedOver(projectId) {
-    $('#confirmMarkHandedOverBtn').attr('href', '{% url "mark_project_handedover" 0 %}'.replace('0', projectId));
+    $('#confirmMarkHandedOverBtn').attr('href', '{% url "mark_split_project_handedover" 0 %}'.replace('0', projectId));
     $('#confirmMarkHandedOverModal').modal('show');
   }
 </script>

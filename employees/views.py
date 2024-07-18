@@ -44,7 +44,6 @@ from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-import os
 from django.views.generic import View
 from django.http import HttpResponseBadRequest
 
@@ -53,7 +52,7 @@ def dashboard(request):
     user =request.user
     if not request.user.is_authenticated:
         return redirect('login')
-
+    # ,Is_Splited='Yes',Is_Splited='No'
     ongoing_count = Project.objects.filter(is_completed=False, is_handed_over=False).count()
     completed_count = Project.objects.filter(is_completed=True, is_handed_over=False).count()
     handedover_count = Project.objects.filter(is_completed=True, is_handed_over=True).count()
@@ -366,14 +365,18 @@ def add_progress(request, project_id):
     if not request.user.is_authenticated:
         return redirect('login')
     project_instance = get_object_or_404(Project, pk=project_id)
-        
+    latest_progress = PhysicalProgress.objects.filter(project=project_instance).order_by('-Date_Of_Reporting').first()
+
     if request.method == "POST":
         try:
             rad = request.POST["Date_Of_Reporting"]
-            ra = request.POST["Physical_Progress_Percentage"]
+            ra = float(request.POST["Physical_Progress_Percentage"])  
 
             rad_date = parse_date(rad)
-
+            if latest_progress and ra < float(latest_progress.Physical_Progress_Percentage):
+                error = f"Progress must be equal to or greater than the last recorded progress {latest_progress.Physical_Progress_Percentage}%."
+                return render(request, "projects/add_progress.html", {"error": error})
+            
             progress = PhysicalProgress(
                 project=project_instance,
                 Date_Of_Reporting=rad_date,
@@ -411,17 +414,19 @@ def add_total_expenditure(request, project_id):
         return redirect('login')
     
     project_instance = get_object_or_404(Project, pk=project_id)
-    
+    latest_progress = Expenditure.objects.filter(project=project_instance).order_by('-Expenditure_date').first()
     if request.method == "POST":
         try:
             expenditure_value = request.POST.get("expenditure_value")
             date_str = request.POST.get("expenditure_date")
-            physical_progress = request.POST.get("physical_progress")
+            physical_progress = float(request.POST.get("physical_progress"))
             remarks = request.POST.get("remarks")
             photo = request.FILES.get("photo")
 
             date = parse_date(date_str)
-
+            if latest_progress and physical_progress < float(latest_progress.physical_progress):
+                error = f"Progress must be equal to or greater than the last recorded progress {latest_progress.physical_progress}%."
+                return render(request, "projects/add_expenditure.html", {"error": error})
             expenditure = Expenditure(
                 project=project_instance,
                 Expenditure_date=date,
@@ -736,6 +741,7 @@ def view_project(request):
         sprojects = sprojects.filter(q_objects)
     if financial_year:
         projects = projects.filter(Financial_year=financial_year)
+        sprojects = sprojects.filter(Financial_year=financial_year)
 
     # Aggregate totals for regular projects
     for project in projects:
@@ -775,6 +781,7 @@ def view_project(request):
         'projects': projects,
         'search_query': search_query,
         'financial_year': financial_year,
+        'status': request.GET.get('status', '') 
     }
     return render(request, 'projects/view_project.html', context)
 def edit_stipulated_date(request, project_id):
@@ -853,7 +860,6 @@ def edit_stipulated_date(request, project_id):
         }
         
         return render(request, "projects/edit_date_of_completion.html", context)
-    
     except KeyError as e:
         status = "Missing field: {}".format(e)
     except ValidationError as e:
@@ -1859,13 +1865,14 @@ class GenerateProjectPDF(View):
 def not_allowed(request):
     return render(request, 'not_allowed.html')
 
-def add_split_project(request,project_id):
+def add_split_project(request, project_id):
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
-    project = get_object_or_404(Project, pk=project_id)
+    parent_project = get_object_or_404(Project, pk=project_id)
+    success = None
     if request.method == 'POST':
         name_of_project = request.POST.get('Name_Of_Project')
         tech_sanction_date = request.POST.get('Technical_Sanctioned_Amount_Date')
@@ -1878,7 +1885,7 @@ def add_split_project(request,project_id):
         tsn = request.POST.get('Technical_Sanctioned_number')
         won = request.POST.get('Work_Order_number')
         if not all([name_of_project, tech_sanction_date, tech_sanction_amount, work_order_date,
-                    work_order_amount, start_date, stipulated_completion_date, likely_completion_date,tsn,won]):
+                    work_order_amount, start_date, stipulated_completion_date, likely_completion_date, tsn, won]):
             return HttpResponseBadRequest('All fields are required.')
 
         # Validate dates
@@ -1903,7 +1910,7 @@ def add_split_project(request,project_id):
 
         # Save data to database
         project = Project(
-            parent_project = project,
+            parent_project=parent_project,
             Name_Of_Project=name_of_project,
             Technical_Sanctioned_Date=tech_sanction_date,
             Technical_Sanctioned_Amount=tech_sanction_amount,
@@ -1912,19 +1919,22 @@ def add_split_project(request,project_id):
             Start_date=start_date,
             Stipulated_Date_Of_Completion=stipulated_completion_date,
             Likely_Date_Of_Completion=likely_completion_date,
-            Technical_Sanctioned_Number = tsn,
-            Work_order_Number = won,
+            Technical_Sanctioned_Number=tsn,
+            Work_order_Number=won,
         )
         project.save()
-        user = request.user
         notification = Notification(
-                user = user,
-                message=f"{user.username} has added a new project {name_of_project}"
-            )
+            user=user,
+            message=f"{user.username} has added a new project {name_of_project}"
+        )
         notification.save()
-        return render(request, 'projects/add_split_project.html', {'project_id': project_id})
-    else:
-        return render(request, 'projects/add_split_project.html', {'project_id': project_id})
+        success = f"Project '{name_of_project}' has been successfully added added to {parent_project.Name_Of_Project}"
+
+    context = {
+        'project_id': project_id,
+        'success': success
+    }
+    return render(request, 'projects/add_split_project.html', context)
 
 def add_split_amountrecieved(request, project_id):
     user = request.user
@@ -1934,7 +1944,9 @@ def add_split_amountrecieved(request, project_id):
         return redirect('not_allowed')
     proj = get_object_or_404(Project, pk=project_id)
     projects = Project.objects.filter(parent_project=proj)
+    success = None
     if request.method == "POST":
+        try:
             pj = request.POST["Project"]
             rad = request.POST["Recieved_Amount_Date"]
             ra = request.POST["Recieved_Amount"]
@@ -1943,21 +1955,25 @@ def add_split_amountrecieved(request, project_id):
             rad_date = parse_date(rad)
 
             data = AmountReceived(
-                project= project,
+                project=project,
                 Amount_Received_Date=rad_date, 
                 Amount_Received=ra,
             )
             data.save()
-            user = request.user
             notification = Notification(
-                user = user,
-                project = project,
+                user=user,
+                project=project,
                 message=f"{user.username} has added an entry for amount received of Rs. {ra} Lacs dated {rad_date} for the project {project.parent_project.Name_Of_Project} -> {project.Name_Of_Project}"
-             )
+            )
             notification.save()
+            success = f"Amount of Rs. {ra} lacs is successfully added for the project {project.Name_Of_Project}"
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+
     context = {
         'projects': projects,
-        'project_id': project_id
+        'project_id': project_id,
+        'success': success
     }
     return render(request, 'projects/add_split_amountrecieved.html', context)
 
@@ -1969,7 +1985,9 @@ def add_split_amountreleased(request, project_id):
         return redirect('not_allowed')
     proj = get_object_or_404(Project, pk=project_id)
     projects = Project.objects.filter(parent_project=proj)
+    success = None
     if request.method == "POST":
+        try:
             pj = request.POST["Project"]
             rad = request.POST["Recieved_Amount_Date"]
             ra = request.POST["Recieved_Amount"]
@@ -1990,9 +2008,14 @@ def add_split_amountreleased(request, project_id):
                 message=f"{user.username} has added an entry for amount released of Rs. {ra} Lacs dated {rad_date} for the project {project.parent_project.Name_Of_Project} -> {project.Name_Of_Project}"
              )
             notification.save()
+            success = f"Amount of Rs. {ra} lacs is successfully added for the project {project.Name_Of_Project}"
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+
     context = {
         'projects': projects,
-        'project_id': project_id
+        'project_id': project_id,
+        'success':success
     }
     return render(request, 'projects/add_split_amountreleased.html', context)
 def add_split_expenditure(request,project_id):
@@ -2001,16 +2024,23 @@ def add_split_expenditure(request,project_id):
         return redirect('login')
     proj = get_object_or_404(Project, pk=project_id)
     projects = Project.objects.filter(parent_project=proj)
+    success = None
     if request.method == "POST":
+        try:
             pj = request.POST["Project"]
-            expenditure_value = request.POST.get("expenditure_value")
+            expenditure_value = float(request.POST.get("expenditure_value"))
             date_str = request.POST.get("expenditure_date")
-            physical_progress = request.POST.get("physical_progress")
+            physical_progress = float(request.POST.get("physical_progress"))
             remarks = request.POST.get("remarks")
             photo = request.FILES.get("photo")
-
+            
             project = get_object_or_404(Project, pk=pj)
             date = parse_date(date_str)
+            latest_progress = Expenditure.objects.filter(project=project).order_by('-Expenditure_date').first()
+            
+            if latest_progress and physical_progress < float(latest_progress.physical_progress):
+                error = f"Progress must be equal to or greater than the last recorded progress {latest_progress.physical_progress}%."
+                return render(request, "projects/add_split_expenditure.html", {"error": error, 'projects': projects, 'project_id': project_id})
 
             expenditure = Expenditure(
                 project=project,
@@ -2029,9 +2059,13 @@ def add_split_expenditure(request,project_id):
                 message=f"{user.username} has added an entry for Expenditure of Rs. {expenditure_value} Lacs dated {date} for the project {project.parent_project.Name_Of_Project} -> {project.Name_Of_Project}"
              )
             notification.save()
+            success = f"Amount of Rs. {expenditure_value} lacs is successfully added for the project {project.Name_Of_Project}"
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
     context = {
         'projects': projects,
-        'project_id': project_id
+        'project_id': project_id,
+        'success':success
     }
     return render(request, 'projects/add_split_expenditure.html', context)
 
@@ -2039,32 +2073,48 @@ def add_split_progress(request, project_id):
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
+    
     proj = get_object_or_404(Project, pk=project_id)
     projects = Project.objects.filter(parent_project=proj)
+    success = None
+
     if request.method == "POST":
+        try:
             pj = request.POST["Project"]
             rad = request.POST["Date_Of_Reporting"]
-            ra = request.POST["Physical_Progress_Percentage"]
+            ra = float(request.POST["Physical_Progress_Percentage"])  # Convert to float
 
             project = get_object_or_404(Project, pk=pj)
             rad_date = parse_date(rad)
+            latest_progress = PhysicalProgress.objects.filter(project=project).order_by('-Date_Of_Reporting').first()
+
+            if latest_progress and ra < float(latest_progress.Physical_Progress_Percentage):
+                error = f"Progress must be equal to or greater than the last recorded progress {latest_progress.Physical_Progress_Percentage}%."
+                return render(request, "projects/add_split_progress.html", {"error": error, 'projects': projects, 'project_id': project_id})
 
             data = PhysicalProgress(
-                project= project,
-                Date_Of_Reporting=rad_date, 
+                project=project,
+                Date_Of_Reporting=rad_date,
                 Physical_Progress_Percentage=ra,
             )
             data.save()
-            user = request.user
+            
             notification = Notification(
-                user = user,
-                project = project,
-                message=f"{user.username} has added an entry for Physical Progress of  {ra}% dated {rad_date} for the project {project.parent_project.Name_Of_Project} -> {project.Name_Of_Project}"
-             )
+                user=user,
+                project=project,
+                message=f"{user.username} has added an entry for Physical Progress of {ra}% dated {rad_date} for the project {project.parent_project.Name_Of_Project} -> {project.Name_Of_Project}"
+            )
             notification.save()
+
+            success = f"Physical Progress of {ra}% is successfully added for the project {project.Name_Of_Project}"
+        
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+
     context = {
         'projects': projects,
-        'project_id': project_id
+        'project_id': project_id,
+        'success': success
     }
     return render(request, 'projects/add_split_progress.html', context)
 
@@ -2416,6 +2466,7 @@ def view_split_project(request, project_id):
         return redirect('login')
     parent_proj = get_object_or_404(Project, pk=project_id)
     sub_projects = Project.objects.filter(parent_project=parent_proj)
+
     for project in sub_projects:
         total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
         total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
@@ -2423,7 +2474,8 @@ def view_split_project(request, project_id):
         project.total_expenditure_sum = total_expenditures 
         project.total_AmountReleased = total_AmountReleased
         project.total_AmountReceived = total_AmountReceived
-        search_query = request.GET.get('search', None)
+
+    search_query = request.GET.get('search', None)
     if search_query:
         search_keywords = search_query.split()
         q_objects = Q()
@@ -2434,7 +2486,8 @@ def view_split_project(request, project_id):
     context = {
         'projects': sub_projects,
         'project_id': project_id,
-        'parent_proj':parent_proj
+        'parent_proj': parent_proj,
+        'status': request.GET.get('status', '') 
     }
 
     return render(request, 'projects/view_split_project.html', context)
@@ -2937,5 +2990,44 @@ class splitGenerateProjectPDF(View):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
         return HttpResponse('Error rendering PDF', status=500)
+def mark_split_project_completed(request, project_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
+    project = get_object_or_404(Project, pk=project_id)
+    project.is_completed = True
+    project.save()  
+    notification = Notification(
+        user=user,
+        project=project,
+        message=f"{user.username} has marked the project {project.Name_Of_Project} as COMPLETED"
+    )
+    notification.save() 
+    status = f"Project {project.Name_Of_Project} marked as completed"
+    query_params = urlencode({'status': status})
+
+    return redirect(f"{reverse('view_split_project', args=[project.parent_project.id])}?{query_params}")
+
+def mark_split_project_handedover(request, project_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    user = request.user
+    if user.is_active and not (user.is_staff or user.is_superuser):
+        return redirect('not_allowed')
+    project = get_object_or_404(Project, pk=project_id)
+    project.is_handed_over = True
+    project.save()  
+    notification = Notification(
+        user=user,
+        project=project,
+        message=f"{user.username} has marked the project {project.Name_Of_Project} as HANDOVER"
+    )
+    notification.save() 
+    status = f"Project {project.Name_Of_Project} marked as handed over"
+    query_params = urlencode({'status': status})
+
+    return redirect(f"{reverse('view_split_project', args=[project.parent_project.id])}?{query_params}")
 
 # ------------------------------ PROJECTS STOP ------------------------------ #

@@ -16,14 +16,19 @@ Add Project
         <div class="container-fluid">
             <h3 class="mt-4">Add Project</h3><br />
 
-            <div class="col-md-7" id="messages">
-                {% if status %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ status }}
-                    </div>
+            <div class="col-md-12 " id="messages">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                  {{ error }}
+                </div>
                 {% endif %}
-            </div>
-            <br>
+                {% if success %}
+                <div class="alert alert-success" role="alert">
+                  {{ success }}
+                </div>
+                {% endif %}
+              </div>
+                        <br>
             <form id="form-container" method="post" action="{% url 'add_split_projects' project_id  %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="form-row">

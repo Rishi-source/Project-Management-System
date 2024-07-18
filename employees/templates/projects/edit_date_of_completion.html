@@ -1,5 +1,67 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+<style>
+  body {
+        font-family: 'Lato', sans-serif;
+        padding-top: 56px; 
+      }
+      .content {
+        padding-top: 20px; 
+      }
+      .sidebar {
+        position: fixed;
+        top: 56px; 
+        bottom: 0;
+        left: 0;
+        width: 200px; 
+        z-index: 1000; 
+        background-color: #ffffff;
+        border-right: 1px solid #dee2e6; 
+      }
+      .navbar {
+        box-shadow: 0px 3px 10px #bfbfbf; 
+        transition: background-color 0.3s ease; 
+      }
+      .navbar.scrolled {
+        background-color: #FFFFFF;
+        color: #ffffff; 
+      }
+      .navbar-toggler {
+        position: absolute;
+        left: 10px;
+        z-index: 1100;
+      }
+      .navbar-brand {
+        transition: transform 0.3s ease;
+      }
+      </style>
+  
+  <style>
+    .total-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+    background-color: #f8f9fa;
+  }
+  
+  .total-item label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .row.mb-2 {
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+  
+  .col-md-3.total-item {
+    display: inline-block;
+  }
+  </style>
+  
 
 {% block title %}
   Edit Important Dates
@@ -18,22 +80,25 @@
       <h2>Add Important Dates:</h2><br />
       {% if project.is_completed and not project.is_handed_over %}
       <div id="messages">
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
           The Project is marked completed
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-      </div>
-      {% endif %}
+        {% endif %}
       {% if project.is_handed_over and project.is_completed %}
       <div id="messages">
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
           The Project is marked handover
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        {% endif %}
       </div>
-      {% endif %}
+
       <div id="messages">
         {% if status %}
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
           {{ status }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
       </div>

@@ -26,12 +26,31 @@ Edit Project
             </div>
             <div class="mt-4 ">
               <h5 >Edit Options:</h5><br>
-              <div class="btn-group text-center" role="group">
-                  <a href="{% url 'amount_received' project_id=project_id %}"  class="btn btn-success mr-5">Edit Amount Received</a>
-                  <a href="{% url 'edit_amount_released' project_id=project_id %}" class="btn btn-secondary mr-5">Edit Amount Released</a>
-                  <a href="{% url 'edit_physical_progress' project_id=project_id %}" class="btn btn-danger mr-5">Edit Physical Progress</a>
-                  <a  href="{% url 'edit_expenditure' project_id=project_id %}" class="btn btn-warning mr-5">Edit Expenditure</a> 
-              </div>
+              <div class="btn-group" role="group">
+                <div class="row">
+                    <div class="col-12 col-md-3 mb-2 mb-md-0">
+                        <a href="{% url 'amount_received' project_id=project_id %}"
+                            class="btn btn-success w-100">Edit Amount Received</a>
+                    </div>
+                    <div class="col-12 col-md-3 mb-2 mb-md-0">
+                        <a href="{% url 'edit_amount_released' project_id=project_id %}"
+                            class="btn btn-secondary w-100">Edit Amount Released</a>
+                    </div>
+                    <div class="col-12 col-md-3 mb-2 mb-md-0">
+                        <a href="{% url 'edit_physical_progress' project_id=project_id %}"
+                            class="btn btn-danger w-100">Edit Physical Progress</a>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <a href="{% url 'edit_expenditure' project_id=project_id %}"
+                            class="btn btn-warning w-100">Edit Expenditure</a>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <a class="btn btn-link w-100"> </a>
+                    </div>
+
+                </div>
+            </div>
+
               <br>
               <br>
               <br>

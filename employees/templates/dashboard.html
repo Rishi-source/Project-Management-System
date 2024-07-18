@@ -45,7 +45,23 @@
           </a>
         </div>
       </div>
-
+      <div class="modal fade" id="mobileWarningModal" tabindex="-1" aria-labelledby="mobileWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="mobileWarningModalLabel">Best View on Desktop or Laptop</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              This site is optimized for desktop and laptop screens. For the best experience, please view it on a larger screen.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
     <!-- MAIN CONTENT END -->
 </div>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
@@ -141,6 +157,20 @@
     }
   }
 </style>
+<script>
+  $(document).ready(function () {
+    // Check if the user has already seen the modal
+    if (!sessionStorage.getItem('mobileWarningShown')) {
+      // Show the modal if screen width is less than 768px
+      if ($(window).width() < 768) {
+        $('#mobileWarningModal').modal('show');
+      }
+
+      // Set the flag in session storage indicating the modal has been shown
+      sessionStorage.setItem('mobileWarningShown', 'true');
+    }
+  });
+</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 

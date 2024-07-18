@@ -21,8 +21,8 @@
     <div class="col-md-10 offset-md-2">
         <div class="container-fluid">
             <h1>Edit Amount Received Entries for Project: {{ project.name }}</h1>
-
-            <table class="table">
+            <div class="table-responsive">
+              <table class="table">
                 <thead>
                     <tr>
                         <th>Date Received</th>
@@ -52,7 +52,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-
+            </div>
             <a href="{% url 'edit_sproject' project_id=project.pk %}" class="btn btn-secondary">Back to Project</a>
         </div>
     </div>

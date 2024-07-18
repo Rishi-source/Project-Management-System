@@ -65,6 +65,8 @@ urlpatterns = [
     path('project/<int:project_id>/add_split_dates/', views.add_split_dates, name='add_split_dates'),
     path('project/<int:project_id>/view_split_details', views.view_split_details, name='view_split_details'),
     path('project/<int:pk>/split_pdf/', views.splitGenerateProjectPDF.as_view(), name='generate_split_project_pdf'),
+    path('mark_split_project_completed/<int:project_id>/', views.mark_split_project_completed, name='mark_split_project_completed'),
+    path('mark_split_project_handedover/<int:project_id>/', views.mark_split_project_handedover, name='mark_split_project_handedover'),
 
  ]
     # -------------------- PROJECTS --------------------#

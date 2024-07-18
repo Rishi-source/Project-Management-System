@@ -27,12 +27,26 @@ Edit Project
               </div>
                     <div class="mt-4 ">
               <h5 >Edit Options:</h5><br>
-              <div class="btn-group text-center" role="group">
-                  <a href="{% url 'edit_split_amount_received' project_id=project_id %}"  class="btn btn-success mr-5">Edit Amount Received</a>
-                  <a href="{% url 'edit_split_amount_released' project_id=project_id %}" class="btn btn-secondary mr-5">Edit Amount Released</a>
-                  <a href="{% url 'edit_split_physical_progress' project_id=project_id %}" class="btn btn-danger mr-5">Edit Physical Progress</a>
-                  <a  href="{% url 'edit_split_expenditure' project_id=project_id %}" class="btn btn-warning mr-5">Edit Expenditure</a> 
-              </div>
+<div class="btn-group" role="group">
+  <div class="row">
+    <div class="col-12 col-md-3 mb-2 mb-md-0">
+      <a href="{% url 'edit_split_amount_received' project_id=project_id %}" class="btn btn-success w-100">Edit Amount Received</a>
+    </div>
+    <div class="col-12 col-md-3 mb-2 mb-md-0">
+      <a href="{% url 'edit_split_amount_released' project_id=project_id %}" class="btn btn-secondary w-100">Edit Amount Released</a>
+    </div>
+    <div class="col-12 col-md-3 mb-2 mb-md-0">
+      <a href="{% url 'edit_split_physical_progress' project_id=project_id %}" class="btn btn-danger w-100">Edit Physical Progress</a>
+    </div>
+    <div class="col-12 col-md-3">
+      <a href="{% url 'edit_split_expenditure' project_id=project_id %}" class="btn btn-warning w-100">Edit Expenditure</a>
+    </div>
+    <div class="col-12 col-md-3">
+        <a class="btn btn-link w-100"> </a>
+      </div>
+  
+  </div>
+</div>
               <br>
               <br>
               <br>
@@ -56,144 +70,109 @@ Edit Project
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('form-container');
-      const addButton = document.getElementById('add-button');
-      const inputs = form.querySelectorAll('input[required], select[required]');
-      const startDateInput = document.getElementById('id_Start_date');
-      const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
-      const sanctionedDateInput = document.getElementById('id_Sanctioned_Amount_Date');
-      const tsanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
-      const WorkOrderAmountDate = document.getElementById('id_Work_Order_Amount_Date');
-      const LikelyDate = document.getElementById('id_Likely_Date_Of_Completion');
-      function setMaxDate() {
-        const today = new Date().toISOString().split('T')[0];
-        sanctionedDateInput.setAttribute('max', today); 
-        tsanctionedDateInput.setAttribute('max', today); 
-        WorkOrderAmountDate.setAttribute('max', today);
-        LikelyDate.setAttribute('min', today);
-  
-      }
-  
-      function checkFormValidity() {
-        let allFilled = true;
+        const form = document.getElementById('form-container');
+        const addButton = document.getElementById('add-button');
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        const startDateInput = document.getElementById('id_Start_date');
+        const completionDateInput = document.getElementById('id_Stipulated_Date_Of_Completion');
+        const likelyCompletionDateInput = document.getElementById('id_Likely_Date_Of_Completion');
+        const technicalSanctionedDateInput = document.getElementById('id_Technical_Sanctioned_Amount_Date');
+        const workOrderDateInput = document.getElementById('id_Work_Order_Amount_Date');
+
+        function setMaxDate() {
+            const today = new Date().toISOString().split('T')[0];
+            technicalSanctionedDateInput.setAttribute('max', today);
+            workOrderDateInput.setAttribute('max', today);
+            likelyCompletionDateInput.setAttribute('min', today);
+        }
+
+        function checkFormValidity() {
+            let allFilled = true;
+
+            inputs.forEach(input => {
+                if (!input.value && !input.disabled) {
+                    allFilled = false;
+                }
+            });
+
+            let datesValid = true;
+
+            // Date validation logic
+            if (startDateInput.value && completionDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const completionDate = new Date(completionDateInput.value);
+                if (completionDate <= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    completionDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    completionDateInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (technicalSanctionedDateInput.value && workOrderDateInput.value) {
+                const tsdate = new Date(technicalSanctionedDateInput.value);
+                const workOrderDate = new Date(workOrderDateInput.value);
+                if (workOrderDate <= tsdate) {
+                    datesValid = false;
+                    technicalSanctionedDateInput.classList.add('is-invalid');
+                    workOrderDateInput.classList.add('is-invalid');
+                } else {
+                    technicalSanctionedDateInput.classList.remove('is-invalid');
+                    workOrderDateInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (startDateInput.value && likelyCompletionDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const likelyCompletionDate = new Date(likelyCompletionDateInput.value);
+                if (likelyCompletionDate <= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    likelyCompletionDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    likelyCompletionDateInput.classList.remove('is-invalid');
+                }
+            }
+            if (startDateInput.value && workOrderDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const workOrderDate = new Date(workOrderDateInput.value);
+                if (workOrderDate >= startDate) {
+                    datesValid = false;
+                    startDateInput.classList.add('is-invalid');
+                    workOrderDateInput.classList.add('is-invalid');
+                } else {
+                    startDateInput.classList.remove('is-invalid');
+                    workOrderDateInput.classList.remove('is-invalid');
+                }
+            }
+
+
+            addButton.disabled = !allFilled || !datesValid;
+        }
+
+        // Event listeners
         inputs.forEach(input => {
-          if (!input.value) {
-            allFilled = false;
-          }
+            input.addEventListener('input', checkFormValidity);
         });
-  
-        let datesValid = true;
-  
-        if (startDateInput.value && completionDateInput.value) {
-          const startDate = new Date(startDateInput.value);
-          const completionDate = new Date(completionDateInput.value);
-          if (completionDate <= startDate) {
-            datesValid = false;
-            startDateInput.classList.add('is-invalid');
-            completionDateInput.classList.add('is-invalid');
-          } else {
-            startDateInput.classList.remove('is-invalid');
-            completionDateInput.classList.remove('is-invalid');
-          }
-        }
-  
-        if (startDateInput.value && sanctionedDateInput.value) {
-          const startDate = new Date(startDateInput.value);
-          const sanctionedDate = new Date(sanctionedDateInput.value);
-          if (sanctionedDate >= startDate) {
-            datesValid = false;
-            startDateInput.classList.add('is-invalid');
-            sanctionedDateInput.classList.add('is-invalid');
-          } else {
-            startDateInput.classList.remove('is-invalid');
-            sanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-        // 1
-        if (tsanctionedDateInput.value && sanctionedDateInput.value) {
-          const tsanctionedDate = new Date(tsanctionedDateInput.value);
-          const sanctionedDate = new Date(sanctionedDateInput.value);
-          if (sanctionedDate >= tsanctionedDate) {
-            datesValid = false;
-            tsanctionedDateInput.classList.add('is-invalid');
-            sanctionedDateInput.classList.add('is-invalid');
-          } else {
-            tsanctionedDateInput.classList.remove('is-invalid');
-            sanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-        //1.1
-        if (sanctionedDateInput.value && WorkOrderAmountDate.value) {
-          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
-          const sanctionedDate = new Date(sanctionedDateInput.value);
-          if (sanctionedDate >= WorkOrderDate) {
-            datesValid = false;
-            WorkOrderAmountDate.classList.add('is-invalid');
-            sanctionedDateInput.classList.add('is-invalid');
-          } else {
-            WorkOrderAmountDate.classList.add('is-invalid');
-            sanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-        //2
-        if (WorkOrderAmountDate.value && tsanctionedDateInput.value) {
-          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
-          const tsanctionedDate = new Date(tsanctionedDateInput.value);
-          if (tsanctionedDate >= WorkOrderDate) {
-            datesValid = false;
-            WorkOrderAmountDate.classList.add('is-invalid');
-            tsanctionedDateInput.classList.add('is-invalid');
-          } else {
-            WorkOrderAmountDate.classList.remove('is-invalid');
-            tsanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-        if (tsanctionedDateInput.value && WorkOrderAmountDate.value) {
-          const WorkOrderDate = new Date(WorkOrderAmountDate.value);
-          const tsanctionedDate = new Date(tsanctionedDateInput.value);
-          if (tsanctionedDate >= WorkOrderDate) {
-            datesValid = false;
-            WorkOrderAmountDate.classList.add('is-invalid');
-            tsanctionedDateInput.classList.add('is-invalid');
-          } else {
-            WorkOrderAmountDate.classList.remove('is-invalid');
-            tsanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-  
-        if (startDateInput.value && tsanctionedDateInput.value) {
-          const startDate = new Date(startDateInput.value);
-          const tsanctionedDate = new Date(tsanctionedDateInput.value);
-          if (tsanctionedDate >= startDate) {
-            datesValid = false;
-            startDateInput.classList.add('is-invalid');
-            tsanctionedDateInput.classList.add('is-invalid');
-          } else {
-            startDateInput.classList.remove('is-invalid');
-            tsanctionedDateInput.classList.remove('is-invalid');
-          }
-        }
-  
-        addButton.disabled = !allFilled || !datesValid;
-      }
-  
-      inputs.forEach(input => {
-        input.addEventListener('input', checkFormValidity);
-      });
-  
-      checkFormValidity(); 
-      setMaxDate();
-  
-      form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-      }, false);
+
+        // Initial setup
+        checkFormValidity();
+        setMaxDate();
+
+        // Form submission validation
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
     });
-  </script>
-  
+</script>
+
 <style>
     .is-invalid {
         border-color: red;
@@ -215,14 +194,5 @@ Edit Project
         font-weight: 400;
         font-family: 'Lato', sans-serif;
     }
-
-    #error-message {
-        color: red;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-        display: none;
-    }
 </style>
-
-<div id="error-message"></div>
 {% endblock %}

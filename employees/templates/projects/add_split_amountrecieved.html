@@ -12,7 +12,12 @@
   </div>
   <!-- SIDEBAR END -->
 
-  <div class="col-md-10 offset-md-2" id="messages">
+
+  <!-- MAIN CONTENT -->
+  <div class="col-md-10 offset-md-2">
+    <div class="container-fluid">
+      <h3>Add Amount Received:</h3><br />
+  <div class="col-md-12" id="messages">
     {% if error %}
     <div class="alert alert-danger" role="alert">
       {{ error }}
@@ -24,11 +29,6 @@
     </div>
     {% endif %}
   </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="col-md-10 offset-md-2">
-    <div class="container-fluid">
-      <h3>Add Amount Received:</h3><br />
 
       <form id="form-container" method="post" action="{% url 'add_split_amountrecieved' project_id  %}">
         {% csrf_token %}

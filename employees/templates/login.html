@@ -46,8 +46,7 @@
             Login
           </button>
         </div>
-<br>
-<br>
+
         <div class="text-center p-t-12">
           <span class="txt1">
             Don't have an account?
@@ -56,7 +55,6 @@
             Register here
           </a>
         </div>
-
       </form>
 
     </div>
@@ -84,9 +82,32 @@ function togglePassword() {
 <style>
 .btn-show-pass {
   position: absolute;
-  right: 15px;
+  right: 10px; /* Adjust as needed */
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
+}
+
+/* Additional Styles for Mobile Optimization */
+@media (max-width: 100px) {
+  .wrap-login100 {
+    padding: 15px;
+  }
+
+  .input100 {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .container-login100-form-btn {
+    text-align: center;
+  }
+
+  .symbol-input100 {
+    position: absolute;
+    right: 1px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 </style>
