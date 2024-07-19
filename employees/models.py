@@ -27,6 +27,7 @@ CLIENT_DEPARTMENT = (
     ("Government Engineering College, Ajmer", "Government Engineering College, Ajmer"),
     ("Government Engineering College, Jhalawar", "Government Engineering College, Jhalawar"),
     ("Shiksha Sankul Jaipur", "Shiksha Sankul Jaipur"),
+    ("DMFT-GovernmentPG College, Nathdwara", "DMFT-GovernmentPG College, Nathdwara"),
     ("Rajasthan High Court Jodhpur", "Rajasthan High Court Jodhpur"),
     ("Science & Technology Department", "Science & Technology Department"),
     ("ITI Ajmer", "ITI Ajmer"),

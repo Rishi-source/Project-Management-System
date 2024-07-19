@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect ,reverse
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from .forms import *
 from .models import *
@@ -10,44 +9,26 @@ from django.utils.dateparse import parse_date
 from django.db.models import Sum
 import matplotlib
 matplotlib.use('Agg')  
-from django.db import transaction
 import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
 import base64
 from django.db import IntegrityError
 from datetime import date
-from datetime import datetime
-from django.utils.timezone import make_aware
 from django.contrib import messages 
 from django.db.models import Q
 from django.shortcuts import render, redirect
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.core.mail import send_mail
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-import random
-from django.core.mail import EmailMessage
 import calendar
 from django.utils.timezone import now
 from matplotlib.ticker import MaxNLocator
 from django.contrib.auth.decorators import login_required
 from urllib.parse import urlencode
-from collections import defaultdict
-import pandas as pd
 from django.utils import timezone
-import tempfile
 from io import BytesIO
-from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.views.generic import View
 from django.http import HttpResponseBadRequest
-from weasyprint import HTML
-
 # Create your views here.
 def dashboard(request):
     user =request.user
@@ -114,45 +95,6 @@ def logout_user(request):
         del request.session['username']
     return redirect('login')
 
-
-def forgot_password(request):
-    del request.session['username']
-    logout(request)
-    return redirect('login')
-def register(request):
-    return render(request, "register.html")
-
-def register_user(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        if not (username and email and password and confirm_password):
-            request.session['error'] = "All fields are required."
-            return redirect('register_user')
-
-        if password != confirm_password:
-            request.session['error'] = "Passwords do not match."
-            return redirect('register_user')
-
-        if User.objects.filter(username=username).exists():
-            request.session['error'] = "Username is already taken. Please choose another one."
-            return redirect('register_user')
-
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            login(request, user)  
-            request.session['success'] = "User successfully registered."
-            return redirect('dashboard')  
-        except ValidationError as e:
-            request.session['error'] = str(e)
-            return redirect('register_user')
-
-    return render(request, 'register.html')
-
-
 def projects(request):
     user = request.user
     if not user.is_authenticated:
@@ -205,7 +147,6 @@ def add_project(request):
             fy = request.POST["Financial_Year"]
             sp = request.POST.get("split", "No") 
 
-            # Parse dates
             sad_date = parse_date(sad)
             tsad_date = parse_date(tsad) if tsad else None
             sd_date = parse_date(sd) if sd else None
@@ -597,8 +538,8 @@ def project_detail(request, project_id):
             plt.title(f"Yearly Amounts Received")
             plt.xlabel("Year")
             plt.ylabel("Amount (Rs. Lacs)")
-            plt.xticks(years_received, years_received, rotation=45)  # Set both ticks and labels to years_received
-            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))  # Ensure integer ticks on x-axis
+            plt.xticks(years_received, years_received, rotation=45) 
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True)) 
             plt.tight_layout()
 
             for bar in bars:
@@ -1446,13 +1387,14 @@ def expenditure_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment & Enterpreneurship',
+        'Department of Skill, Employment and Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
         'Government Engineering College, Ajmer',
         'Government Engineering College, Jhalawar',
         'Shiksha Sankul Jaipur',
+        'DMFT-GovernmentPG College, Nathdwara',
         'Rajasthan High Court Jodhpur',
         'Science & Technology Department',
         'ITI Ajmer',
@@ -1471,6 +1413,7 @@ def expenditure_analysis_client(request):
     Government_Engineering_College_A = [0] * 12
     Government_Engineering_College_J = [0] * 12
     Shiksha_Sankul_Jaipur = [0] * 12
+    DMFT_GovernmentPG =[0] * 12
     Rajasthan_High_Court = [0] * 12
     Science_Technology = [0] * 12
     ITI_Ajmer = [0] * 12
@@ -1495,7 +1438,7 @@ def expenditure_analysis_client(request):
             ).aggregate(total_amount=Sum('Expenditure_Value'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment & Enterpreneurship':
+            elif client == 'Department of Skill, Employment and Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1509,6 +1452,8 @@ def expenditure_analysis_client(request):
                 Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Shiksha Sankul Jaipur':
                 Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'DMFT-GovernmentPG College, Nathdwara':
+                DMFT_GovernmentPG[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan High Court Jodhpur':
                 Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Science & Technology Department':
@@ -1539,6 +1484,7 @@ def expenditure_analysis_client(request):
     'Government_Engineering_College_A':Government_Engineering_College_A,
     'Government_Engineering_College_J':Government_Engineering_College_J,
     'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'DMFT_GovernmentPG':DMFT_GovernmentPG,
     'Rajasthan_High_Court':Rajasthan_High_Court,
     'Science_Technology':Science_Technology,
     'ITI_Ajmer':ITI_Ajmer,
@@ -1558,13 +1504,14 @@ def amount_released_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment & Enterpreneurship',
+        'Department of Skill, Employment and Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
         'Government Engineering College, Ajmer',
         'Government Engineering College, Jhalawar',
         'Shiksha Sankul Jaipur',
+        'DMFT-GovernmentPG College, Nathdwara',
         'Rajasthan High Court Jodhpur',
         'Science & Technology Department',
         'ITI Ajmer',
@@ -1583,6 +1530,7 @@ def amount_released_analysis_client(request):
     Government_Engineering_College_A = [0] * 12
     Government_Engineering_College_J = [0] * 12
     Shiksha_Sankul_Jaipur = [0] * 12
+    DMFT_GovernmentPG = [0] * 12
     Rajasthan_High_Court = [0] * 12
     Science_Technology = [0] * 12
     ITI_Ajmer = [0] * 12
@@ -1607,7 +1555,7 @@ def amount_released_analysis_client(request):
             ).aggregate(total_amount=Sum('Amount_Released'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment & Enterpreneurship':
+            elif client == 'Department of Skill, Employment and Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1621,6 +1569,8 @@ def amount_released_analysis_client(request):
                 Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Shiksha Sankul Jaipur':
                 Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'DMFT-GovernmentPG College, Nathdwara':
+                DMFT_GovernmentPG[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan High Court Jodhpur':
                 Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Science & Technology Department':
@@ -1651,6 +1601,7 @@ def amount_released_analysis_client(request):
     'Government_Engineering_College_A':Government_Engineering_College_A,
     'Government_Engineering_College_J':Government_Engineering_College_J,
     'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'DMFT_GovernmentPG':DMFT_GovernmentPG,
     'Rajasthan_High_Court':Rajasthan_High_Court,
     'Science_Technology':Science_Technology,
     'ITI_Ajmer':ITI_Ajmer,
@@ -1670,13 +1621,14 @@ def amount_recieved_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment & Enterpreneurship',
+        'Department of Skill, Employment and Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
         'Government Engineering College, Ajmer',
         'Government Engineering College, Jhalawar',
         'Shiksha Sankul Jaipur',
+        'DMFT-GovernmentPG College, Nathdwara',
         'Rajasthan High Court Jodhpur',
         'Science & Technology Department',
         'ITI Ajmer',
@@ -1695,6 +1647,7 @@ def amount_recieved_analysis_client(request):
     Government_Engineering_College_A = [0] * 12
     Government_Engineering_College_J = [0] * 12
     Shiksha_Sankul_Jaipur = [0] * 12
+    DMFT_GovernmentPG = [0] * 12
     Rajasthan_High_Court = [0] * 12
     Science_Technology = [0] * 12
     ITI_Ajmer = [0] * 12
@@ -1719,7 +1672,7 @@ def amount_recieved_analysis_client(request):
             ).aggregate(total_amount=Sum('Amount_Received'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment & Enterpreneurship':
+            elif client == 'Department of Skill, Employment and Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1733,6 +1686,8 @@ def amount_recieved_analysis_client(request):
                 Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Shiksha Sankul Jaipur':
                 Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'DMFT-GovernmentPG College, Nathdwara':
+                DMFT_GovernmentPG[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan High Court Jodhpur':
                 Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Science & Technology Department':
@@ -1763,6 +1718,7 @@ def amount_recieved_analysis_client(request):
     'Government_Engineering_College_A':Government_Engineering_College_A,
     'Government_Engineering_College_J':Government_Engineering_College_J,
     'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'DMFT_GovernmentPG':DMFT_GovernmentPG,
     'Rajasthan_High_Court':Rajasthan_High_Court,
     'Science_Technology':Science_Technology,
     'ITI_Ajmer':ITI_Ajmer,
@@ -1786,11 +1742,12 @@ def notification(request):
     return render(request, 'notification.html', context)
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
-    html_string = template.render(context_dict)
-    html = HTML(string=html_string)
+    html = template.render(context_dict)
     result = BytesIO()
-    html.write_pdf(result)
-    return result.getvalue()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
 class GenerateProjectPDF(View):
     def get(self,request,pk):
         project = get_object_or_404(Project, id=pk)
@@ -3106,11 +3063,12 @@ class splitGenerateProjectPDF(View):
     }
         template = get_template('projects/split_project_pdf.html')
         html = template.render(context)
+
         result = BytesIO()
         pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
         if not pdf.err:
             response = HttpResponse(result.getvalue(), content_type='application/pdf')
-            filename = f'{project.Name_Of_Project}_details_{selected_year}.pdf'
+            filename = f'{project.Name_Of_Project}_details.pdf'
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
         return HttpResponse('Error rendering PDF', status=500)

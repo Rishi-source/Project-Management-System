@@ -13,8 +13,6 @@ urlpatterns = [
     path('logout', views.logout_user, name='logout'),
     path('forgot_password', auth_views.PasswordChangeView.as_view(template_name='forgot_password.html'), name='forgot_password'),
     path('projects', views.projects, name='projects'),
-    path('register/', views.register, name='register'),
-    path('register_user/', views.register_user, name='register_user'),
     path('project/add', views.add_project, name='add_project'),
     path('project/<int:project_id>/edit', views.edit_project, name='edit_project'),
     path('project/<int:project_id>/delete', views.delete_project, name='delete_project'),

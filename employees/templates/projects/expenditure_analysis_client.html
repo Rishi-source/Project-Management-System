@@ -927,6 +927,107 @@ options: {
 }
 });
 </script>
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-2">
+        <h4 class="m-0 font-weight-bold text-primary">Monthly Data for DMFT-GovernmentPG College, Nathdwara</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTableDMFT_GovernmentPG" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Months</th>
+                        <th>January</th>
+                        <th>February</th>
+                        <th>March</th>
+                        <th>April</th>
+                        <th>May</th>
+                        <th>June</th>
+                        <th>July</th>
+                        <th>August</th>
+                        <th>September</th>
+                        <th>October</th>
+                        <th>November</th>
+                        <th>December</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Amount (In Rs. Lacs)</td>
+                        {% for amount in DMFT_GovernmentPG %}
+                        <td>{{ amount|floatformat:2 }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-body">
+        <canvas id="barChartDMFT_GovernmentPG" style="height: 300px; min-height: 300px;"></canvas>
+    </div>
+    </div>
+    
+    <script>
+    var ctxBarDMFT_GovernmentPG = document.getElementById('barChartDMFT_GovernmentPG').getContext('2d');
+    var barChartDMFT_GovernmentPG = new Chart(ctxBarDMFT_GovernmentPG, {
+        type: 'bar',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [{
+                label: 'Expenditure Amount (In Rs. Lacs)',
+                data: [{% for amount in DMFT_GovernmentPG %}{{ amount }}{% if not forloop.last %}, {% endif %} {% endfor %}],
+    backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)',
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+    ],
+        borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+        ],
+            borderWidth: 1
+    }]
+    },
+    options: {
+        plugins: {
+            datalabels: {
+                anchor: 'end',
+                    align: 'top',
+                        formatter: function(value, context) {
+                            return value.toLocaleString();
+                        }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+    });
+    </script>
+    
 <!-- ----------------------------- -->
 <div class="card shadow mb-4">
     <div class="card-header py-2">
