@@ -38,17 +38,20 @@
 <style>
     .notification {
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s;
-        margin-bottom: 15px; 
-        cursor: pointer; 
+        margin-bottom: 15px;
+        cursor: pointer;
     }
+
     .notification:hover {
         transform: scale(1.02);
-        box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
         background-color: #e9ecef;
     }
+
     .notification .message strong {
         font-size: 1.1rem;
     }
+
     .notification .timestamp {
         font-size: 0.9rem;
     }
@@ -56,14 +59,14 @@
 {% endblock %}
 
 {% block extra_js %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy-bundle.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/themes/light.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/themes/light.css" />
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const notifications = document.querySelectorAll('.notification');
         notifications.forEach(notification => {
             notification.addEventListener('click', () => {

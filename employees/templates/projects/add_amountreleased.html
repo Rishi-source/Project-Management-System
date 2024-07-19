@@ -35,7 +35,8 @@ Add Amount Released
         <div class="form-row">
           <div class="col-md-4 mb-3">
             <label for="id_Released_Amount">Amount Released (In Lacs):</label>
-            <input type="number" step="0.01"  name="Released_Amount" id="id_Released_Amount" class="form-control" required>
+            <input type="number" step="0.01" name="Released_Amount" id="id_Released_Amount" class="form-control"
+              required>
           </div>
         </div>
         <div class="form-row">
@@ -58,7 +59,7 @@ Add Amount Released
 
     function setMaxDate() {
       const today = new Date().toISOString().split('T')[0];
-      dateInput.setAttribute('max', today); 
+      dateInput.setAttribute('max', today);
     }
 
     function checkFormValidity() {
@@ -75,7 +76,7 @@ Add Amount Released
       input.addEventListener('input', checkFormValidity);
     });
 
-    setMaxDate(); 
+    setMaxDate();
     checkFormValidity();
   });
 </script>

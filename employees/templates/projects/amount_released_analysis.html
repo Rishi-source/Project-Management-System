@@ -48,14 +48,14 @@ View Projects
             </div>
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h4 class="m-0 font-weight-bold text-primary">Amount Released data for each division</h4>
+                    <h4 class="m-0 font-weight-bold text-primary">Amount Released data for each Unit</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
-                                    <th>Division</th>
+                                    <th>Unit</th>
                                     {% for division, amount in yearly_data.items %}
                                     <th>{{ division }}</th>
                                     {% endfor %}
@@ -77,7 +77,7 @@ View Projects
 
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h4 class="m-0 font-weight-bold text-primary">Bar Chart for Divisions and Amount Released</h4>
+                    <h4 class="m-0 font-weight-bold text-primary">Bar Chart for Units and Amount Released</h4>
                 </div>
                 <div class="card-body">
                     <canvas id="barChart" style="height: 400px;"></canvas>
@@ -85,7 +85,7 @@ View Projects
             </div>
 
             <div class="card shadow mb-4">
-                <div class="card-header py-2"> 
+                <div class="card-header py-2">
                     <h5 class="m-0 font-weight-bold text-primary">Monthly Data for Udaipur</h5>
                 </div>
             </div>
@@ -171,7 +171,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },
@@ -269,7 +269,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },
@@ -368,7 +368,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },
@@ -467,7 +467,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },
@@ -566,7 +566,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },
@@ -714,7 +714,7 @@ View Projects
                         anchor: 'end',
                             align: 'top',
                                 formatter: function(value, context) {
-                                    return value.toLocaleString(); 
+                                    return value.toLocaleString();
                                 }
                     }
                 },

@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  Add Amount Received
+Add Amount Received
 {% endblock %}
 
 {% block content %}
@@ -52,7 +52,7 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-container");
     const submitButton = document.getElementById("submit-button");
     const inputs = form.querySelectorAll("input");
@@ -61,7 +61,7 @@
       const today = new Date().toISOString().split('T')[0];
       inputs.forEach(input => {
         if (input.type === "date") {
-          input.setAttribute('max', today); 
+          input.setAttribute('max', today);
         }
       });
     }
@@ -76,9 +76,9 @@
       submitButton.disabled = !allFilled;
     }
 
-    setMaxDate(); 
+    setMaxDate();
     inputs.forEach(input => {
-      input.addEventListener("input", checkFormValidity); 
+      input.addEventListener("input", checkFormValidity);
     });
 
     checkFormValidity();

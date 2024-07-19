@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  Add Amount Received
+Add Amount Received
 {% endblock %}
 
 {% block content %}
@@ -12,18 +12,18 @@
   <div class="col-md-10 offset-md-2">
     <div class="container-fluid">
       <h3>Add Amount Received:</h3><br />
-  <div class="col-md-12" id="messages">
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
-    </div>
-    {% endif %}
-    {% if success %}
-    <div class="alert alert-success" role="alert">
-      {{ success }}
-    </div>
-    {% endif %}
-  </div>
+      <div class="col-md-12" id="messages">
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+          {{ success }}
+        </div>
+        {% endif %}
+      </div>
 
       <form id="form-container" method="post" action="{% url 'add_split_amountrecieved' project_id  %}">
         {% csrf_token %}
@@ -33,7 +33,7 @@
             <select class="form-control" id="id_Project" name="Project" required>
               <option value="" disabled selected>Select Project</option>
               {% for project in projects %}
-                <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
+              <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
               {% endfor %}
             </select>
             <div class="invalid-feedback">Please select a project.</div>
@@ -65,7 +65,7 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-container");
     const submitButton = document.getElementById("submit-button");
     const inputs = form.querySelectorAll("input, select");
@@ -73,7 +73,7 @@
     function setMaxDate() {
       const today = new Date().toISOString().split('T')[0];
       form.querySelectorAll('input[type="date"]').forEach(input => {
-        input.setAttribute('max', today); 
+        input.setAttribute('max', today);
       });
     }
 
@@ -87,9 +87,9 @@
       submitButton.disabled = !allFilled;
     }
 
-    setMaxDate(); 
+    setMaxDate();
     inputs.forEach(input => {
-      input.addEventListener("input", checkFormValidity); 
+      input.addEventListener("input", checkFormValidity);
     });
 
     checkFormValidity();

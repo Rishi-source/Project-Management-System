@@ -19,14 +19,16 @@ Project Details
       <div class="card-body">
         <h3 class="card-title text-center mb-4"><strong>Project: {{ project.Name_Of_Project }}</strong></h3>
         <div class="text-center mb-4">
-          <form method="get" action="{% url 'generate_project_pdf' project.pk %}" class="form-inline mt-3 justify-content-center">
+          <form method="get" action="{% url 'generate_project_pdf' project.pk %}"
+            class="form-inline mt-3 justify-content-center">
             <label for="id_years" class="mr-2">Enter Year(s):</label>
-            <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+            <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4"
+              placeholder="Enter year (e.g., 2023)">
             <button type="submit" class="btn btn-danger">
-                <i class="fas fa-file-pdf"></i> Export as PDF
+              <i class="fas fa-file-pdf"></i> Export as PDF
             </button>
-        </form>
-                            </div>
+          </form>
+        </div>
 
         <div class="text-center mb-4">
           <h4><strong>Details</strong></h4>
@@ -39,7 +41,7 @@ Project Details
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label>Division:</label>
+                <label>Unit:</label>
                 <p class="form-control-static"><strong>{{ project.get_Division_display }}</strong></p>
               </div>
             </div>
@@ -134,13 +136,13 @@ Project Details
             <div class="col-md-6">
               <div class="form-group">
                 <label>Total Amount Received:</label>
-                <p class="form-control-static"><strong>Rs. {{ total_amount_received|floatformat:2  }} Lacs</strong></p>
+                <p class="form-control-static"><strong>Rs. {{ total_amount_received|floatformat:2 }} Lacs</strong></p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
                 <label>Total Amount Released:</label>
-                <p class="form-control-static"><strong>Rs. {{ total_amount_released|floatformat:2  }} Lacs</strong></p>
+                <p class="form-control-static"><strong>Rs. {{ total_amount_released|floatformat:2 }} Lacs</strong></p>
               </div>
             </div>
           </div>
@@ -148,38 +150,38 @@ Project Details
             <div class="col-md-6">
               <div class="form-group">
                 <label>Total Expenditure:</label>
-                <p class="form-control-static"><strong>Rs. {{ total_expenditure_sum|floatformat:2  }} Lacs</strong></p>
+                <p class="form-control-static"><strong>Rs. {{ total_expenditure_sum|floatformat:2 }} Lacs</strong></p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
                 <label>Total Amount Remaining:</label>
-                <p class="form-control-static"><strong>Rs. {{ remaining_amount|floatformat:2  }} Lacs</strong></p>
+                <p class="form-control-static"><strong>Rs. {{ remaining_amount|floatformat:2 }} Lacs</strong></p>
               </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Agency Charge:</label>
+                <p class="form-control-static"><strong>Rs. {{ agencycharge|floatformat:2 }} Lacs</strong></p>
               </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Agency Charge (In Percentage):</label>
+                <p class="form-control-static"><strong> 9%</strong></p>
               </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Agency Charge:</label>
-                    <p class="form-control-static"><strong>Rs. {{ agencycharge|floatformat:2  }} Lacs</strong></p>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Agency Charge (In Percentage):</label>
-                    <p class="form-control-static"><strong> 9%</strong></p>
-                </div>
             </div>
           </div>
         </div>
       </div>
     </div>
     <hr>
-<br>
-<br>
+    <br>
+    <br>
 
-<br>
+    <br>
 
 
     <div class="row justify-content-center">
@@ -212,7 +214,7 @@ Project Details
           {% if amounts_received %}
           <tr>
             <td><strong>Total</strong></td>
-            <td><strong>{{ total_amount_received|floatformat:2  }} Lacs</strong></td>
+            <td><strong>{{ total_amount_received|floatformat:2 }} Lacs</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -237,7 +239,8 @@ Project Details
       {% endif %}
       <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-3 justify-content-center">
         <label for="id_years" class="mr-2">Enter Year(s):</label>
-        <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+        <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4"
+          placeholder="Enter year (e.g., 2023)">
         <button type="submit" class="btn btn-primary">Apply</button>
       </form>
     </div>
@@ -267,7 +270,7 @@ Project Details
           {% if amounts_released %}
           <tr>
             <td><strong>Total</strong></td>
-            <td><strong>{{ total_amount_released|floatformat:2  }} Lacs</strong></td>
+            <td><strong>{{ total_amount_released|floatformat:2 }} Lacs</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -292,118 +295,119 @@ Project Details
       {% endif %}
       <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-3 justify-content-center">
         <label for="id_years_released" class="mr-2">Enter Year(s):</label>
-        <input id="id_years_released" name="years_released" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4" placeholder="Enter year (e.g., 2023)">
+        <input id="id_years_released" name="years_released" class="form-control mr-2" type="text" pattern="\d{4}"
+          maxlength="4" placeholder="Enter year (e.g., 2023)">
         <button type="submit" class="btn btn-primary">Apply</button>
       </form>
     </div>
 
     <hr>
 
-<h4 class="text-center mb-4"><strong>Physical Progress</strong></h4>
-<div class="table-responsive">
-  <table class="table table-bordered text-center">
-    <thead class="thead-light">
-      <tr>
-        <th class="text-center">Date of Reporting</th>
-        <th class="text-center">Physical Progress (%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for progress in physical_progress %}
-      <tr>
-        <td>{{ progress.Date_Of_Reporting }}</td>
-        <td>{{ progress.Physical_Progress_Percentage }}%</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="2">No physical progress reported yet.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+    <h4 class="text-center mb-4"><strong>Physical Progress</strong></h4>
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">Date of Reporting</th>
+            <th class="text-center">Physical Progress (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for progress in physical_progress %}
+          <tr>
+            <td>{{ progress.Date_Of_Reporting }}</td>
+            <td>{{ progress.Physical_Progress_Percentage }}%</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">No physical progress reported yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-<hr>
+    <hr>
 
-<h4 class="text-center mb-4"><strong>Total Expenditures</strong></h4>
-<div class="table-responsive">
-  <table class="table table-bordered text-center">
-    <thead class="thead-light">
-      <tr>
-        <th class="text-center">Date</th>
-        <th class="text-center">Total Expenditure (Rs. Lacs)</th>
-        <th class="text-center">Physical Progress (In %)</th>
-        <th class="text-center">Remarks</th>
-        <th class="text-center">Photos</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for expenditure in total_expenditures %}
-      <tr>
-        <td>{{ expenditure.Expenditure_date }}</td>
-        <td>{{ expenditure.Expenditure_Value }} Lacs</td>
-        <td>{{ expenditure.physical_progress }} %</td>
-        <td style="word-wrap: break-word; max-width: 200px;">{{ expenditure.remarks }}</td>
-        <td>
-          {% if expenditure.photo %}
-          <a href="{{ expenditure.photo.url }}" target="_blank">Download</a>
-          {% else %}
-          No photo
+    <h4 class="text-center mb-4"><strong>Total Expenditures</strong></h4>
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">Date</th>
+            <th class="text-center">Total Expenditure (Rs. Lacs)</th>
+            <th class="text-center">Physical Progress (In %)</th>
+            <th class="text-center">Remarks</th>
+            <th class="text-center">Photos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expenditure in total_expenditures %}
+          <tr>
+            <td>{{ expenditure.Expenditure_date }}</td>
+            <td>{{ expenditure.Expenditure_Value }} Lacs</td>
+            <td>{{ expenditure.physical_progress }} %</td>
+            <td style="word-wrap: break-word; max-width: 200px;">{{ expenditure.remarks }}</td>
+            <td>
+              {% if expenditure.photo %}
+              <a href="{{ expenditure.photo.url }}" target="_blank">Download</a>
+              {% else %}
+              No photo
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">No total expenditures recorded yet.</td>
+          </tr>
+          {% endfor %}
+          {% if total_expenditures %}
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>{{ total_expenditure_sum|floatformat:2 }} Lacs</strong></td>
+            <td colspan="3"></td>
+          </tr>
           {% endif %}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="5">No total expenditures recorded yet.</td>
-      </tr>
-      {% endfor %}
-      {% if total_expenditures %}
-      <tr>
-        <td><strong>Total</strong></td>                       
-        <td><strong>{{ total_expenditure_sum|floatformat:2 }} Lacs</strong></td>
-        <td colspan="3"></td>
-      </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center mb-4"><strong>Yearly Expenditure (In Rs. Lacs)</strong></h4>
+    <div class="text-center">
+      {% if graphic_year_expenditure %}
+      <img src="data:image/png;base64,{{ graphic_year_expenditure }}" alt="Yearly Expenditure" class="img-fluid">
       {% endif %}
-    </tbody>
-  </table>
-</div>
+    </div>
+    <h4 class="text-center mb-4"><strong>Monthly Expenditure (In Rs. Lacs)</strong></h4>
+    <div class="text-center">
+      {% if graphic_month_expenditure %}
+      <img src="data:image/png;base64,{{ graphic_month_expenditure }}" alt="Monthly Expenditure" class="img-fluid">
+      {% else %}
+      <p class="text-muted">No data available for the selected year.</p>
+      {% endif %}
+      <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-1 justify-content-center">
+        <label for="id_years" class="mr-2">Enter Year(s):</label>
+        <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4"
+          placeholder="Enter year (e.g., 2023)">
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </form>
 
-<hr>
+    </div>
+    <br>
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <a href="{% url 'view_project' %}" class="btn btn-primary">Back to Projects</a>
+      </div>
+    </div>
 
-<h4 class="text-center mb-4"><strong>Yearly Expenditure (In Rs. Lacs)</strong></h4>
-<div class="text-center">
-  {% if graphic_year_expenditure %}
-  <img src="data:image/png;base64,{{ graphic_year_expenditure }}" alt="Yearly Expenditure" class="img-fluid">
-  {% endif %}
-</div>
-<h4 class="text-center mb-4"><strong>Monthly Expenditure (In Rs. Lacs)</strong></h4>
-<div class="text-center">
-  {% if graphic_month_expenditure %}
-  <img src="data:image/png;base64,{{ graphic_month_expenditure }}" alt="Monthly Expenditure" class="img-fluid">
-  {% else %}
-  <p class="text-muted">No data available for the selected year.</p>
-  {% endif %}
-  <form method="get" action="{% url 'project_detail' project.id %}" class="form-inline mt-1 justify-content-center">
-    <label for="id_years" class="mr-2">Enter Year(s):</label>
-    <input id="id_years" name="years" class="form-control mr-2" type="text" pattern="\d{4}" maxlength="4"
-      placeholder="Enter year (e.g., 2023)">
-    <button type="submit" class="btn btn-primary">Apply</button>
-  </form>
-  
-</div>
-<br>
-<div class="row justify-content-center">
-  <div class="col-md-6 text-center">
-    <a href="{% url 'view_project' %}" class="btn btn-primary">Back to Projects</a>
+    <hr>
+
+
   </div>
-</div>
 
-<hr>
-
-
-</div>
-
-<hr>
+  <hr>
 
 </div>
 
@@ -434,7 +438,7 @@ Project Details
         plugins: {
           tooltip: {
             callbacks: {
-              label: function(tooltipItem) {
+              label: function (tooltipItem) {
                 return tooltipItem.label + ': Rs. ' + tooltipItem.raw.toLocaleString() + ' Lacs';
               }
             }
@@ -449,26 +453,27 @@ Project Details
   });
 </script>
 <style>
-.table-responsive {
-  overflow-x: auto;
-}
+  .table-responsive {
+    overflow-x: auto;
+  }
 
-.table {
-  word-wrap: break-word;
-  table-layout: fixed;
-}
+  .table {
+    word-wrap: break-word;
+    table-layout: fixed;
+  }
 
-.table td, .table th {
-  vertical-align: middle;
-}
+  .table td,
+  .table th {
+    vertical-align: middle;
+  }
 
-.table td {
-  max-width: 200px; 
-}
+  .table td {
+    max-width: 200px;
+  }
 
-.thead-light th {
-  background-color: #f8f9fa;
-}
+  .thead-light th {
+    background-color: #f8f9fa;
+  }
 </style>
 
 {% endblock %}

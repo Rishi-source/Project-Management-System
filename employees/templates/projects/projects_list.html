@@ -15,12 +15,12 @@ View Projects
 
       <div id="messages">
         {% if messages %}
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endfor %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
         {% endif %}
       </div>
 
@@ -39,7 +39,7 @@ View Projects
                     <input type="text" id="searchInput" name="search" class="form-control"
                       placeholder="Enter project name or A&F/T.S/W.O. Number" value="{{ request.GET.search }}">
                     <button type="submit" class="btn btn-primary">
-                      <i class="fas fa-search"></i> 
+                      <i class="fas fa-search"></i>
                     </button>
                   </div>
                 </div>
@@ -66,29 +66,35 @@ View Projects
                 <td>{{ project.Name_Of_Project }}</td>
                 <td>{{ project.Start_date }}</td>
                 <td class="text-center">
-                  <a href="{% url 'add_amount_recieved' project_id=project.id %}" class="btn btn-secondary {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
+                  <a href="{% url 'add_amount_recieved' project_id=project.id %}"
+                    class="btn btn-secondary {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
                     Add Amount Received
                   </a>
                 </td>
                 <td class="text-center">
-                  <a href="{% url 'add_amount_released' project_id=project.id %}" class="btn btn-warning {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
+                  <a href="{% url 'add_amount_released' project_id=project.id %}"
+                    class="btn btn-warning {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
                     Add Amount Released
                   </a>
                 </td>
-                <td class="text-center"><a href="{% url 'add_expenditure' project_id=project.id %}" class="btn btn-info">Add Expenditure</a></td>
-                <td class="text-center"><a href="{% url 'add_progress' project_id=project.id %}" class="btn btn-dark">Add Progress</a></td>
+                <td class="text-center"><a href="{% url 'add_expenditure' project_id=project.id %}"
+                    class="btn btn-info">Add Expenditure</a></td>
+                <td class="text-center"><a href="{% url 'add_progress' project_id=project.id %}"
+                    class="btn btn-dark">Add Progress</a></td>
                 <td class="text-center">
                   <div class="btn-group" role="group" aria-label="Project Actions">
                     {% if user.is_superuser %}
                     <a href="{% url 'edit_project' project_id=project.id %}" class="btn btn-primary mr-1">Edit</a>
                     {% endif %}
                     {% if user.is_superuser %}
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ project.id }}">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                      data-bs-target="#deleteModal{{ project.id }}">
                       Delete
                     </button>
                     {% endif %}
                   </div>
-                  <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
+                  <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
@@ -97,7 +103,8 @@ View Projects
                         </div>
                         <div class="modal-body">
                           Are you sure you want to delete Project "{{ project.Name_Of_Project }}"?<br>
-                          <p style="color: red;">(This action cannot be undone and you will not be able to access the data again.)</p>
+                          <p style="color: red;">(This action cannot be undone and you will not be able to access the
+                            data again.)</p>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -114,32 +121,40 @@ View Projects
                 <td>{{ sproject.Name_Of_Project }}</td>
                 <td></td>
                 <td class="text-center">
-                  <a href="{% url 'add_split_amountrecieved' project_id=sproject.id %}" class="btn btn-secondary {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
+                  <a href="{% url 'add_split_amountrecieved' project_id=sproject.id %}"
+                    class="btn btn-secondary {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
                     Add Amount Received
                   </a>
                 </td>
                 <td class="text-center">
-                  <a href="{% url 'add_split_amountreleased' project_id=sproject.id %}" class="btn btn-warning {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
+                  <a href="{% url 'add_split_amountreleased' project_id=sproject.id %}"
+                    class="btn btn-warning {% if user.is_active and not user.is_staff and not user.is_superuser %}disabled{% endif %}">
                     Add Amount Released
                   </a>
                 </td>
-                <td class="text-center"><a href="{% url 'add_split_expenditure' project_id=sproject.id %}" class="btn btn-info">Add Expenditure</a></td>
-                <td class="text-center"><a href="{% url 'add_split_progress' project_id=sproject.id %}" class="btn btn-dark">Add Progress</a></td>
+                <td class="text-center"><a href="{% url 'add_split_expenditure' project_id=sproject.id %}"
+                    class="btn btn-info">Add Expenditure</a></td>
+                <td class="text-center"><a href="{% url 'add_split_progress' project_id=sproject.id %}"
+                    class="btn btn-dark">Add Progress</a></td>
                 <td class="text-center">
                   <div class="btn-group" role="group" aria-label="Project Actions">
                     {% if user.is_superuser or user.is_staff %}
-                    <a href="{% url 'add_split_projects' project_id=sproject.id %}" class="btn btn-primary mr-1">Add Project</a>
+                    <a href="{% url 'add_split_projects' project_id=sproject.id %}" class="btn btn-primary mr-1">Add
+                      Project</a>
                     {% endif %}
                     {% if user.is_superuser %}
-                    <a href="{% url 'edit_split_project' project_id=sproject.id %}" class="btn btn-success mr-1">Edit Project</a>
+                    <a href="{% url 'edit_split_project' project_id=sproject.id %}" class="btn btn-success mr-1">Edit
+                      Project</a>
                     {% endif %}
                     {% if user.is_superuser %}
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ sproject.id }}">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                      data-bs-target="#deleteModal{{ sproject.id }}">
                       Delete
                     </button>
                     {% endif %}
                   </div>
-                  <div class="modal fade" id="deleteModal{{ sproject.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ sproject.id }}" aria-hidden="true">
+                  <div class="modal fade" id="deleteModal{{ sproject.id }}" tabindex="-1" role="dialog"
+                    aria-labelledby="deleteModalLabel{{ sproject.id }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
@@ -148,7 +163,8 @@ View Projects
                         </div>
                         <div class="modal-body">
                           Are you sure you want to delete Project "{{ sproject.Name_Of_Project }}"?<br>
-                          <p style="color: red;">(This action cannot be undone and you will not be able to access the data again.)</p>
+                          <p style="color: red;">(This action cannot be undone and you will not be able to access the
+                            data again.)</p>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

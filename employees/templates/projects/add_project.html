@@ -6,206 +6,227 @@ Add Project
 
 {% block content %}
 <div class="row">
-    <div class="col-md-2" style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
-    </div>
-    <div class="col-md-10">
-        <div class="container-fluid">
-            <h3 class="mt-4">Add Project</h3><br />
+  <div class="col-md-2"
+    style="box-shadow: 0px 3px 10px #bfbfbf; margin-top: -15px; height: 100%; background-color: #ffffff;">
+  </div>
+  <div class="col-md-10">
+    <div class="container-fluid">
+      <h3 class="mt-4">Add Project</h3><br />
 
-            <div class="col-md-7" id="messages">
-              {% if status %}
-                  <div class="alert alert-danger" role="alert">
-                      {{ status }}
-                  </div>
-              {% endif %}
-          </div>
-          <br>
-            <form id="form-container" method="post" action="{% url 'add_project' %}" class="needs-validation" novalidate>
-                {% csrf_token %}
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Financial_Year">Financial Year:</label>
-                      <select class="form-control" id="id_Financial_Year" name="Financial_Year" required>
-                          <option value="" disabled selected>Select Financial Year</option>
-                          <option value="2020-2021">2016-2017</option>
-                          <option value="2020-2021">2017-2018</option>
-                          <option value="2020-2021">2018-2019</option>
-                          <option value="2020-2021">2019-2020</option>
-                          <option value="2020-2021">2020-2021</option>
-                          <option value="2020-2021">2020-2021</option>
-                          <option value="2021-2022">2021-2022</option>
-                          <option value="2022-2023">2022-2023</option>
-                          <option value="2023-2024">2023-2024</option>
-                          <option value="2024-2025">2024-2025</option>
-                          <option value="2025-2026">2025-2026</option>
-                          <option value="2026-2027">2026-2027</option>
-                          <option value="2027-2028">2027-2028</option>
-                          <option value="2028-2029">2028-2029</option>
-                          <option value="2029-2030">2029-2030</option>
-                          <option value="2029-2030">2030-2031</option>
-
-                      </select>
-                      <div class="invalid-feedback">Please select a financial year.</div>
-                  </div>
-              </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Client_Department">Client Department:</label>
-                        <select class="form-control" id="id_Client_Department" name="Client_Department" required>
-                            <option value="" disabled selected>Select Client Department</option>
-                            <option value="Sports Department">Sports Department</option>
-                            <option value="Skill Department">Skill Department</option>
-                            <option value="LSG Department">LSG Department</option>
-                            <option value="Technical & Higher Education">Technical & Higher Education</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a client department.</div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Division">Division:</label>
-                        <select class="form-control" id="id_Division" name="Division" required>
-                            <option value="" disabled selected>Select Division</option>
-                            <option value="Udaipur">Udaipur</option>
-                            <option value="Jodhpur">Jodhpur</option>
-                            <option value="Kota">Kota</option>
-                            <option value="Unit II">Unit II</option>
-                            <option value="Unit III">Unit III</option>
-                            <option value="Unit IV">Unit IV</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a division.</div>
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Budget">Budget Type:</label>
-                        <select class="form-control" id="id_Budget" name="Budget" required>
-                            <option value="" disabled selected>Select Budget Type</option>
-                            <option value="Budget Ghoshna">Budget Ghoshna</option>
-                            <option value="Non Budget Ghoshna">Non Budget Ghoshna</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a Budget Type.</div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Name_Of_Project">Name of Project:</label>
-                        <input type="text" name="Name_Of_Project" id="id_Name_Of_Project" class="form-control" required />
-                        <div class="invalid-feedback">Please enter the project name.</div>
-                    </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Sanctioned_Amount_Date">A&F Date:</label>
-                      <input type="date" name="Sanctioned_Amount_Date" id="id_Sanctioned_Amount_Date" class="form-control" required />
-                      <div class="invalid-feedback">Please select the Valid sanctioned amount date.</div>
-                  </div>
-              </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Sanctioned_Amount">A&F Amount (In Lacs):</label>
-                        <input type="number" step="0.01"s name="Sanctioned_Amount" id="id_Sanctioned_Amount" class="form-control" required />
-                        <div class="invalid-feedback">Please enter the sanctioned amount.</div>
-                    </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_A&F_number">A&F Number:</label>
-                      <input type="text" name="A&F_number" id="id_A&F_number" class="form-control" required />
-                      <div class="invalid-feedback">Please enter the A&F number.</div>
-                  </div>
-              </div>
-              <div class="form-row">
-                <div class="col-md-6 mb-3">
-                    <label for="id_split">Split Project:</label>
-                    <select class="form-control" id="id_split" name="split" required>
-                        <option value="" disabled selected>Select Yes/No</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                    <div class="invalid-feedback">Please select Yes/No .</div>
-                </div>
-              </div>
-
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Technical_Sanctioned_Amount_Date">Technical Sanctioned Date:</label>
-                      <input type="date" name="Technical_Sanctioned_Amount_Date" id="id_Technical_Sanctioned_Amount_Date" class="form-control" required />
-                      <div class="invalid-feedback">Please select the Valid technical sanctioned date.</div>
-                  </div>
-              </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Technical_Sanctioned_Amount">Technical Sanctioned Amount (In Lacs):</label>
-                        <input type="number" step="0.01" name="Technical_Sanctioned_Amount" id="id_Technical_Sanctioned_Amount" class="form-control" required />
-                        <div class="invalid-feedback">Please enter the technical sanctioned amount.</div>
-                    </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Technical_Sanctioned_number">Technical Sanctioned Number:</label>
-                      <input type="text" name="Technical_Sanctioned_number" id="id_Technical_Sanctioned_number" class="form-control" required />
-                      <div class="invalid-feedback">Please enter the Technical Sanctioned number.</div>
-                  </div>
-              </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Work_Order_Amount_Date">Work Order Date:</label>
-                        <input type="date" name="Work_Order_Amount_Date" id="id_Work_Order_Amount_Date" class="form-control" required />
-                        <div class="invalid-feedback">Please select the Valid Work Order date.</div>
-                    </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Work_Order_Amount">Work Order Amount (In Lacs):</label>
-                      <input type="number" step="0.01" name="Work_Order_Amount" id="id_Work_Order_Amount" class="form-control" required />
-                      <div class="invalid-feedback">Please enter the Valid Work Order amount.</div>
-                  </div>
-              </div>
-              <div class="form-row">
-                <div class="col-md-6 mb-3">
-                    <label for="id_Work_Order_number">Work Order Number:</label>
-                    <input type="text" name="Work_Order_number" id="id_Work_Order_number" class="form-control" required />
-                    <div class="invalid-feedback">Please enter the Work Order number.</div>
-                </div>
-            </div>
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Start_date">Start Date:</label>
-                        <input type="date" name="Start_date" id="id_Start_date" class="form-control" required />
-                        <div class="invalid-feedback">Please Valid the start date.</div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <label for="id_Stipulated_Date_Of_Completion">Stipulated Date of Completion:</label>
-                        <input type="date" name="Stipulated_Date_Of_Completion" id="id_Stipulated_Date_Of_Completion" class="form-control" required />
-                        <div class="invalid-feedback">Please select the Valid stipulated date of completion.</div>
-                    </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                      <label for="id_Stipulated_Date_Of_Completion">Likely Date of Completion:</label>
-                      <input type="date" name="Likely_Date_Of_Completion" id="id_Likely_Date_Of_Completion" class="form-control" required />
-                      <div class="invalid-feedback">Please select the Valid Likely date of completion.</div>
-                  </div>
-              </div>
-
-                <div class="form-row">
-                    <div class="col-md-6 mb-3">
-                        <button type="submit" class="btn btn-primary" id="add-button" disabled>Add</button>
-                    </div>
-                </div>
-            </form>
+      <div class="col-md-7" id="messages">
+        {% if status %}
+        <div class="alert alert-danger" role="alert">
+          {{ status }}
         </div>
+        {% endif %}
+      </div>
+      <br>
+      <form id="form-container" method="post" action="{% url 'add_project' %}" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Financial_Year">Financial Year:</label>
+            <select class="form-control" id="id_Financial_Year" name="Financial_Year" required>
+              <option value="" disabled selected>Select Financial Year</option>
+              <option value="2020-2021">2016-2017</option>
+              <option value="2020-2021">2017-2018</option>
+              <option value="2020-2021">2018-2019</option>
+              <option value="2020-2021">2019-2020</option>
+              <option value="2020-2021">2020-2021</option>
+              <option value="2020-2021">2020-2021</option>
+              <option value="2021-2022">2021-2022</option>
+              <option value="2022-2023">2022-2023</option>
+              <option value="2023-2024">2023-2024</option>
+              <option value="2024-2025">2024-2025</option>
+              <option value="2025-2026">2025-2026</option>
+              <option value="2026-2027">2026-2027</option>
+              <option value="2027-2028">2027-2028</option>
+              <option value="2028-2029">2028-2029</option>
+              <option value="2029-2030">2029-2030</option>
+              <option value="2029-2030">2030-2031</option>
+
+            </select>
+            <div class="invalid-feedback">Please select a financial year.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Client_Department">Client Department:</label>
+            <select class="form-control" id="id_Client_Department" name="Client_Department" required>
+              <option value="" disabled selected>Select Client Department</option>
+              <option value="Higher Education Department">Higher Education Department</option>
+              <option value="Department of Skill, Employment & Enterpreneurship">Department of Skill, Employment & Enterpreneurship</option>
+              <option value="Rajasthan State Sports Council">Rajasthan State Sports Council</option>
+              <option value="Youth Affairs & Sports( Khelo India)">Youth Affairs & Sports( Khelo India)</option>
+              <option value="Rajasthan State Pollution Control Board, Bhilwara">Rajasthan State Pollution Control Board, Bhilwara</option>
+              <option value="Government Engineering College, Ajmer">Government Engineering College, Ajmer</option>
+              <option value="Government Engineering College, Jhalawar">Government Engineering College, Jhalawar</option>
+              <option value="Shiksha Sankul Jaipur">Shiksha Sankul Jaipur</option>
+              <option value="Rajasthan High Court Jodhpur">Rajasthan High Court Jodhpur</option>
+              <option value="Science & Technology Department">Science & Technology Department</option>
+              <option value="ITI Ajmer">ITI Ajmer</option>
+              <option value="ITI Sikar">ITI Sikar</option>
+              <option value="ITI Kishangarh">ITI Kishangarh</option>
+              <option value="LSG Department">LSG Department</option>
+              <option value="Industries Department">Industries Department</option>
+            </select>
+            <div class="invalid-feedback">Please select a client department.</div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Division">Unit:</label>
+            <select class="form-control" id="id_Division" name="Division" required>
+              <option value="" disabled selected>Select Division</option>
+              <option value="Udaipur">Udaipur</option>
+              <option value="Jodhpur">Jodhpur</option>
+              <option value="Kota">Kota</option>
+              <option value="Unit II">Unit II</option>
+              <option value="Unit III">Unit III</option>
+              <option value="Unit IV">Unit IV</option>
+            </select>
+            <div class="invalid-feedback">Please select a division.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Budget">Budget Type:</label>
+            <select class="form-control" id="id_Budget" name="Budget" required>
+              <option value="" disabled selected>Select Budget Type</option>
+              <option value="Budget Ghoshna">Budget Ghoshna</option>
+              <option value="Non Budget Ghoshna">Non Budget Ghoshna</option>
+            </select>
+            <div class="invalid-feedback">Please select a Budget Type.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Name_Of_Project">Name of Project:</label>
+            <input type="text" name="Name_Of_Project" id="id_Name_Of_Project" class="form-control" required />
+            <div class="invalid-feedback">Please enter the project name.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Sanctioned_Amount_Date">A&F Date:</label>
+            <input type="date" name="Sanctioned_Amount_Date" id="id_Sanctioned_Amount_Date" class="form-control"
+              required />
+            <div class="invalid-feedback">Please select the Valid sanctioned amount date.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Sanctioned_Amount">A&F Amount (In Lacs):</label>
+            <input type="number" step="0.01" s name="Sanctioned_Amount" id="id_Sanctioned_Amount" class="form-control"
+              required />
+            <div class="invalid-feedback">Please enter the sanctioned amount.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_A&F_number">A&F Number:</label>
+            <input type="text" name="A&F_number" id="id_A&F_number" class="form-control" required />
+            <div class="invalid-feedback">Please enter the A&F number.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_split">Split Project:</label>
+            <select class="form-control" id="id_split" name="split" required>
+              <option value="" disabled selected>Select Yes/No</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            <div class="invalid-feedback">Please select Yes/No .</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Technical_Sanctioned_Amount_Date">Technical Sanctioned Date:</label>
+            <input type="date" name="Technical_Sanctioned_Amount_Date" id="id_Technical_Sanctioned_Amount_Date"
+              class="form-control" required />
+            <div class="invalid-feedback">Please select the Valid technical sanctioned date.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Technical_Sanctioned_Amount">Technical Sanctioned Amount (In Lacs):</label>
+            <input type="number" step="0.01" name="Technical_Sanctioned_Amount" id="id_Technical_Sanctioned_Amount"
+              class="form-control" required />
+            <div class="invalid-feedback">Please enter the technical sanctioned amount.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Technical_Sanctioned_number">Technical Sanctioned Number:</label>
+            <input type="text" name="Technical_Sanctioned_number" id="id_Technical_Sanctioned_number"
+              class="form-control" required />
+            <div class="invalid-feedback">Please enter the Technical Sanctioned number.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Work_Order_Amount_Date">Work Order Date:</label>
+            <input type="date" name="Work_Order_Amount_Date" id="id_Work_Order_Amount_Date" class="form-control"
+              required />
+            <div class="invalid-feedback">Please select the Valid Work Order date.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Work_Order_Amount">Work Order Amount (In Lacs):</label>
+            <input type="number" step="0.01" name="Work_Order_Amount" id="id_Work_Order_Amount" class="form-control"
+              required />
+            <div class="invalid-feedback">Please enter the Valid Work Order amount.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Work_Order_number">Work Order Number:</label>
+            <input type="text" name="Work_Order_number" id="id_Work_Order_number" class="form-control" required />
+            <div class="invalid-feedback">Please enter the Work Order number.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Start_date">Start Date:</label>
+            <input type="date" name="Start_date" id="id_Start_date" class="form-control" required />
+            <div class="invalid-feedback">Please Valid the start date.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Stipulated_Date_Of_Completion">Stipulated Date of Completion:</label>
+            <input type="date" name="Stipulated_Date_Of_Completion" id="id_Stipulated_Date_Of_Completion"
+              class="form-control" required />
+            <div class="invalid-feedback">Please select the Valid stipulated date of completion.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <label for="id_Stipulated_Date_Of_Completion">Likely Date of Completion:</label>
+            <input type="date" name="Likely_Date_Of_Completion" id="id_Likely_Date_Of_Completion" class="form-control"
+              required />
+            <div class="invalid-feedback">Please select the Valid Likely date of completion.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-6 mb-3">
+            <button type="submit" class="btn btn-primary" id="add-button" disabled>Add</button>
+          </div>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 <script>
@@ -223,8 +244,8 @@ Add Project
 
     function setMaxDate() {
       const today = new Date().toISOString().split('T')[0];
-      sanctionedDateInput.setAttribute('max', today); 
-      tsanctionedDateInput.setAttribute('max', today); 
+      sanctionedDateInput.setAttribute('max', today);
+      tsanctionedDateInput.setAttribute('max', today);
       workOrderDateInput.setAttribute('max', today);
       likelyCompletionDateInput.setAttribute('min', today);
     }
@@ -237,7 +258,7 @@ Add Project
 
       inputs.forEach(field => {
         if (field === splitProjectSelect) {
-          startDisabling = true; 
+          startDisabling = true;
         }
 
         if (startDisabling && field !== splitProjectSelect) {
@@ -354,16 +375,16 @@ Add Project
       input.addEventListener('input', checkFormValidity);
     });
 
-    splitProjectSelect.addEventListener('change', function() {
+    splitProjectSelect.addEventListener('change', function () {
       toggleFieldsBasedOnSplit();
-      checkFormValidity(); 
+      checkFormValidity();
     });
 
     toggleFieldsBasedOnSplit();
     checkFormValidity();
     setMaxDate();
 
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', function (event) {
       if (!form.checkValidity()) {
         event.preventDefault();
         event.stopPropagation();

@@ -36,13 +36,14 @@ Add Physical Progress
         <div class="form-row">
           <div class="col-md-4 mb-3">
             <label for="id_Physical_Progress_Percentage">Work Completed (In Percent):</label>
-            <input type="number" name="Physical_Progress_Percentage" id="id_Physical_Progress_Percentage" class="form-control" required min="0" max="100">
+            <input type="number" name="Physical_Progress_Percentage" id="id_Physical_Progress_Percentage"
+              class="form-control" required min="0" max="100">
           </div>
         </div>
         <div class="form-row">
           <div class="col-md-6 mb-3">
             <a href="{% url 'projects' %}" class="btn btn-secondary">Back</a>
-            <button type="submit" class="btn btn-primary" id="submit-button" {% if error or project_completed %}disabled{% endif %}>Add</button>
+            <button type="submit" class="btn btn-primary" id="submit-button" {% if error or project_completed%}disabled{% endif %}>Add</button>
           </div>
         </div>
       </form>
@@ -51,7 +52,7 @@ Add Physical Progress
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-container");
     const submitButton = document.getElementById("submit-button");
     const dateInput = document.getElementById("id_Date_Of_Reporting");
@@ -62,7 +63,7 @@ Add Physical Progress
     }
 
     function checkFormValidity() {
-      
+
       const inputs = form.querySelectorAll("input[required]");
       let allFilled = true;
       inputs.forEach(input => {
@@ -73,13 +74,13 @@ Add Physical Progress
       submitButton.disabled = !allFilled;
     }
 
-   
+
     form.addEventListener("input", checkFormValidity);
     form.addEventListener("change", checkFormValidity);
 
-   
+
     checkFormValidity();
-    setMaxDate(); 
+    setMaxDate();
   });
 </script>
 

@@ -17,9 +17,9 @@
         </span>
 
         {% if 'error' in request.session %}
-          <div class="alert alert-danger" role="alert">
-            {{ request.session.error }}
-          </div>
+        <div class="alert alert-danger" role="alert">
+          {{ request.session.error }}
+        </div>
         {% endif %}
 
         <div class="wrap-input100 validate-input" data-validate="Username is required">
@@ -64,49 +64,49 @@
 {% include 'partials/footer.html' %}
 
 <script>
-function togglePassword() {
-  var passwordField = document.getElementById("password-field");
-  var showPassIcon = document.querySelector(".btn-show-pass i");
-  if (passwordField.type === "password") {
-    passwordField.type = "text";
-    showPassIcon.classList.remove("fa-eye");
-    showPassIcon.classList.add("fa-eye-slash");
-  } else {
-    passwordField.type = "password";
-    showPassIcon.classList.remove("fa-eye-slash");
-    showPassIcon.classList.add("fa-eye");
+  function togglePassword() {
+    var passwordField = document.getElementById("password-field");
+    var showPassIcon = document.querySelector(".btn-show-pass i");
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      showPassIcon.classList.remove("fa-eye");
+      showPassIcon.classList.add("fa-eye-slash");
+    } else {
+      passwordField.type = "password";
+      showPassIcon.classList.remove("fa-eye-slash");
+      showPassIcon.classList.add("fa-eye");
+    }
   }
-}
 </script>
 
 <style>
-.btn-show-pass {
-  position: absolute;
-  right: 10px; 
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-
-@media (max-width: 100px) {
-  .wrap-login100 {
-    padding: 15px;
-  }
-
-  .input100 {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .container-login100-form-btn {
-    text-align: center;
-  }
-
-  .symbol-input100 {
+  .btn-show-pass {
     position: absolute;
-    right: 1px; 
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
+    cursor: pointer;
   }
-}
+
+  @media (max-width: 100px) {
+    .wrap-login100 {
+      padding: 15px;
+    }
+
+    .input100 {
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .container-login100-form-btn {
+      text-align: center;
+    }
+
+    .symbol-input100 {
+      position: absolute;
+      right: 1px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
 </style>

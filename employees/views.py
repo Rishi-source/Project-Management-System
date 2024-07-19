@@ -46,6 +46,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.views.generic import View
 from django.http import HttpResponseBadRequest
+from weasyprint import HTML
 
 # Create your views here.
 def dashboard(request):
@@ -1276,7 +1277,7 @@ def amount_released_analysis(request):
 
     for division in divisions:
         yearly_amounts_data = AmountReleased.objects.filter(
-            project__Division=division,
+            Q(project__Division=division) | Q(project__parent_project__Division=division),
             Amount_Released_Date__year=selected_year
         ).aggregate(total_amount=Sum('Amount_Released'))
 
@@ -1284,10 +1285,10 @@ def amount_released_analysis(request):
 
         for month in range(1, 13):
             monthly_amounts_data = AmountReleased.objects.filter(
-                project__Division=division,
+                Q(project__Division=division) | Q(project__parent_project__Division=division),
                 Amount_Released_Date__year=selected_year,
                 Amount_Released_Date__month=month
-            ).aggregate(total_amount=Sum('Amount_Released'))
+                ).aggregate(total_amount=Sum('Amount_Released'))
 
             if division == 'Udaipur':
                 udaipur_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1336,7 +1337,7 @@ def amount_recieved_analysis(request):
 
     for division in divisions:
         yearly_amounts_data = AmountReceived.objects.filter(
-            project__Division=division,
+            Q(project__Division=division) | Q(project__parent_project__Division=division),
             Amount_Received_Date__year=selected_year
         ).aggregate(total_amount=Sum('Amount_Received'))
 
@@ -1344,7 +1345,7 @@ def amount_recieved_analysis(request):
 
         for month in range(1, 13):
             monthly_amounts_data = AmountReceived.objects.filter(
-                project__Division=division,
+            Q(project__Division=division) | Q(project__parent_project__Division=division),
                 Amount_Received_Date__year=selected_year,
                 Amount_Received_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Received'))
@@ -1395,7 +1396,7 @@ def expenditure_analysis(request):
 
     for division in divisions:
         yearly_amounts_data = Expenditure.objects.filter(
-            project__Division=division,
+            Q(project__Division=division) | Q(project__parent_project__Division=division),
             Expenditure_date__year=selected_year
         ).aggregate(total_amount=Sum('Expenditure_Value'))
 
@@ -1403,7 +1404,7 @@ def expenditure_analysis(request):
 
         for month in range(1, 13):
             monthly_amounts_data = Expenditure.objects.filter(
-                project__Division=division,
+            Q(project__Division=division) | Q(project__parent_project__Division=division),
                 Expenditure_date__year=selected_year,
                 Expenditure_date__month=month
             ).aggregate(total_amount=Sum('Expenditure_Value'))
@@ -1443,17 +1444,44 @@ def expenditure_analysis_client(request):
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    clients = [
+        'Higher Education Department',
+        'Department of Skill, Employment & Enterpreneurship',
+        'Rajasthan State Sports Council',
+        'Youth Affairs & Sports( Khelo India)',
+        'Rajasthan State Pollution Control Board, Bhilwara',
+        'Government Engineering College, Ajmer',
+        'Government Engineering College, Jhalawar',
+        'Shiksha Sankul Jaipur',
+        'Rajasthan High Court Jodhpur',
+        'Science & Technology Department',
+        'ITI Ajmer',
+        'ITI Sikar',
+        'ITI Kishangarh',
+        'LSG Department',
+        'Industries Department'
+    ]
     yearly_data = {client: 0 for client in clients}
 
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
+    Rajasthan_State_Pollution = [0] * 12
+    Government_Engineering_College_A = [0] * 12
+    Government_Engineering_College_J = [0] * 12
+    Shiksha_Sankul_Jaipur = [0] * 12
+    Rajasthan_High_Court = [0] * 12
+    Science_Technology = [0] * 12
+    ITI_Ajmer = [0] * 12
+    ITI_Sikar = [0] * 12
+    ITI_Kishangarh = [0] * 12
+    LSG_client = [0] * 12
+    Industries_Department = [0] * 12
 
     for client in clients:
         yearly_amounts_data = Expenditure.objects.filter(
-            project__Client_Department=client,
+            Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
             Expenditure_date__year=selected_year
         ).aggregate(total_amount=Sum('Expenditure_Value'))
 
@@ -1461,18 +1489,41 @@ def expenditure_analysis_client(request):
 
         for month in range(1, 13):
             monthly_amounts_data = Expenditure.objects.filter(
-                project__Client_Department=client,
+                Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
                 Expenditure_date__year=selected_year,
                 Expenditure_date__month=month
             ).aggregate(total_amount=Sum('Expenditure_Value'))
-            if client == 'Sports Department':
+            if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Skill Department':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'LSG Department':
+            elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Technical & Higher Education':
+            elif client == 'Youth Affairs & Sports( Khelo India)':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan State Pollution Control Board, Bhilwara':
+                Rajasthan_State_Pollution[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Ajmer':
+                Government_Engineering_College_A[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Jhalawar':
+                Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Shiksha Sankul Jaipur':
+                Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan High Court Jodhpur':
+                Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Science & Technology Department':
+                Science_Technology[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Ajmer':
+                ITI_Ajmer[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Sikar':
+                ITI_Sikar[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Kishangarh':
+                ITI_Kishangarh[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_client[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Industries Department':
+                Industries_Department[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            
 
     years = range(2020, 2031) 
 
@@ -1484,6 +1535,17 @@ def expenditure_analysis_client(request):
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
     'LSG_Department_monthly_data': LSG_Department_monthly_data,
     'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'Rajasthan_State_Pollution':Rajasthan_State_Pollution,
+    'Government_Engineering_College_A':Government_Engineering_College_A,
+    'Government_Engineering_College_J':Government_Engineering_College_J,
+    'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'Rajasthan_High_Court':Rajasthan_High_Court,
+    'Science_Technology':Science_Technology,
+    'ITI_Ajmer':ITI_Ajmer,
+    'ITI_Sikar':ITI_Sikar,
+    'ITI_Kishangarh':ITI_Kishangarh,
+    'LSG_client':LSG_client,
+    'Industries_Department':Industries_Department,
     'years': years,
 }
     return render(request, 'projects/expenditure_analysis_client.html', context)
@@ -1494,16 +1556,44 @@ def amount_released_analysis_client(request):
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    clients = [
+        'Higher Education Department',
+        'Department of Skill, Employment & Enterpreneurship',
+        'Rajasthan State Sports Council',
+        'Youth Affairs & Sports( Khelo India)',
+        'Rajasthan State Pollution Control Board, Bhilwara',
+        'Government Engineering College, Ajmer',
+        'Government Engineering College, Jhalawar',
+        'Shiksha Sankul Jaipur',
+        'Rajasthan High Court Jodhpur',
+        'Science & Technology Department',
+        'ITI Ajmer',
+        'ITI Sikar',
+        'ITI Kishangarh',
+        'LSG Department',
+        'Industries Department'
+    ]
     yearly_data = {client: 0 for client in clients}
+
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
+    Rajasthan_State_Pollution = [0] * 12
+    Government_Engineering_College_A = [0] * 12
+    Government_Engineering_College_J = [0] * 12
+    Shiksha_Sankul_Jaipur = [0] * 12
+    Rajasthan_High_Court = [0] * 12
+    Science_Technology = [0] * 12
+    ITI_Ajmer = [0] * 12
+    ITI_Sikar = [0] * 12
+    ITI_Kishangarh = [0] * 12
+    LSG_client = [0] * 12
+    Industries_Department = [0] * 12
 
     for client in clients:
         yearly_amounts_data = AmountReleased.objects.filter(
-            project__Client_Department=client,
+            Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
             Amount_Released_Date__year=selected_year
         ).aggregate(total_amount=Sum('Amount_Released'))
 
@@ -1511,18 +1601,41 @@ def amount_released_analysis_client(request):
 
         for month in range(1, 13):
             monthly_amounts_data = AmountReleased.objects.filter(
-                project__Client_Department=client,
+                Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
                 Amount_Released_Date__year=selected_year,
                 Amount_Released_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Released'))
-            if client == 'Sports Department':
+            if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Skill Department':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'LSG Department':
+            elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Technical & Higher Education':
+            elif client == 'Youth Affairs & Sports( Khelo India)':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan State Pollution Control Board, Bhilwara':
+                Rajasthan_State_Pollution[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Ajmer':
+                Government_Engineering_College_A[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Jhalawar':
+                Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Shiksha Sankul Jaipur':
+                Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan High Court Jodhpur':
+                Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Science & Technology Department':
+                Science_Technology[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Ajmer':
+                ITI_Ajmer[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Sikar':
+                ITI_Sikar[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Kishangarh':
+                ITI_Kishangarh[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_client[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Industries Department':
+                Industries_Department[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            
 
     years = range(2020, 2031) 
 
@@ -1534,55 +1647,17 @@ def amount_released_analysis_client(request):
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
     'LSG_Department_monthly_data': LSG_Department_monthly_data,
     'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
-    'years': years,
-}
-    return render(request, 'projects/amount_released_analysis_client.html', context)
-def amount_released_analysis_client(request):
-    user = request.user
-    if user.is_active and not (user.is_staff or user.is_superuser):
-        return redirect('not_allowed')
-    current_year = timezone.now().year
-    selected_year = int(request.GET.get('year', current_year))
-
-    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
-    yearly_data = {client: 0 for client in clients}
-    Sports_Department_monthly_data = [0] * 12
-    Skill_Department_monthly_data = [0] * 12
-    LSG_Department_monthly_data = [0] * 12
-    Technical_Higher_Education_monthly_data = [0] * 12
-
-    for client in clients:
-        yearly_amounts_data = AmountReleased.objects.filter(
-            project__Client_Department=client,
-            Amount_Released_Date__year=selected_year
-        ).aggregate(total_amount=Sum('Amount_Released'))
-
-        yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
-
-        for month in range(1, 13):
-            monthly_amounts_data = AmountReleased.objects.filter(
-                project__Client_Department=client,
-                Amount_Released_Date__year=selected_year,
-                Amount_Released_Date__month=month
-            ).aggregate(total_amount=Sum('Amount_Released'))
-            if client == 'Sports Department':
-                Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Skill Department':
-                Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'LSG Department':
-                LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Technical & Higher Education':
-                Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-
-    years = range(2020, 2031) 
-    context = {
-    'year': selected_year,
-    'clients': clients, 
-    'yearly_data': yearly_data,
-    'Sports_Department_monthly_data': Sports_Department_monthly_data,
-    'Skill_Department_monthly_data': Skill_Department_monthly_data,
-    'LSG_Department_monthly_data': LSG_Department_monthly_data,
-    'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'Rajasthan_State_Pollution':Rajasthan_State_Pollution,
+    'Government_Engineering_College_A':Government_Engineering_College_A,
+    'Government_Engineering_College_J':Government_Engineering_College_J,
+    'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'Rajasthan_High_Court':Rajasthan_High_Court,
+    'Science_Technology':Science_Technology,
+    'ITI_Ajmer':ITI_Ajmer,
+    'ITI_Sikar':ITI_Sikar,
+    'ITI_Kishangarh':ITI_Kishangarh,
+    'LSG_client':LSG_client,
+    'Industries_Department':Industries_Department,
     'years': years,
 }
     return render(request, 'projects/amount_released_analysis_client.html', context)
@@ -1593,45 +1668,108 @@ def amount_recieved_analysis_client(request):
     current_year = timezone.now().year
     selected_year = int(request.GET.get('year', current_year))
 
-    clients = ['Sports Department', 'Skill Department', 'LSG Department', 'Technical & Higher Education']
+    clients = [
+        'Higher Education Department',
+        'Department of Skill, Employment & Enterpreneurship',
+        'Rajasthan State Sports Council',
+        'Youth Affairs & Sports( Khelo India)',
+        'Rajasthan State Pollution Control Board, Bhilwara',
+        'Government Engineering College, Ajmer',
+        'Government Engineering College, Jhalawar',
+        'Shiksha Sankul Jaipur',
+        'Rajasthan High Court Jodhpur',
+        'Science & Technology Department',
+        'ITI Ajmer',
+        'ITI Sikar',
+        'ITI Kishangarh',
+        'LSG Department',
+        'Industries Department'
+    ]
     yearly_data = {client: 0 for client in clients}
+
     Sports_Department_monthly_data = [0] * 12
     Skill_Department_monthly_data = [0] * 12
     LSG_Department_monthly_data = [0] * 12
     Technical_Higher_Education_monthly_data = [0] * 12
+    Rajasthan_State_Pollution = [0] * 12
+    Government_Engineering_College_A = [0] * 12
+    Government_Engineering_College_J = [0] * 12
+    Shiksha_Sankul_Jaipur = [0] * 12
+    Rajasthan_High_Court = [0] * 12
+    Science_Technology = [0] * 12
+    ITI_Ajmer = [0] * 12
+    ITI_Sikar = [0] * 12
+    ITI_Kishangarh = [0] * 12
+    LSG_client = [0] * 12
+    Industries_Department = [0] * 12
 
     for client in clients:
         yearly_amounts_data = AmountReceived.objects.filter(
-            project__Client_Department=client,
+            Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
             Amount_Received_Date__year=selected_year
         ).aggregate(total_amount=Sum('Amount_Received'))
 
         yearly_data[client] = yearly_amounts_data['total_amount'] if yearly_amounts_data['total_amount'] else 0
+
         for month in range(1, 13):
             monthly_amounts_data = AmountReceived.objects.filter(
-                project__Client_Department=client,
+                Q(project__Client_Department=client) | Q(project__parent_project__Client_Department=client),
                 Amount_Received_Date__year=selected_year,
                 Amount_Received_Date__month=month
             ).aggregate(total_amount=Sum('Amount_Received'))
-            if client == 'Sports Department':
+            if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Skill Department':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'LSG Department':
+            elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Technical & Higher Education':
+            elif client == 'Youth Affairs & Sports( Khelo India)':
                 Technical_Higher_Education_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan State Pollution Control Board, Bhilwara':
+                Rajasthan_State_Pollution[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Ajmer':
+                Government_Engineering_College_A[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Government Engineering College, Jhalawar':
+                Government_Engineering_College_J[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Shiksha Sankul Jaipur':
+                Shiksha_Sankul_Jaipur[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Rajasthan High Court Jodhpur':
+                Rajasthan_High_Court[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Science & Technology Department':
+                Science_Technology[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Ajmer':
+                ITI_Ajmer[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Sikar':
+                ITI_Sikar[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'ITI Kishangarh':
+                ITI_Kishangarh[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'LSG Department':
+                LSG_client[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            elif client == 'Industries Department':
+                Industries_Department[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
+            
 
-    years = range(2020, 2031)  
+    years = range(2020, 2031) 
 
     context = {
     'year': selected_year,
-    'clients': clients,  
+    'clients': clients, 
     'yearly_data': yearly_data,
     'Sports_Department_monthly_data': Sports_Department_monthly_data,
     'Skill_Department_monthly_data': Skill_Department_monthly_data,
     'LSG_Department_monthly_data': LSG_Department_monthly_data,
     'Technical_Higher_Education_monthly_data': Technical_Higher_Education_monthly_data,
+    'Rajasthan_State_Pollution':Rajasthan_State_Pollution,
+    'Government_Engineering_College_A':Government_Engineering_College_A,
+    'Government_Engineering_College_J':Government_Engineering_College_J,
+    'Shiksha_Sankul_Jaipur':Shiksha_Sankul_Jaipur,
+    'Rajasthan_High_Court':Rajasthan_High_Court,
+    'Science_Technology':Science_Technology,
+    'ITI_Ajmer':ITI_Ajmer,
+    'ITI_Sikar':ITI_Sikar,
+    'ITI_Kishangarh':ITI_Kishangarh,
+    'LSG_client':LSG_client,
+    'Industries_Department':Industries_Department,
     'years': years,
 }
     return render(request, 'projects/amount_recieved_analysis_client.html', context)
@@ -1648,12 +1786,11 @@ def notification(request):
     return render(request, 'notification.html', context)
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
-    html = template.render(context_dict)
+    html_string = template.render(context_dict)
+    html = HTML(string=html_string)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return result.getvalue()
-    return None
+    html.write_pdf(result)
+    return result.getvalue()
 class GenerateProjectPDF(View):
     def get(self,request,pk):
         project = get_object_or_404(Project, id=pk)
@@ -1739,7 +1876,6 @@ class GenerateProjectPDF(View):
 
         if yearly_data['received']:
             years_received = [data['Amount_Received_Date__year'] for data in yearly_data['received']]
-            print(years_received)
             amounts_received = [data['total_received'] for data in yearly_data['received']]
             plt.figure(figsize=(8, 4))
             bars = plt.bar(years_received, amounts_received, color='blue')
@@ -2863,7 +2999,6 @@ class splitGenerateProjectPDF(View):
 
         if yearly_data['received']:
             years_received = [data['Amount_Received_Date__year'] for data in yearly_data['received']]
-            print(years_received)
             amounts_received = [data['total_received'] for data in yearly_data['received']]
             plt.figure(figsize=(8, 4))
             bars = plt.bar(years_received, amounts_received, color='blue')

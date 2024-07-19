@@ -17,15 +17,15 @@
         </span>
 
         {% if 'error' in request.session %}
-          <div class="alert alert-danger" role="alert">
-            {{ request.session.error }}
-          </div>
+        <div class="alert alert-danger" role="alert">
+          {{ request.session.error }}
+        </div>
         {% endif %}
 
         {% if 'success' in request.session %}
-          <div class="alert alert-success" role="alert">
-            {{ request.session.success }}
-          </div>
+        <div class="alert alert-success" role="alert">
+          {{ request.session.success }}
+        </div>
         {% endif %}
 
         <div class="wrap-input100 validate-input" data-validate="Username is required">
@@ -54,7 +54,8 @@
         </div>
 
         <div class="wrap-input100 validate-input" data-validate="Confirm Password is required">
-          <input class="input100" type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+          <input class="input100" type="password" name="confirm_password" id="confirm_password"
+            placeholder="Confirm Password" required>
           <span class="focus-input100"></span>
           <span class="symbol-input100">
             <i class="fa fa-lock" aria-hidden="true"></i>
@@ -94,7 +95,7 @@
 {% include 'partials/footer.html' %}
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const confirmInput = document.getElementById('confirm_password');
@@ -180,16 +181,16 @@
       return valid;
     }
 
-    usernameInput.addEventListener('input', function() {
+    usernameInput.addEventListener('input', function () {
       checkFormValidity();
     });
 
-    passwordInput.addEventListener('input', function() {
+    passwordInput.addEventListener('input', function () {
       passwordRequirements.style.display = 'block';
       checkFormValidity();
     });
 
-    confirmInput.addEventListener('input', function() {
+    confirmInput.addEventListener('input', function () {
       checkFormValidity();
     });
   });

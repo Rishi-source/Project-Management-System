@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  integrity="sha512-xxxxxx" crossorigin="anonymous" />
 {% load static %}
 {% block title %}
-  View Projects
+View Projects
 {% endblock %}
 
 {% block content %}
@@ -27,141 +28,148 @@
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
           <h5 class="m-0 font-weight-bold text-primary">Projects List</h5>
           <div>
-            <button id="exportBtn" class="btn btn-success btn-sm"><i class="fas fa-file-excel"></i> Export to Excel</button>
+            <button id="exportBtn" class="btn btn-success btn-sm"><i class="fas fa-file-excel"></i> Export to
+              Excel</button>
+          </div>
         </div>
-        </div>
-        
-        <div class="card-body">          
+
+        <div class="card-body">
           <div class="row mb-3 filter-control">
-              <div class="container">
-                <form id="projectSearchForm" method="GET" action="{% url 'view_split_project' project_id %}">
-                  <div class="row mb-3">
-                    <div class="col-md-10">
-                      <label for="searchInput" class="form-label">Search by Project Name:</label>
-                      <div class="input-group">
-                        <input type="text" id="searchInput" name="search" class="form-control" placeholder="Enter project name or A&F/T.S/W.O. Number" value="{{ request.GET.search }}">
-                        <button type="submit" class="btn btn-primary">
-                          <i class="fas fa-search"></i>
-                        </button>
-                      </div>
+            <div class="container">
+              <form id="projectSearchForm" method="GET" action="{% url 'view_split_project' project_id %}">
+                <div class="row mb-3">
+                  <div class="col-md-10">
+                    <label for="searchInput" class="form-label">Search by Project Name:</label>
+                    <div class="input-group">
+                      <input type="text" id="searchInput" name="search" class="form-control"
+                        placeholder="Enter project name or A&F/T.S/W.O. Number" value="{{ request.GET.search }}">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                      </button>
                     </div>
                   </div>
-                </form>
-              </div>
-                          </div>   
-          </div>
-                    
-          <div class="row mb-13 col-md-12 filter-control">
-            <div class="col-md-2 mb-2 total-item navbar-expand-lg  ">
-              <label>Total Number of Projects:</label>
-              <span id="totalProjects">0</span>
-            </div>
-            <div class="col-md-3 mb-2 total-item">
-              <label>Total Technical Sanctioned Amount:</label>
-              <span id="TotalTechnicalSanctionedAmount">Rs. 0.00 Lacs</span>
-            </div>
-            <div class="col-md-3 mb-2 total-item">
-              <label>Total Work Order Amount:</label>
-              <span id="totalWorkOrderAmount">Rs. 0.00 Lacs</span>
-            </div>
-            <div class="col-md-3 mb-2 total-item navbar-expand-lg  ">
-                <label>Total Recieved Amount:</label>
-                <span id="TotalRecievedAmount">0</span>
-              </div>  
-          </div>
-          <div class="row mb-13 col-md-12 filter-control">
-            <div class="col-md-2 mb-2 total-item">
-              <label>Total Released Amount:</label>
-              <span id="TotalReleasedAmount">Rs. 0.00 Lacs</span>
-            </div>
-            <div class="col-md-3 mb-2 total-item">
-              <label>Total Expenditure Amount	:</label>
-              <span id="totalExpenditureAmount">Rs. 0.00 Lacs</span>
-            </div>
-            <div class="col-md-3 mb-2 total-item">
-              <label>Total Remaining Amount:</label>
-              <span id="totalRemainingAmount">Rs. 0.00 Lacs</span>
+                </div>
+              </form>
             </div>
           </div>
-
-          <br>
-          
-        <br>
-          <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Technical Sanctioned Amount</th>
-                  <th>Work Order <br> Amount</th>
-                  <th>Recieved Amount</th>
-                  <th>Released Amount</th>
-                  <th>Expenditure Amount</th>
-                  <th>Unspent Amount</th>
-                  <th>Stipulated Date Of Completion</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for project in projects %}
-                  <tr>
-                    <td>{{ project.id }}</td>
-                    <td>{{ project.Name_Of_Project }}</td>
-                    <td>Rs. {{ project.Technical_Sanctioned_Amount|floatformat:2 }} Lacs</td>
-                    <td>Rs. {{ project.Work_order_Amount|floatformat:2 }} Lacs</td>
-                    <td>Rs. {{ project.total_AmountReceived|floatformat:2 }} Lacs</td>
-                    <td>Rs. {{ project.total_AmountReleased|floatformat:2 }} Lacs</td>
-                    <td>Rs. {{ project.total_expenditure_sum|floatformat:2 }} Lacs</td>
-                    <td id="remainingAmount{{ project.id }}">
-                    </td>
-                    <td>
-                      {{ project.Stipulated_Date_Of_Completion }}
-                    </td>
-                    <td>
-                      {% if project.is_handed_over %}
-                        <span class="badge bg-primary">Handed Over</span>
-                      {% elif project.is_completed %}
-                        <span class="badge bg-success">Completed</span>
-                      {% else %}
-                        <span class="badge bg-warning text-dark">Ongoing</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <div class="btn-group" role="group">
-                        <a href="{% url 'view_split_details' project.id %}" class="btn btn-info btn-sm mr-1">View Details</a>
-                        {% if user.is_superuser or user.is_staff  %}
-                        <a href="{% url 'add_split_dates' project.id %}" class="btn btn-danger btn-sm mr-1">Add Important Dates</a>
-                        {% endif %}
-                        {% if user.is_superuser or user.is_staff  %}
-                        {% if project.is_completed == False %}
-                          <button type="button" class="btn btn-success btn-sm mr-1" onclick="confirmMarkCompleted('{{ project.id }}')">Mark Completed</button>
-                        {% elif project.is_handed_over == False %}
-                          <button type="button" class="btn btn-primary btn-sm mr-1" onclick="confirmMarkHandedOver('{{ project.id }}')">Mark Handover</button>
-                        {% endif %}
-                        {% endif %}
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>              
-          </div>
-
         </div>
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-              <a href="{% url 'view_project' %}" class="btn btn-primary">Back to Projects</a>
-            </div>
+
+        <div class="row mb-13 col-md-12 filter-control">
+          <div class="col-md-2 mb-2 total-item navbar-expand-lg  ">
+            <label>Total Number of Projects:</label>
+            <span id="totalProjects">0</span>
           </div>
+          <div class="col-md-3 mb-2 total-item">
+            <label>Total Technical Sanctioned Amount:</label>
+            <span id="TotalTechnicalSanctionedAmount">Rs. 0.00 Lacs</span>
+          </div>
+          <div class="col-md-3 mb-2 total-item">
+            <label>Total Work Order Amount:</label>
+            <span id="totalWorkOrderAmount">Rs. 0.00 Lacs</span>
+          </div>
+          <div class="col-md-3 mb-2 total-item navbar-expand-lg  ">
+            <label>Total Recieved Amount:</label>
+            <span id="TotalRecievedAmount">0</span>
+          </div>
+        </div>
+        <div class="row mb-13 col-md-12 filter-control">
+          <div class="col-md-2 mb-2 total-item">
+            <label>Total Released Amount:</label>
+            <span id="TotalReleasedAmount">Rs. 0.00 Lacs</span>
+          </div>
+          <div class="col-md-3 mb-2 total-item">
+            <label>Total Expenditure Amount :</label>
+            <span id="totalExpenditureAmount">Rs. 0.00 Lacs</span>
+          </div>
+          <div class="col-md-3 mb-2 total-item">
+            <label>Total Remaining Amount:</label>
+            <span id="totalRemainingAmount">Rs. 0.00 Lacs</span>
+          </div>
+        </div>
+
+        <br>
+
+        <br>
+        <div class="table-responsive">
+          <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Technical Sanctioned Amount</th>
+                <th>Work Order <br> Amount</th>
+                <th>Recieved Amount</th>
+                <th>Released Amount</th>
+                <th>Expenditure Amount</th>
+                <th>Unspent Amount</th>
+                <th>Stipulated Date Of Completion</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in projects %}
+              <tr>
+                <td>{{ project.id }}</td>
+                <td>{{ project.Name_Of_Project }}</td>
+                <td>Rs. {{ project.Technical_Sanctioned_Amount|floatformat:2 }} Lacs</td>
+                <td>Rs. {{ project.Work_order_Amount|floatformat:2 }} Lacs</td>
+                <td>Rs. {{ project.total_AmountReceived|floatformat:2 }} Lacs</td>
+                <td>Rs. {{ project.total_AmountReleased|floatformat:2 }} Lacs</td>
+                <td>Rs. {{ project.total_expenditure_sum|floatformat:2 }} Lacs</td>
+                <td id="remainingAmount{{ project.id }}">
+                </td>
+                <td>
+                  {{ project.Stipulated_Date_Of_Completion }}
+                </td>
+                <td>
+                  {% if project.is_handed_over %}
+                  <span class="badge bg-primary">Handed Over</span>
+                  {% elif project.is_completed %}
+                  <span class="badge bg-success">Completed</span>
+                  {% else %}
+                  <span class="badge bg-warning text-dark">Ongoing</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'view_split_details' project.id %}" class="btn btn-info btn-sm mr-1">View
+                      Details</a>
+                    {% if user.is_superuser or user.is_staff %}
+                    <a href="{% url 'add_split_dates' project.id %}" class="btn btn-danger btn-sm mr-1">Add Important
+                      Dates</a>
+                    {% endif %}
+                    {% if user.is_superuser or user.is_staff %}
+                    {% if project.is_completed == False %}
+                    <button type="button" class="btn btn-success btn-sm mr-1"
+                      onclick="confirmMarkCompleted('{{ project.id }}')">Mark Completed</button>
+                    {% elif project.is_handed_over == False %}
+                    <button type="button" class="btn btn-primary btn-sm mr-1"
+                      onclick="confirmMarkHandedOver('{{ project.id }}')">Mark Handover</button>
+                    {% endif %}
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
       </div>
+      <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+          <a href="{% url 'view_project' %}" class="btn btn-primary">Back to Projects</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+</div>
 
-<div class="modal fade" id="confirmMarkCompletedModal" tabindex="-1" aria-labelledby="confirmMarkCompletedModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmMarkCompletedModal" tabindex="-1" aria-labelledby="confirmMarkCompletedModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -169,7 +177,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to mark this project as completed?<br> <p style="color: red;">NOTE: This action cannot be undone.</p>
+        Are you sure you want to mark this project as completed?<br>
+        <p style="color: red;">NOTE: This action cannot be undone.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -179,7 +188,8 @@
   </div>
 </div>
 
-<div class="modal fade" id="confirmMarkHandedOverModal" tabindex="-1" aria-labelledby="confirmMarkHandedOverModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmMarkHandedOverModal" tabindex="-1" aria-labelledby="confirmMarkHandedOverModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -187,7 +197,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to mark this project as handed over?<br><p style="color: red;">NOTE: This action cannot be undone.</p>
+        Are you sure you want to mark this project as handed over?<br>
+        <p style="color: red;">NOTE: This action cannot be undone.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -211,62 +222,63 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
     const rows = document.querySelectorAll('#dataTable tbody tr');
     function filterTable() {
-        let totalProjects = 0;
-        let totalTechnicalSanctionedAmount = 0;
-        let totalWorkOrderAmount = 0;
-        let totalReceivedAmount = 0;
-        let totalReleasedAmount = 0;
-        let totalExpenditureAmount = 0;
-        let totalRemainingAmount = 0;
-        rows.forEach(row => {
-                row.style.display = '';
-                totalProjects++;
-                totalTechnicalSanctionedAmount += parseFloat(row.cells[2].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                totalWorkOrderAmount += parseFloat(row.cells[3].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                totalReceivedAmount += parseFloat(row.cells[4].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                totalReleasedAmount += parseFloat(row.cells[5].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                totalExpenditureAmount += parseFloat(row.cells[6].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                const workOrderAmount = parseFloat(row.cells[3].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                const expenditureAmount = parseFloat(row.cells[6].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
-                const unspentAmount = workOrderAmount - expenditureAmount;
-                totalRemainingAmount += unspentAmount;
+      let totalProjects = 0;
+      let totalTechnicalSanctionedAmount = 0;
+      let totalWorkOrderAmount = 0;
+      let totalReceivedAmount = 0;
+      let totalReleasedAmount = 0;
+      let totalExpenditureAmount = 0;
+      let totalRemainingAmount = 0;
+      rows.forEach(row => {
+        row.style.display = '';
+        totalProjects++;
+        totalTechnicalSanctionedAmount += parseFloat(row.cells[2].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        totalWorkOrderAmount += parseFloat(row.cells[3].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        totalReceivedAmount += parseFloat(row.cells[4].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        totalReleasedAmount += parseFloat(row.cells[5].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        totalExpenditureAmount += parseFloat(row.cells[6].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        const workOrderAmount = parseFloat(row.cells[3].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        const expenditureAmount = parseFloat(row.cells[6].innerText.replace('Rs. ', '').replace(' Lacs', '')) || 0;
+        const unspentAmount = workOrderAmount - expenditureAmount;
+        totalRemainingAmount += unspentAmount;
 
-                row.cells[7].innerText = `Rs. ${unspentAmount.toFixed(2)} Lacs`;
-        });
+        row.cells[7].innerText = `Rs. ${unspentAmount.toFixed(2)} Lacs`;
+      });
 
-        document.getElementById('totalProjects').innerText = totalProjects;
-        document.getElementById('TotalTechnicalSanctionedAmount').innerText = `Rs. ${totalTechnicalSanctionedAmount.toFixed(2)} Lacs`;
-        document.getElementById('totalWorkOrderAmount').innerText = `Rs. ${totalWorkOrderAmount.toFixed(2)} Lacs`;
-        document.getElementById('TotalRecievedAmount').innerText = `Rs. ${totalReceivedAmount.toFixed(2)} Lacs`;
-        document.getElementById('TotalReleasedAmount').innerText = `Rs. ${totalReleasedAmount.toFixed(2)} Lacs`;
-        document.getElementById('totalExpenditureAmount').innerText = `Rs. ${totalExpenditureAmount.toFixed(2)} Lacs`;
-        document.getElementById('totalRemainingAmount').innerText = `Rs. ${totalRemainingAmount.toFixed(2)} Lacs`;
+      document.getElementById('totalProjects').innerText = totalProjects;
+      document.getElementById('TotalTechnicalSanctionedAmount').innerText = `Rs. ${totalTechnicalSanctionedAmount.toFixed(2)} Lacs`;
+      document.getElementById('totalWorkOrderAmount').innerText = `Rs. ${totalWorkOrderAmount.toFixed(2)} Lacs`;
+      document.getElementById('TotalRecievedAmount').innerText = `Rs. ${totalReceivedAmount.toFixed(2)} Lacs`;
+      document.getElementById('TotalReleasedAmount').innerText = `Rs. ${totalReleasedAmount.toFixed(2)} Lacs`;
+      document.getElementById('totalExpenditureAmount').innerText = `Rs. ${totalExpenditureAmount.toFixed(2)} Lacs`;
+      document.getElementById('totalRemainingAmount').innerText = `Rs. ${totalRemainingAmount.toFixed(2)} Lacs`;
     }
     filterTable();
-});
+  });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js" integrity="sha512-xxxxxx" crossorigin="anonymous"></script>
-  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js" integrity="sha512-xxxxxx"
+  crossorigin="anonymous"></script>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     console.log('Document loaded');
     const exportBtn = document.getElementById('exportBtn');
     const projectsTable = document.getElementById('dataTable');
 
-    exportBtn.addEventListener('click', function() {
+    exportBtn.addEventListener('click', function () {
       console.log('Export button clicked');
-      
+
       const clonedTable = projectsTable.cloneNode(true);
-      
+
       const lastColumnIndex = clonedTable.rows[0].cells.length - 1;
       for (let i = 0; i < clonedTable.rows.length; i++) {
         clonedTable.rows[i].deleteCell(lastColumnIndex);
       }
 
-      const wb = XLSX.utils.table_to_book(clonedTable, {sheet:"Projects"});
+      const wb = XLSX.utils.table_to_book(clonedTable, { sheet: "Projects" });
       XLSX.writeFile(wb, 'projects.xlsx');
     });
   });
@@ -275,63 +287,69 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
 <style>
-body {
-      font-family: 'Lato', sans-serif;
-      padding-top: 56px; 
-    }
-    .content {
-      padding-top: 20px; 
-    }
-    .sidebar {
-      position: fixed;
-      top: 56px; 
-      bottom: 0;
-      left: 0;
-      width: 200px; 
-      z-index: 1000; 
-      background-color: #ffffff;
-      border-right: 1px solid #dee2e6; 
-    }
-    .navbar {
-      box-shadow: 0px 3px 10px #bfbfbf; 
-      transition: background-color 0.3s ease; 
-    }
-    .navbar.scrolled {
-      background-color: #FFFFFF;
-      color: #ffffff; 
-    }
-    .navbar-toggler {
-      position: absolute;
-      left: 10px;
-      z-index: 1100;
-    }
-    .navbar-brand {
-      transition: transform 0.3s ease;
-    }
-    </style>
+  body {
+    font-family: 'Lato', sans-serif;
+    padding-top: 56px;
+  }
+
+  .content {
+    padding-top: 20px;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    width: 200px;
+    z-index: 1000;
+    background-color: #ffffff;
+    border-right: 1px solid #dee2e6;
+  }
+
+  .navbar {
+    box-shadow: 0px 3px 10px #bfbfbf;
+    transition: background-color 0.3s ease;
+  }
+
+  .navbar.scrolled {
+    background-color: #FFFFFF;
+    color: #ffffff;
+  }
+
+  .navbar-toggler {
+    position: absolute;
+    left: 10px;
+    z-index: 1100;
+  }
+
+  .navbar-brand {
+    transition: transform 0.3s ease;
+  }
+</style>
 
 <style>
   .total-item {
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  margin-right: 10px;
-  background-color: #f8f9fa;
-}
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+    background-color: #f8f9fa;
+  }
 
-.total-item label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
-}
+  .total-item label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
 
-.row.mb-2 {
-  white-space: nowrap;
-  overflow-x: auto;
-}
+  .row.mb-2 {
+    white-space: nowrap;
+    overflow-x: auto;
+  }
 
-.col-md-3.total-item {
-  display: inline-block;
-}
+  .col-md-3.total-item {
+    display: inline-block;
+  }
 </style>
 {% endblock %}

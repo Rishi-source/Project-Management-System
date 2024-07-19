@@ -24,7 +24,7 @@ Add Physical Progress
         </div>
         {% endif %}
       </div>
-    
+
       <form id="form-container" method="post" action="">
         {% csrf_token %}
         <div class="form-row">
@@ -33,12 +33,12 @@ Add Physical Progress
             <select class="form-control" id="id_Project" name="Project" required>
               <option value="" disabled selected>Select Project</option>
               {% for project in projects %}
-                <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
+              <option value="{{ project.id }}">{{ project.Name_Of_Project }}</option>
               {% endfor %}
             </select>
             <div class="invalid-feedback">Please select a project.</div>
           </div>
-        </div>    
+        </div>
         <div class="form-row">
           <div class="col-md-6 mb-3">
             <label for="id_Date_Of_Reporting">Date Of Reporting:</label>
@@ -48,7 +48,8 @@ Add Physical Progress
         <div class="form-row">
           <div class="col-md-4 mb-3">
             <label for="id_Physical_Progress_Percentage">Work Completed (In Percent):</label>
-            <input type="number" name="Physical_Progress_Percentage" id="id_Physical_Progress_Percentage" class="form-control" required min="0" max="100">
+            <input type="number" name="Physical_Progress_Percentage" id="id_Physical_Progress_Percentage"
+              class="form-control" required min="0" max="100">
           </div>
         </div>
         <div class="form-row">
@@ -63,7 +64,7 @@ Add Physical Progress
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-container");
     const submitButton = document.getElementById("submit-button");
     const dateInput = document.getElementById("id_Date_Of_Reporting");

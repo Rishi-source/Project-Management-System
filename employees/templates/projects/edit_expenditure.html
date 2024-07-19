@@ -8,42 +8,45 @@
         <div class="container-fluid">
             <h1>Edit Expenditure Entries for Project: {{ project.name }}</h1>
             <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Expenditure Date</th>
-                        <th>Expenditure Value</th>
-                        <th>Physical Progress (%)</th>
-                        <th>Remarks</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for expenditure in expenditures %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Expenditure Date</th>
+                            <th>Expenditure Value</th>
+                            <th>Physical Progress (%)</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expenditure in expenditures %}
                         <tr>
                             <td>{{ expenditure.Expenditure_date }}</td>
                             <td>
                                 <form method="post" action="{% url 'edit_expenditure' project_id=project.pk %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="entry_id" value="{{ expenditure.id }}">
-                                    <input type="text" name="expenditure_value" value="{{ expenditure.Expenditure_Value }}">
+                                    <input type="text" name="expenditure_value"
+                                        value="{{ expenditure.Expenditure_Value }}">
                             </td>
-                            <td><input type="number" step="0.01" name="physical_progress" value="{{ expenditure.physical_progress }}"></td>
+                            <td><input type="number" step="0.01" name="physical_progress"
+                                    value="{{ expenditure.physical_progress }}"></td>
                             <td><textarea name="remarks" rows="3">{{ expenditure.remarks }}</textarea></td>
                             <td>
                                 <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                 </form>
-                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-entry-id="{{ expenditure.id }}">Delete</button>
+                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal" data-entry-id="{{ expenditure.id }}">Delete</button>
                             </td>
                         </tr>
-                    {% empty %}
+                        {% empty %}
                         <tr>
                             <td colspan="6">No expenditure entries found.</td>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-</div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <a href="{% url 'edit_project' project_id=project.pk %}" class="btn btn-secondary">Back to Project</a>
         </div>
     </div>
@@ -58,7 +61,8 @@
             </div>
             <div class="modal-body">
                 Are you sure you want to delete this entry?<br>
-                <p style="color: red;">(This action cannot be undone and you will not be able to access the data again.)</p>
+                <p style="color: red;">(This action cannot be undone and you will not be able to access the data again.)
+                </p>
             </div>
             <div class="modal-footer">
                 <form method="post" action="{% url 'delete_expenditure' project_id=project.pk %}" id="deleteForm">

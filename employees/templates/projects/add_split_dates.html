@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  Edit Important Dates
+Edit Important Dates
 {% endblock %}
 
 {% block content %}
@@ -33,13 +33,14 @@
         </div>
         {% endif %}
       </div>
-    
+
       <form id="form-container-likely" method="post" action="">
         {% csrf_token %}
         <div class="form-row">
           <div class="col-md-3 mb-3">
             <label for="id_Likely_Date">Enter Likely Date Of Completion:</label>
-            <input type="date" name="Likely_Date" id="id_Likely_Date" class="form-control" value="{{ project.Likely_Date_Of_Completion }}" {% if project.is_completed or project.is_handed_over %}disabled{% endif %}>
+            <input type="date" name="Likely_Date" id="id_Likely_Date" class="form-control"
+              value="{{ project.Likely_Date_Of_Completion }}" {% if project.is_completed or project.is_handed_over %}disabled{% endif %}>
           </div>
         </div>
         <div class="form-row">
@@ -75,7 +76,7 @@
         <div class="form-row">
           <div class="col-md-6 mb-3">
             <a href="{% url 'view_split_project' project_id %}" class="btn btn-secondary">Back</a>
-            <button type="submit" class="btn btn-primary" id="submit-handover" {% if not project.is_handed_over %}disabled{% endif %} >Update</button>
+            <button type="submit" class="btn btn-primary" id="submit-handover" {% if not project.is_handed_over %}disabled{% endif %}>Update</button>
           </div>
         </div>
       </form>
@@ -150,7 +151,7 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     let today = new Date().toISOString().split('T')[0];
     document.getElementById('id_Likely_Date').setAttribute('min', today);
     document.getElementById('id_Completion_Date').setAttribute('max', today);

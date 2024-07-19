@@ -94,7 +94,7 @@ Add Total Expenditure
 
     function checkPhotoSizeAndCount() {
       const files = photoInput.files;
-      formErrors.innerHTML = ''; 
+      formErrors.innerHTML = '';
       if (files.length > 1) {
         formErrors.innerHTML = '<div class="alert alert-danger">You can only upload up to 1 photos.</div>';
         photoInput.value = "";

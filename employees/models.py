@@ -19,10 +19,22 @@ class Profile(models.Model):
 
 
 CLIENT_DEPARTMENT = (
-    ("Sports Department", "Sports Department"),
-    ("Skill Department", "Skill Department"),
+    ("Higher Education Department", "Higher Education Department"),
+    ("Department of Skill, Employment & Enterpreneurship", "Department of Skill, Employment & Enterpreneurship"),
+    ("Rajasthan State Sports Council", "Rajasthan State Sports Council"),
+    ("Youth Affairs & Sports( Khelo India)", "Youth Affairs & Sports( Khelo India)"),
+    ("Rajasthan State Pollution Control Board, Bhilwara", "Rajasthan State Pollution Control Board, Bhilwara"),
+    ("Government Engineering College, Ajmer", "Government Engineering College, Ajmer"),
+    ("Government Engineering College, Jhalawar", "Government Engineering College, Jhalawar"),
+    ("Shiksha Sankul Jaipur", "Shiksha Sankul Jaipur"),
+    ("Rajasthan High Court Jodhpur", "Rajasthan High Court Jodhpur"),
+    ("Science & Technology Department", "Science & Technology Department"),
+    ("ITI Ajmer", "ITI Ajmer"),
+    ("ITI Sikar", "ITI Sikar"),
+    ("ITI Sikar", "ITI Sikar"),
+    ("ITI Kishangarh", "ITI Kishangarh"),
     ("LSG Department", "LSG Department"),
-    ("Technical & Higher Education", "Technical & Higher Education"),
+    ("Industries Department","Industries Department")
 )
 DIVISION = (
     ("Udaipur", "Udaipur"),
@@ -62,14 +74,15 @@ SPLITING = [
 class Project(models.Model):
     parent_project = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='sub_projects')
     Client_Department = models.CharField(
-        max_length=40,
+        max_length=100,
         choices=CLIENT_DEPARTMENT,
         null=True, blank=True
     )
     Division = models.CharField(
         max_length=40,
         choices=DIVISION,
-        null=True, blank=True
+        null=True, blank=True,
+        verbose_name='Unit'
     )
     Budget_type = models.CharField(
         max_length=40,

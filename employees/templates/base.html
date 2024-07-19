@@ -81,15 +81,17 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand" href="{% url 'dashboard' %}">Project Management System</a>
     <div class="order-lg-2 ml-auto">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
+        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
     <div class="collapse navbar-collapse order-lg-1" id="navbarContent">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ user.username }} 
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {{ user.username }}
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="{% url 'notification' %}">Notifications</a>
@@ -99,7 +101,7 @@
       </ul>
     </div>
   </nav>
-  
+
   <style>
     @media (max-width: 768.98px) {
       .dropdown-menu {
@@ -110,23 +112,27 @@
         margin: 0;
       }
     }
+
     .navbar .navbar-toggler {
       order: 1;
     }
+
     .navbar .navbar-collapse {
       order: 2;
       width: 100%;
     }
+
     .navbar .navbar-nav {
       margin-left: auto;
     }
+
     @media (min-width: 768px) {
       .navbar .ml-auto {
-        margin-left: auto ;
+        margin-left: auto;
       }
     }
   </style>
-          
+
   <div> {% include 'partials/sidebar.html' %}
 
     <div class="container-fluid content">
@@ -153,7 +159,7 @@
       });
     });
   </script>
-  
+
   {% block extra_js %}{% endblock %}
 </body>
 

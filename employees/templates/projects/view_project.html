@@ -38,7 +38,7 @@ View Projects
 
           <div class="row mb-3 filter-control">
             <div class="col-md-6">
-              <label for="divisionFilter" class="form-label">Filter by Division:</label>
+              <label for="divisionFilter" class="form-label">Filter by Unit:</label>
               <select id="divisionFilter" class="form-select">
                 <option value="">All</option>
                 <option value="Udaipur">Udaipur</option>
@@ -53,14 +53,24 @@ View Projects
               <label for="departmentFilter" class="form-label">Filter by Client Department:</label>
               <select id="departmentFilter" class="form-select">
                 <option value="">All</option>
-                <option value="Sports Department">Sports Department</option>
-                <option value="Skill Department">Skill Department</option>
+                <option value="Higher Education Department">Higher Education Department</option>
+                <option value="Department of Skill, Employment & Enterpreneurship">Department of Skill, Employment & Enterpreneurship</option>
+                <option value="Rajasthan State Sports Council">Rajasthan State Sports Council</option>
+                <option value="Youth Affairs & Sports( Khelo India)">Youth Affairs & Sports( Khelo India)</option>
+                <option value="Rajasthan State Pollution Control Board, Bhilwara">Rajasthan State Pollution Control Board, Bhilwara</option>
+                <option value="Government Engineering College, Ajmer">Government Engineering College, Ajmer</option>
+                <option value="Government Engineering College, Jhalawar">Government Engineering College, Jhalawar</option>
+                <option value="Shiksha Sankul Jaipur">Shiksha Sankul Jaipur</option>
+                <option value="Rajasthan High Court Jodhpur">Rajasthan High Court Jodhpur</option>
+                <option value="Science & Technology Department">Science & Technology Department</option>
+                <option value="ITI Ajmer">ITI Ajmer</option>
+                <option value="ITI Sikar">ITI Sikar</option>
+                <option value="ITI Kishangarh">ITI Kishangarh</option>
                 <option value="LSG Department">LSG Department</option>
-                <option value="Technical & Higher Education">Technical & Higher Education</option>
+                <option value="Industries Department">Industries Department</option>
               </select>
             </div>
-          </div>
-
+            
           <div class="row mb-3 filter-control">
             <div class="col-md-6">
               <label for="statusFilter" class="form-label">Filter by Status:</label>
@@ -180,7 +190,7 @@ View Projects
                 <th>Financial<br>Year</th>
                 <th>Start Date</th>
                 <th>Client</th>
-                <th>Division</th>
+                <th>Unit</th>
                 <th>Budget Type</th>
                 <th>Total A&F <br>Amount</th>
                 <th>Technical Sanctioned Amount</th>
@@ -380,8 +390,8 @@ View Projects
       rows.forEach(row => {
         const division = row.getAttribute('data-division').toLowerCase();
         const department = row.getAttribute('data-department').toLowerCase();
-        const statusCell = row.querySelector('td:nth-child(16)'); 
-        const status = statusCell ? statusCell.innerText.trim().toLowerCase() : ''; 
+        const statusCell = row.querySelector('td:nth-child(16)');
+        const status = statusCell ? statusCell.innerText.trim().toLowerCase() : '';
         const budget = row.getAttribute('data-budget').toLowerCase();
 
         let showRow = true;
