@@ -66,7 +66,7 @@ View Projects
                                 <tr>
                                     <td>Amount (In Rs. Lacs)</td>
                                     {% for division, amount in yearly_data.items %}
-                                    <td>{{ amount }}</td>
+                                    <td>{{ amount|floatformat:2  }}</td>
                                     {% endfor %}
                                 </tr>
                             </tbody>
@@ -114,7 +114,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in udaipur_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>
@@ -213,7 +213,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in jodhpur_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>
@@ -312,7 +312,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in kota_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>
@@ -411,7 +411,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in bikaner_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>
@@ -510,7 +510,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in jaipur_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>
@@ -609,7 +609,7 @@ View Projects
                             <tr>
                                 <td>Amount (In Rs. Lacs)</td>
                                 {% for amount in ajmer_monthly_data %}
-                                <td>{{ amount }}</td>
+                                <td>{{ amount|floatformat:2  }}</td>
                                 {% endfor %}
                             </tr>
                         </tbody>

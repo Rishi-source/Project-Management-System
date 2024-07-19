@@ -1260,6 +1260,8 @@ def amount_released_analysis(request):
     }
     return render(request, 'projects/amount_released_analysis.html', context)
 def amount_recieved_analysis(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     user = request.user
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
@@ -1319,6 +1321,8 @@ def amount_recieved_analysis(request):
     }
     return render(request, 'projects/amount_recieved_analysis.html', context)
 def expenditure_analysis(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     user = request.user
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
@@ -1379,6 +1383,8 @@ def expenditure_analysis(request):
     }
     return render(request, 'projects/expenditure_analysis.html', context)
 def expenditure_analysis_client(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     user = request.user
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
@@ -1387,7 +1393,7 @@ def expenditure_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment and Enterpreneurship',
+        'Department of Skill, Employment & Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
@@ -1438,7 +1444,7 @@ def expenditure_analysis_client(request):
             ).aggregate(total_amount=Sum('Expenditure_Value'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment and Enterpreneurship':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1496,6 +1502,8 @@ def expenditure_analysis_client(request):
 }
     return render(request, 'projects/expenditure_analysis_client.html', context)
 def amount_released_analysis_client(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     user = request.user
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
@@ -1504,7 +1512,7 @@ def amount_released_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment and Enterpreneurship',
+        'Department of Skill, Employment '&' Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
@@ -1555,7 +1563,7 @@ def amount_released_analysis_client(request):
             ).aggregate(total_amount=Sum('Amount_Released'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment and Enterpreneurship':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
@@ -1613,6 +1621,8 @@ def amount_released_analysis_client(request):
 }
     return render(request, 'projects/amount_released_analysis_client.html', context)
 def amount_recieved_analysis_client(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     user = request.user
     if user.is_active and not (user.is_staff or user.is_superuser):
         return redirect('not_allowed')
@@ -1621,7 +1631,7 @@ def amount_recieved_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment and Enterpreneurship',
+        'Department of Skill, Employment & Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
@@ -1672,7 +1682,7 @@ def amount_recieved_analysis_client(request):
             ).aggregate(total_amount=Sum('Amount_Received'))
             if client == 'Higher Education Department':
                 Sports_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
-            elif client == 'Department of Skill, Employment and Enterpreneurship':
+            elif client == 'Department of Skill, Employment & Enterpreneurship':
                 Skill_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0
             elif client == 'Rajasthan State Sports Council':
                 LSG_Department_monthly_data[month - 1] = monthly_amounts_data['total_amount'] if monthly_amounts_data['total_amount'] else 0

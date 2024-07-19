@@ -13,8 +13,3 @@ admin.site.register(LikelyDate)
 admin.site.register(CompletionDate)
 admin.site.register(HandoverDate)
 admin.site.register(Notification)
-
-
-
-
-
