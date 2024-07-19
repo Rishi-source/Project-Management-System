@@ -74,3 +74,10 @@ DATABASE_INFO = {
 TZ = 'Asia/Kolkata'
 LANG = 'en-us'
 WSGI = 'pms.wsgi.application'
+EMAIL_END =  'django.core.mail.backends.console.EmailBackend'
+MEDIA = '/media/'
+STATIC = '/static/'
+STATIC_R = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)

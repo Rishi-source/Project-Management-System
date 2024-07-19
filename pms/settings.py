@@ -27,7 +27,7 @@ MIDDLEWARE = MIDDLEWARE
 ROOT_URLCONF = ROOT
 TEMPLATES = TEMPLATES
 WSGI_APPLICATION = WSGI
-EMAIL_BACKEND =  EMAIL_BACKEND # During development only
+EMAIL_BACKEND = EMAIL_END # During development only
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = PASSWORD_VAL
