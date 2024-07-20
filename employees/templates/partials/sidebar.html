@@ -4,6 +4,7 @@
   </button>
 
   <ul class="list-unstyled components">
+    <!-- Existing sidebar items -->
     <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" style="margin-top: 15px;">
       <a href="{% url 'dashboard' %}" class="text-dark">
         <i class="fas fa-tachometer-alt"></i> <span class="sidebar-text">Dashboard</span>
@@ -35,141 +36,155 @@
       </ul>
       <br>
       {% if user.is_superuser or user.is_staff %}
-    <li>
-      <a href="#analysis" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark">
-        <i class="fas fa-chart-bar"></i> <span class="sidebar-text">Analysis</span>
-      </a>
-      <ul class="collapse list-unstyled" id="analysis">
-        <li>
-          <a href="#by-division" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark"
-            style="margin: 10px 0;">
-            <i class="fas fa-map-marker-alt"></i> <span class="sidebar-text">By Division</span>
-          </a>
-          <ul class="collapse list-unstyled" id="by-division">
-            <li class="{% if request.resolver_match.url_name == 'amount_recieved_analysis' %}active{% endif %}"
+      <li>
+        <a href="#analysis" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark">
+          <i class="fas fa-chart-bar"></i> <span class="sidebar-text">Analysis</span>
+        </a>
+        <ul class="collapse list-unstyled" id="analysis">
+          <li>
+            <a href="#by-division" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark"
               style="margin: 10px 0;">
-              <a href="{% url 'amount_recieved_analysis' %}" class="text-dark">
-                <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Amount Received</span>
-              </a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'amount_released_analysis' %}active{% endif %}"
+              <i class="fas fa-map-marker-alt"></i> <span class="sidebar-text">By Division</span>
+            </a>
+            <ul class="collapse list-unstyled" id="by-division">
+              <li class="{% if request.resolver_match.url_name == 'amount_recieved_analysis' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'amount_recieved_analysis' %}" class="text-dark">
+                  <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Amount Received</span>
+                </a>
+              </li>
+              <li class="{% if request.resolver_match.url_name == 'amount_released_analysis' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'amount_released_analysis' %}" class="text-dark">
+                  <i class="fas fa-hand-holding-usd"></i> <span class="sidebar-text">Amount Released</span>
+                </a>
+              </li>
+              <li class="{% if request.resolver_match.url_name == 'expenditure_analysis' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'expenditure_analysis' %}" class="text-dark">
+                  <i class="fas fa-chart-pie"></i> <span class="sidebar-text">Expenditure</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="#by-client" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark"
               style="margin: 10px 0;">
-              <a href="{% url 'amount_released_analysis' %}" class="text-dark">
-                <i class="fas fa-hand-holding-usd"></i> <span class="sidebar-text">Amount Released</span>
-              </a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'expenditure_analysis' %}active{% endif %}"
-              style="margin: 10px 0;">
-              <a href="{% url 'expenditure_analysis' %}" class="text-dark">
-                <i class="fas fa-chart-pie"></i> <span class="sidebar-text">Expenditure</span>
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="#by-client" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark"
-            style="margin: 10px 0;">
-            <i class="fas fa-user-tie"></i> <span class="sidebar-text">By Client Department</span>
-          </a>
-          <ul class="collapse list-unstyled" id="by-client">
-            <li class="{% if request.resolver_match.url_name == 'amount_recieved_analysis_client' %}active{% endif %}"
-              style="margin: 10px 0;">
-              <a href="{% url 'amount_recieved_analysis_client' %}" class="text-dark">
-                <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Amount Received</span>
-              </a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'amount_released_analysis_client' %}active{% endif %}"
-              style="margin: 10px 0;">
-              <a href="{% url 'amount_released_analysis_client' %}" class="text-dark">
-                <i class="fas fa-hand-holding-usd"></i> <span class="sidebar-text">Amount Released</span>
-              </a>
-            </li>
-            <li class="{% if request.resolver_match.url_name == 'expenditure_analysis_client' %}active{% endif %}"
-              style="margin: 10px 0;">
-              <a href="{% url 'expenditure_analysis_client' %}" class="text-dark">
-                <i class="fas fa-chart-pie"></i> <span class="sidebar-text">Expenditure</span>
-              </a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  </li>
-  {% endif %}
-  </ul>
-</nav>
+              <i class="fas fa-user-tie"></i> <span class="sidebar-text">By Client Department</span>
+            </a>
+            <ul class="collapse list-unstyled" id="by-client">
+              <li class="{% if request.resolver_match.url_name == 'amount_recieved_analysis_client' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'amount_recieved_analysis_client' %}" class="text-dark">
+                  <i class="fas fa-dollar-sign"></i> <span class="sidebar-text">Amount Received</span>
+                </a>
+              </li>
+              <li class="{% if request.resolver_match.url_name == 'amount_released_analysis_client' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'amount_released_analysis_client' %}" class="text-dark">
+                  <i class="fas fa-hand-holding-usd"></i> <span class="sidebar-text">Amount Released</span>
+                </a>
+              </li>
+              <li class="{% if request.resolver_match.url_name == 'expenditure_analysis_client' %}active{% endif %}"
+                style="margin: 10px 0;">
+                <a href="{% url 'expenditure_analysis_client' %}" class="text-dark">
+                  <i class="fas fa-chart-pie"></i> <span class="sidebar-text">Expenditure</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+      <br>
+      {% if user.is_superuser %}
+      <li>
+        <a href="#user-settings" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle text-dark">
+          <i class="fas fa-user-cog"></i> <span class="sidebar-text">User Settings</span>
+        </a>
+        <ul class="collapse list-unstyled" id="user-settings">
+          <li style="margin: 10px 0;">
+            <a href="{% url 'create_user' %}" class="text-dark">
+              <i class="fas fa-user-plus"></i> <span class="sidebar-text">Create User</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
 
-<style>
-  #sidebar {
-    transition: all 0.3s ease;
-    background-color: #ffffff;
-    color: #000;
-    position: fixed;
-    left: 0;
-    top: 56px;
-    height: calc(100% - 56px);
-    z-index: 1000;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-  }
+  <style>
+    #sidebar {
+      transition: all 0.3s ease;
+      background-color: #ffffff;
+      color: #000;
+      position: fixed;
+      left: 0;
+      top: 56px;
+      height: calc(100% - 56px);
+      z-index: 1000;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
 
-  #sidebar.compact {
-    width: 60px;
-  }
+    #sidebar.compact {
+      width: 60px;
+    }
 
-  #sidebar.expanded {
-    width: 250px;
-  }
+    #sidebar.expanded {
+      width: 250px;
+    }
 
-  #sidebar .list-unstyled li a {
-    color: #000;
-    text-decoration: none;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    border-radius: 4px;
-  }
+    #sidebar .list-unstyled li a {
+      color: #000;
+      text-decoration: none;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+    }
 
-  #sidebar .list-unstyled li a:hover,
-  #sidebar .list-unstyled li.active>a {
-    background-color: #0080ff;
-    color: #fff;
-  }
+    #sidebar .list-unstyled li a:hover,
+    #sidebar .list-unstyled li.active>a {
+      background-color: #0080ff;
+      color: #fff;
+    }
 
-  #sidebar .dropdown-toggle::after {
-    display: inline-block;
-    margin-left: .255em;
-    vertical-align: .255em;
-    content: "";
-    border-top: .3em solid;
-    border-right: .3em solid transparent;
-    border-bottom: 0;
-    border-left: .3em solid transparent;
-  }
+    #sidebar .dropdown-toggle::after {
+      display: inline-block;
+      margin-left: .255em;
+      vertical-align: .255em;
+      content: "";
+      border-top: .3em solid;
+      border-right: .3em solid transparent;
+      border-bottom: 0;
+      border-left: .3em solid transparent;
+    }
 
-  #sidebar .sidebar-text {
-    display: inline-block;
-    margin-left: 10px;
-  }
+    #sidebar .sidebar-text {
+      display: inline-block;
+      margin-left: 10px;
+    }
 
-  #sidebar.compact .sidebar-text {
-    display: none;
-  }
+    #sidebar.compact .sidebar-text {
+      display: none;
+    }
 
-  #sidebar::-webkit-scrollbar {
-    width: 8px;
-  }
+    #sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
 
-  #sidebar::-webkit-scrollbar-thumb {
-    background: #9797b5;
-    border-radius: 4px;
-  }
+    #sidebar::-webkit-scrollbar-thumb {
+      background: #9797b5;
+      border-radius: 4px;
+    }
 
-  #sidebar::-webkit-scrollbar-thumb:hover {
-    background: #0056b3;
-  }
-</style>
+    #sidebar::-webkit-scrollbar-thumb:hover {
+      background: #0056b3;
+    }
+  </style>
+
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {

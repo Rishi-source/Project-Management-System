@@ -26,7 +26,7 @@ View Projects
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-          <h5 class="m-0 font-weight-bold text-primary">Projects List</h5>
+          <h5 class="m-0 font-weight-bold text-primary">Sub-Projects List</h5>
           <div>
             <button id="exportBtn" class="btn btn-success btn-sm"><i class="fas fa-file-excel"></i> Export to
               Excel</button>
@@ -39,7 +39,7 @@ View Projects
               <form id="projectSearchForm" method="GET" action="{% url 'view_split_project' project_id %}">
                 <div class="row mb-3">
                   <div class="col-md-10">
-                    <label for="searchInput" class="form-label">Search by Project Name:</label>
+                    <label for="searchInput" class="form-label">Search by Sub-Project Name:</label>
                     <div class="input-group">
                       <input type="text" id="searchInput" name="search" class="form-control"
                         placeholder="Enter project name or A&F/T.S/W.O. Number" value="{{ request.GET.search }}">

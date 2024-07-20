@@ -11,7 +11,7 @@ Add Project
     </div>
     <div class="col-md-10">
         <div class="container-fluid">
-            <h3 class="mt-4">Add Project</h3><br />
+            <h3 class="mt-4">Add Sub Project</h3><br />
 
             <div class="col-md-12 " id="messages">
                 {% if error %}
@@ -31,7 +31,7 @@ Add Project
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="col-md-6 mb-3">
-                        <label for="id_Name_Of_Project">Name of Project:</label>
+                        <label for="id_Name_Of_Project">Name of Sub-Project:</label>
                         <input type="text" name="Name_Of_Project" id="id_Name_Of_Project" class="form-control"
                             required />
                         <div class="invalid-feedback">Please enter the project name.</div>

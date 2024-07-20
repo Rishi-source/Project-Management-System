@@ -64,7 +64,10 @@ urlpatterns = [
     path('project/<int:pk>/split_pdf/', views.splitGenerateProjectPDF.as_view(), name='generate_split_project_pdf'),
     path('mark_split_project_completed/<int:project_id>/', views.mark_split_project_completed, name='mark_split_project_completed'),
     path('mark_split_project_handedover/<int:project_id>/', views.mark_split_project_handedover, name='mark_split_project_handedover'),
-
+    path('project/completed_projects', views.completed_projects, name='completed_projects'),
+    path('project/ongoing_projects', views.ongoing_projects, name='ongoing_projects'),
+    path('project/handover_projects', views.Handover_projects, name='Handover_projects'),
+    path('create-user/', views.create_user, name='create_user'),
  ]
 
 

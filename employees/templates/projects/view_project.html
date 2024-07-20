@@ -14,7 +14,19 @@ View Projects
   </div>
   <div class="col-md-10">
     <div class="container-fluid">
-      <h3 class="mt-4 mb-4">View Projects</h3>
+      {% if ongoing == True %}
+      <h3 class="mt-4 mb-4">View Ongoing Projects</h3>
+      {% endif %}
+      {% if completed == True %}
+      <h3 class="mt-4 mb-4">View Completed Projects</h3>
+      {% endif %}
+      {% if handed == True %}
+      <h3 class="mt-4 mb-4">View Handed Over Projects</h3>
+      {% endif %}
+      {% if ongoing == False and completed == False and handed == False %}
+      <h3 class="mt-4 mb-4">View All Projects</h3>
+      {% endif %}
+
 
       <div id="messages">
         {% if status %}

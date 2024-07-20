@@ -17,7 +17,6 @@ from django.db import IntegrityError
 from datetime import date
 from django.contrib import messages 
 from django.db.models import Q
-from django.shortcuts import render, redirect
 import calendar
 from django.utils.timezone import now
 from matplotlib.ticker import MaxNLocator
@@ -29,6 +28,8 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.views.generic import View
 from django.http import HttpResponseBadRequest
+from django.contrib.auth.decorators import user_passes_test
+
 # Create your views here.
 def dashboard(request):
     user =request.user
@@ -49,6 +50,54 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
+@user_passes_test(lambda u: u.is_superuser)
+def create_user(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    user = request.user
+    if not user.is_superuser:
+        return redirect('not_allowed')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user_type = request.POST.get('user_type')
+
+        if not username or not password:
+            messages.error(request, 'Username and password are required.')
+            return redirect('create_user')
+
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            return redirect('create_user')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists.')
+            return redirect('create_user')
+
+        if user_type == 'local':
+            is_active = True
+            is_staff = False
+        elif user_type == 'unit':
+            is_active = True
+            is_staff = True
+        else:
+            messages.error(request, 'Invalid user type selected.')
+            return redirect('create_user')
+
+        try:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                is_active=is_active,
+                is_staff=is_staff
+            )
+            messages.success(request, 'User created successfully.')
+        except Exception as e:
+            messages.error(request, f'Error creating user: {e}')
+            return redirect('create_user')
+    return render(request, 'projects/create_user.html')
 def login_user(request):
     if 'error' in request.session:
         del request.session['error']
@@ -720,7 +769,10 @@ def view_project(request):
         'projects': projects,
         'search_query': search_query,
         'financial_year': financial_year,
-        'status': request.GET.get('status', '') 
+        'status': request.GET.get('status', ''),
+        'ongoing':  False,
+        'completed': False,
+        'handed': False
     }
     return render(request, 'projects/view_project.html', context)
 def edit_stipulated_date(request, project_id):
@@ -964,7 +1016,7 @@ def edit_amount_received(request, project_id):
 
 @login_required
 def delete_amount_received(request, project_id):
-    user = request.user
+    user = request
     if user.is_active and user.is_staff and not user.is_superuser:
         return redirect('not_allowed')
     project = get_object_or_404(Project, pk=project_id)
@@ -1512,7 +1564,7 @@ def amount_released_analysis_client(request):
 
     clients = [
         'Higher Education Department',
-        'Department of Skill, Employment '&' Enterpreneurship',
+        'Department of Skill, Employment & Enterpreneurship',
         'Rajasthan State Sports Council',
         'Youth Affairs & Sports( Khelo India)',
         'Rajasthan State Pollution Control Board, Bhilwara',
@@ -3121,4 +3173,189 @@ def mark_split_project_handedover(request, project_id):
     query_params = urlencode({'status': status})
 
     return redirect(f"{reverse('view_split_project', args=[project.parent_project.id])}?{query_params}")
+def completed_projects(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+        
+    sprojects = Project.objects.filter(Is_Splited='Yes',is_completed = True , is_handed_over = False)
+    projects = Project.objects.filter(Is_Splited='No',is_completed = True , is_handed_over = False)
+    search_query = request.GET.get('search', None)
+    financial_year = request.GET.get('financial_year', None)
+
+    if search_query:
+        search_keywords = search_query.split()
+        q_objects = Q()
+        for keyword in search_keywords:
+            q_objects |= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+        projects = projects.filter(q_objects)
+        sprojects = sprojects.filter(q_objects)
+    if financial_year:
+        projects = projects.filter(Financial_year=financial_year)
+        sprojects = sprojects.filter(Financial_year=financial_year)
+
+    for project in projects:
+        total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_AmountReceived = AmountReceived.objects.filter(project=project).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+        project.total_expenditure_sum = total_expenditures 
+        project.total_AmountReleased = total_AmountReleased
+        project.total_AmountReceived = total_AmountReceived
+
+    for sproject in sprojects:
+        projs = Project.objects.filter(parent_project=sproject)
+        if not projs.exists():
+            sproject.total_technical_sanctioned_sum = 0
+            sproject.total_work_order = 0
+            sproject.total_expenditure_sum = 0
+            sproject.total_AmountReleased = 0
+            sproject.total_AmountReceived = 0
+            continue
+
+        total_technical_sanctioned = projs.aggregate(Sum('Technical_Sanctioned_Amount'))['Technical_Sanctioned_Amount__sum'] or 0
+        total_work_order = projs.aggregate(Sum('Work_order_Amount'))['Work_order_Amount__sum'] or 0
+        total_expenditure = Expenditure.objects.filter(project__in=projs).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_amountReleased = AmountReleased.objects.filter(project__in=projs).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_amountReceived = AmountReceived.objects.filter(project__in=projs).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+
+        sproject.total_technical_sanctioned_sum = total_technical_sanctioned 
+        sproject.total_work_order = total_work_order
+        sproject.total_expenditure_sum = total_expenditure 
+        sproject.total_AmountReleased = total_amountReleased
+        sproject.total_AmountReceived = total_amountReceived
+
+    context = {
+        'user': user,
+        'sprojects': sprojects,
+        'projects': projects,
+        'search_query': search_query,
+        'financial_year': financial_year,
+        'status': request.GET.get('status', '') ,
+        'completed':True
+    }
+    return render(request, 'projects/view_project.html', context)
+
+def ongoing_projects(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+        
+    sprojects = Project.objects.filter(Is_Splited='Yes',is_completed = False , is_handed_over = False)
+    projects = Project.objects.filter(Is_Splited='No',is_completed = False , is_handed_over = False)
+    search_query = request.GET.get('search', None)
+    financial_year = request.GET.get('financial_year', None)
+
+    if search_query:
+        search_keywords = search_query.split()
+        q_objects = Q()
+        for keyword in search_keywords:
+            q_objects |= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+        projects = projects.filter(q_objects)
+        sprojects = sprojects.filter(q_objects)
+    if financial_year:
+        projects = projects.filter(Financial_year=financial_year)
+        sprojects = sprojects.filter(Financial_year=financial_year)
+
+    for project in projects:
+        total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_AmountReceived = AmountReceived.objects.filter(project=project).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+        project.total_expenditure_sum = total_expenditures 
+        project.total_AmountReleased = total_AmountReleased
+        project.total_AmountReceived = total_AmountReceived
+
+    for sproject in sprojects:
+        projs = Project.objects.filter(parent_project=sproject)
+        if not projs.exists():
+            sproject.total_technical_sanctioned_sum = 0
+            sproject.total_work_order = 0
+            sproject.total_expenditure_sum = 0
+            sproject.total_AmountReleased = 0
+            sproject.total_AmountReceived = 0
+            continue
+
+        total_technical_sanctioned = projs.aggregate(Sum('Technical_Sanctioned_Amount'))['Technical_Sanctioned_Amount__sum'] or 0
+        total_work_order = projs.aggregate(Sum('Work_order_Amount'))['Work_order_Amount__sum'] or 0
+        total_expenditure = Expenditure.objects.filter(project__in=projs).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_amountReleased = AmountReleased.objects.filter(project__in=projs).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_amountReceived = AmountReceived.objects.filter(project__in=projs).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+
+        sproject.total_technical_sanctioned_sum = total_technical_sanctioned 
+        sproject.total_work_order = total_work_order
+        sproject.total_expenditure_sum = total_expenditure 
+        sproject.total_AmountReleased = total_amountReleased
+        sproject.total_AmountReceived = total_amountReceived
+
+    context = {
+        'user': user,
+        'sprojects': sprojects,
+        'projects': projects,
+        'search_query': search_query,
+        'financial_year': financial_year,
+        'status': request.GET.get('status', '') ,
+        'ongoing':True
+    }
+    return render(request, 'projects/view_project.html', context)
+def Handover_projects(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+        
+    sprojects = Project.objects.filter(Is_Splited='Yes',is_completed = True , is_handed_over = True)
+    projects = Project.objects.filter(Is_Splited='No',is_completed = True , is_handed_over = True)
+    search_query = request.GET.get('search', None)
+    financial_year = request.GET.get('financial_year', None)
+
+    if search_query:
+        search_keywords = search_query.split()
+        q_objects = Q()
+        for keyword in search_keywords:
+            q_objects |= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+        projects = projects.filter(q_objects)
+        sprojects = sprojects.filter(q_objects)
+    if financial_year:
+        projects = projects.filter(Financial_year=financial_year)
+        sprojects = sprojects.filter(Financial_year=financial_year)
+
+    for project in projects:
+        total_expenditures = Expenditure.objects.filter(project=project).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_AmountReleased = AmountReleased.objects.filter(project=project).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_AmountReceived = AmountReceived.objects.filter(project=project).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+        project.total_expenditure_sum = total_expenditures 
+        project.total_AmountReleased = total_AmountReleased
+        project.total_AmountReceived = total_AmountReceived
+
+    for sproject in sprojects:
+        projs = Project.objects.filter(parent_project=sproject)
+        if not projs.exists():
+            sproject.total_technical_sanctioned_sum = 0
+            sproject.total_work_order = 0
+            sproject.total_expenditure_sum = 0
+            sproject.total_AmountReleased = 0
+            sproject.total_AmountReceived = 0
+            continue
+
+        total_technical_sanctioned = projs.aggregate(Sum('Technical_Sanctioned_Amount'))['Technical_Sanctioned_Amount__sum'] or 0
+        total_work_order = projs.aggregate(Sum('Work_order_Amount'))['Work_order_Amount__sum'] or 0
+        total_expenditure = Expenditure.objects.filter(project__in=projs).aggregate(Sum('Expenditure_Value'))['Expenditure_Value__sum'] or 0
+        total_amountReleased = AmountReleased.objects.filter(project__in=projs).aggregate(Sum('Amount_Released'))['Amount_Released__sum'] or 0
+        total_amountReceived = AmountReceived.objects.filter(project__in=projs).aggregate(Sum('Amount_Received'))['Amount_Received__sum'] or 0
+
+        sproject.total_technical_sanctioned_sum = total_technical_sanctioned 
+        sproject.total_work_order = total_work_order
+        sproject.total_expenditure_sum = total_expenditure 
+        sproject.total_AmountReleased = total_amountReleased
+        sproject.total_AmountReceived = total_amountReceived
+
+    context = {
+        'user': user,
+        'sprojects': sprojects,
+        'projects': projects,
+        'search_query': search_query,
+        'financial_year': financial_year,
+        'status': request.GET.get('status', '') ,
+        'handed':True
+    }
+    return render(request, 'projects/view_project.html', context)
+
 

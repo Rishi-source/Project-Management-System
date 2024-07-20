@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Create User{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-4">Create New User</h2>
+      <div id="copyStatus" class="alert d-none"></div>
+
+      {% if messages %}
+        <div class="alert alert-danger">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form id="createUserForm" method="post" action="{% url 'create_user' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" required aria-describedby="usernameHelp">
+          <div id="usernameHelp" class="form-text">Choose a unique username.</div>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-group">
+            <input type="password" class="form-control" id="password" name="password" required aria-describedby="passwordHelp">
+            <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Toggle Password Visibility">
+              <i class="fa fa-eye"></i>
+            </button>
+            <button class="btn btn-outline-secondary" type="button" id="copyPassword" aria-label="Copy Username and Password">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div id="passwordHelp" class="form-text">
+            Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.
+          </div>
+          <div class="progress mt-2">
+            <div id="passwordStrengthBar" class="progress-bar" role="progressbar" style="width: 0;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="invalid-feedback" id="passwordError"></div>
+        </div>
+        <div class="mb-3">
+          <label for="user_type" class="form-label">User Type</label>
+          <select class="form-control" id="user_type" name="user_type" required aria-describedby="userTypeHelp">
+            <option value="local">Local Level User</option>
+            <option value="unit">Unit Level User</option>
+          </select>
+          <div id="userTypeHelp" class="form-text">Select the appropriate user type.</div>
+        </div>
+        <input type="hidden" id="is_active" name="is_active" value="true">
+        <input type="hidden" id="is_staff" name="is_staff" value="false">
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-secondary" id="generatePassword">Generate Random Password</button>
+          <button type="submit" class="btn btn-success">Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .card {
+    animation: fadeIn 1s ease-in-out;
+  }
+  .progress-bar.weak {
+    background-color: #dc3545;
+  }
+  .progress-bar.medium {
+    background-color: #ffc107;
+  }
+  .progress-bar.strong {
+    background-color: #28a745; 
+  }
+  .progress-bar.super-strong {
+    background-color: #007bff;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .btn {
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+  }
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('generatePassword').addEventListener('click', function () {
+    const password = generateRandomPassword();
+    document.getElementById('password').value = password;
+    checkPasswordStrength(password);
+  });
+
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordField = document.getElementById('password');
+    const passwordFieldType = passwordField.type === 'password' ? 'text' : 'password';
+    passwordField.type = passwordFieldType;
+    this.querySelector('i').classList.toggle('fa-eye');
+    this.querySelector('i').classList.toggle('fa-eye-slash');
+  });
+
+  document.getElementById('copyPassword').addEventListener('click', function () {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const copyText = `username: "${username}"\npassword: "${password}"`;
+    navigator.clipboard.writeText(copyText).then(function() {
+      showCopyStatus('Username and Password copied to clipboard', 'alert-success');
+    }, function() {
+      showCopyStatus('Failed to copy', 'alert-danger');
+    });
+  });
+
+  function generateRandomPassword() {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
+    let password = "";
+    while (!isValidPassword(password)) {
+      password = "";
+      for (let i = 0; i < length; i++) {
+        const randomPoz = Math.floor(Math.random() * charset.length);
+        password += charset[randomPoz];
+      }
+    }
+    return password;
+  }
+
+  function isValidPassword(password) {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  }
+
+  document.getElementById('password').addEventListener('input', function () {
+    checkPasswordStrength(this.value);
+  });
+
+  function checkPasswordStrength(password) {
+    const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+    const passwordRegexWeak = /^.{8,}$/;
+    const passwordRegexMedium = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const passwordRegexStrong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    const passwordRegexSuperStrong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{12,}$/;
+
+    passwordStrengthBar.className = 'progress-bar';  
+    passwordStrengthBar.style.width = '0'; 
+    if (passwordRegexSuperStrong.test(password)) {
+      passwordStrengthBar.classList.add('progress-bar.super-strong');
+      passwordStrengthBar.style.width = '100%';
+      passwordStrengthBar.setAttribute('aria-valuenow', '100');
+    } else if (passwordRegexStrong.test(password)) {
+      passwordStrengthBar.classList.add('progress-bar.strong');
+      passwordStrengthBar.style.width = '75%';
+      passwordStrengthBar.setAttribute('aria-valuenow', '75');
+    } else if (passwordRegexMedium.test(password)) {
+      passwordStrengthBar.classList.add('progress-bar.medium');
+      passwordStrengthBar.style.width = '50%';
+      passwordStrengthBar.setAttribute('aria-valuenow', '50');
+    } else if (passwordRegexWeak.test(password)) {
+      passwordStrengthBar.classList.add('.progress-bar.weak');
+      passwordStrengthBar.style.width = '25%';
+      passwordStrengthBar.setAttribute('aria-valuenow', '25');
+    } else {
+      passwordStrengthBar.classList.remove('weak', 'medium', 'strong', 'super-strong');
+    }
+  }
+
+  function showCopyStatus(message, statusClass) {
+    const statusElement = document.getElementById('copyStatus');
+    statusElement.className = `alert ${statusClass}`;
+    statusElement.textContent = message;
+    statusElement.classList.remove('d-none');
+    setTimeout(() => statusElement.classList.add('d-none'), 3000);
+  }
+</script>
+{% endblock %}
