@@ -29,6 +29,7 @@ from xhtml2pdf import pisa
 from django.views.generic import View
 from django.http import HttpResponseBadRequest
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import update_session_auth_hash
 
 # Create your views here.
 def dashboard(request):
@@ -36,9 +37,15 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect('login')
     # ,Is_Splited='Yes',Is_Splited='No'
-    ongoing_count = Project.objects.filter(is_completed=False, is_handed_over=False).count()
-    completed_count = Project.objects.filter(is_completed=True, is_handed_over=False).count()
-    handedover_count = Project.objects.filter(is_completed=True, is_handed_over=True).count()
+    songoing_count = Project.objects.filter(Is_Splited = 'Yes' ,is_completed=False, is_handed_over=False).count()
+    nsongoing_count = Project.objects.filter(Is_Splited = 'No' ,is_completed=False, is_handed_over=False).count()
+    ongoing_count = songoing_count+nsongoing_count
+    scompleted_count = Project.objects.filter(is_completed=True, is_handed_over=False,Is_Splited = 'Yes').count()
+    nscompleted_count = Project.objects.filter(is_completed=True, is_handed_over=False,Is_Splited = 'No').count()
+    completed_count = scompleted_count + nscompleted_count
+    shandedover_count = Project.objects.filter(is_completed=True, is_handed_over=True,Is_Splited = 'Yes').count()
+    nshandedover_count = Project.objects.filter(is_completed=True, is_handed_over=True,Is_Splited = 'No').count()
+    handedover_count = shandedover_count + nshandedover_count
     notifications = Notification.objects.order_by('-Date', '-time')[:50]
 
     context = {
@@ -50,6 +57,30 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+def change_password(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password != confirm_password:
+            error =  "New passwords do not match."
+            return render(request, 'change_password.html' , {'error':error})
+
+        user = request.user
+        if not user.check_password(old_password):
+            error= "Current password is incorrect."
+            return render(request, 'change_password.html',{'error':error})
+
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(request, user)
+        success = "Your password was successfully updated!"
+        return render(request, 'change_password.html',{'success':success})
+
+    return render(request, 'change_password.html')
 
 @user_passes_test(lambda u: u.is_superuser)
 def create_user(request):
@@ -716,7 +747,6 @@ def view_project(request):
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
-        
     sprojects = Project.objects.filter(Is_Splited='Yes')
     projects = Project.objects.filter(Is_Splited='No')
     search_query = request.GET.get('search', None)
@@ -726,7 +756,7 @@ def view_project(request):
         search_keywords = search_query.split()
         q_objects = Q()
         for keyword in search_keywords:
-            q_objects |= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
+            q_objects &= Q(Name_Of_Project__icontains=keyword) | Q(A_and_F_Number__icontains=keyword) | Q(Technical_Sanctioned_Number__icontains=keyword) | Q(Work_order_Number__icontains=keyword)
         projects = projects.filter(q_objects)
         sprojects = sprojects.filter(q_objects)
     if financial_year:
