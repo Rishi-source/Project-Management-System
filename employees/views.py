@@ -30,6 +30,7 @@ from django.views.generic import View
 from django.http import HttpResponseBadRequest
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import update_session_auth_hash
+import json
 
 # Create your views here.
 def dashboard(request):

@@ -120,10 +120,8 @@ class Project(models.Model):
     Reporting_Date = models.DateField(default=datetime.date.today, editable=False, null=True, blank=True)
 
 
-
     def __str__(self):
         return self.Name_Of_Project
-
     class Meta:
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
