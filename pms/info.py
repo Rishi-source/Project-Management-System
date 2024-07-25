@@ -63,12 +63,8 @@ PASSWORD_VAL =  [
 EMAIL = 'django.db.models.BigAutoField'
 DATABASE_INFO = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'PMS', 
-        'USER': 'postgres',
-        'PASSWORD': PASSWORD , 
-        'HOST': '127.0.0.1', 
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqllite', 
     }
 }
 TZ = 'Asia/Kolkata'
